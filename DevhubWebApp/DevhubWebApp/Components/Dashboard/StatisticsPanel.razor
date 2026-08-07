@@ -1,0 +1,35 @@
+@inherits DashboardSectionBase
+
+@* Counter row. Values come from IDashboardService — none of them is computed in the markup. *@
+
+@if (IsLoading)
+{
+    <LoadingSkeleton Variant="SkeletonVariant.Block" Height="96px" Class="mb-4" />
+}
+else if (ErrorMessage is not null)
+{
+    <AppCard Class="mb-4">
+        <ErrorState Title="Statistics unavailable"
+                    Description="The counters could not be read from local storage."
+                    Detail="@ErrorMessage"
+                    Dense="true"
+                    OnRetry="ReloadAsync" />
+    </AppCard>
+}
+else
+{
+    <MudGrid Spacing="3" Class="mb-2">
+        @foreach (var tile in _tiles)
+        {
+            <MudItem xs="6" md="4" xl="2" @key="tile.Label">
+                <StatCard Label="@tile.Label"
+                          Value="@tile.Value"
+                          Hint="@tile.Hint"
+                          Icon="@tile.Icon"
+                          Color="@tile.Color"
+                          Interactive="@(tile.Route is not null)"
+                          OnClick="@(_ => Navigate(tile.Route))" />
+            </MudItem>
+        }
+    </MudGrid>
+}

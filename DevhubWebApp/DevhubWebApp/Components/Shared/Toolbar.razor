@@ -1,0 +1,41 @@
+@*
+    Action strip for tool workspaces: left-aligned primary actions, right-aligned utilities,
+    separated by an automatic spacer. Wraps on narrow viewports instead of overflowing.
+*@
+
+<div class="@CssClass" role="toolbar">
+    @if (ChildContent is not null)
+    {
+        <div class="devhub-toolbar__group">@ChildContent</div>
+    }
+
+    <div class="devhub-toolbar__spacer"></div>
+
+    @if (EndContent is not null)
+    {
+        <div class="devhub-toolbar__group">@EndContent</div>
+    }
+</div>
+
+@code {
+    /// <summary>Left-aligned content, typically the primary actions.</summary>
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    /// <summary>Right-aligned content, typically copy/download/reset utilities.</summary>
+    [Parameter] public RenderFragment? EndContent { get; set; }
+
+    /// <summary>Draws a surface background and border around the strip.</summary>
+    [Parameter] public bool Bordered { get; set; } = true;
+
+    /// <summary>Reduces vertical padding for use inside cards.</summary>
+    [Parameter] public bool Dense { get; set; }
+
+    /// <summary>Extra CSS classes appended to the root element.</summary>
+    [Parameter] public string? Class { get; set; }
+
+    private string CssClass => new CssBuilder("devhub-toolbar")
+        .AddClass("devhub-toolbar--bordered", Bordered)
+        .AddClass("devhub-toolbar--dense", Dense)
+        .AddClass(Class)
+        .Build();
+}

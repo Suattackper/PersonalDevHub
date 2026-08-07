@@ -1,0 +1,31 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "devhub",
+      "runtimeExecutable": "dotnet",
+      "runtimeArgs": [
+        "run",
+        "--project",
+        "DevhubWebApp/DevhubWebApp/DevhubWebApp.csproj",
+        "--urls",
+        "http://localhost:5199"
+      ],
+      "port": 5199
+    },
+    {
+      "name": "devhub-release",
+      "runtimeExecutable": "dotnet",
+      "runtimeArgs": [
+        "run",
+        "-c",
+        "Release",
+        "--project",
+        "DevhubWebApp/DevhubWebApp/DevhubWebApp.csproj",
+        "--urls",
+        "http://localhost:5200"
+      ],
+      "port": 5200
+    }
+  ]
+}

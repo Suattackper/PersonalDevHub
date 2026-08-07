@@ -1,0 +1,56 @@
+@*
+    Heading for a block inside a page: icon, label, optional counter and trailing actions.
+    Replaces ad-hoc heading markup so every section aligns identically.
+*@
+
+<div class="devhub-section-title @Class">
+    <div class="devhub-section-title__main">
+        @if (!string.IsNullOrWhiteSpace(Icon))
+        {
+            <MudIcon Icon="@Icon" Size="Size.Small" Color="@IconColor" />
+        }
+        <MudText Typo="@Typo" HtmlTag="@HtmlTag">@Title</MudText>
+        @if (Count is > 0)
+        {
+            <Badge Text="@Count.Value.ToString(CultureInfo.InvariantCulture)" Color="Color.Default" />
+        }
+        @if (!string.IsNullOrWhiteSpace(Description))
+        {
+            <MudText Typo="Typo.caption" Class="mud-text-secondary ml-2">@Description</MudText>
+        }
+    </div>
+
+    @if (Actions is not null)
+    {
+        <div class="devhub-section-title__actions">@Actions</div>
+    }
+</div>
+
+@code {
+    /// <summary>Section label.</summary>
+    [Parameter, EditorRequired] public string Title { get; set; } = string.Empty;
+
+    /// <summary>Optional leading icon.</summary>
+    [Parameter] public string? Icon { get; set; }
+
+    /// <summary>Color of the leading icon.</summary>
+    [Parameter] public Color IconColor { get; set; } = Color.Primary;
+
+    /// <summary>Optional item counter rendered as a badge. Values below one are hidden.</summary>
+    [Parameter] public int? Count { get; set; }
+
+    /// <summary>Short inline hint shown after the title.</summary>
+    [Parameter] public string? Description { get; set; }
+
+    /// <summary>Typography of the label. Defaults to a subtitle scale.</summary>
+    [Parameter] public Typo Typo { get; set; } = Typo.subtitle1;
+
+    /// <summary>Semantic heading tag, so the document outline stays correct.</summary>
+    [Parameter] public string HtmlTag { get; set; } = "h2";
+
+    /// <summary>Trailing content, typically buttons or a menu.</summary>
+    [Parameter] public RenderFragment? Actions { get; set; }
+
+    /// <summary>Extra CSS classes appended to the root element.</summary>
+    [Parameter] public string? Class { get; set; }
+}

@@ -1,0 +1,62 @@
+@*
+    One row in a settings list: label, description and the control on the right. Keeps every
+    preference row aligned regardless of which control it hosts.
+*@
+
+<div class="@CssClass">
+    <div class="devhub-setting__text">
+        <div class="devhub-setting__label">
+            @if (!string.IsNullOrWhiteSpace(Icon))
+            {
+                <MudIcon Icon="@Icon" Size="Size.Small" Color="@IconColor" />
+            }
+            <MudText Typo="Typo.subtitle2">@Label</MudText>
+            @if (!string.IsNullOrWhiteSpace(BadgeText))
+            {
+                <Badge Text="@BadgeText" Color="@BadgeColor" />
+            }
+        </div>
+        @if (!string.IsNullOrWhiteSpace(Description))
+        {
+            <MudText Typo="Typo.caption" Class="mud-text-secondary">@Description</MudText>
+        }
+    </div>
+
+    <div class="devhub-setting__control">
+        @ChildContent
+    </div>
+</div>
+
+@code {
+    /// <summary>Setting name.</summary>
+    [Parameter, EditorRequired] public string Label { get; set; } = string.Empty;
+
+    /// <summary>What the setting does, in one sentence.</summary>
+    [Parameter] public string? Description { get; set; }
+
+    /// <summary>Optional leading icon.</summary>
+    [Parameter] public string? Icon { get; set; }
+
+    /// <summary>Color of the leading icon.</summary>
+    [Parameter] public Color IconColor { get; set; } = Color.Default;
+
+    /// <summary>Optional badge, e.g. "Experimental".</summary>
+    [Parameter] public string? BadgeText { get; set; }
+
+    /// <summary>Color of the optional badge.</summary>
+    [Parameter] public Color BadgeColor { get; set; } = Color.Warning;
+
+    /// <summary>The control bound to the setting: switch, select, button…</summary>
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    /// <summary>Removes the bottom divider, for the last row in a group.</summary>
+    [Parameter] public bool Last { get; set; }
+
+    /// <summary>Extra CSS classes appended to the root element.</summary>
+    [Parameter] public string? Class { get; set; }
+
+    private string CssClass => new CssBuilder("devhub-setting")
+        .AddClass("devhub-setting--last", Last)
+        .AddClass(Class)
+        .Build();
+}

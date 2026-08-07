@@ -1,0 +1,63 @@
+@*
+    Small status label. Non-interactive by design — use Chip when the user can act on it.
+*@
+
+<span class="@CssClass" style="@Style">
+    @if (!string.IsNullOrWhiteSpace(Icon))
+    {
+        <MudIcon Icon="@Icon" Size="Size.Small" Class="devhub-badge__icon" />
+    }
+    @if (ChildContent is not null)
+    {
+        @ChildContent
+    }
+    else
+    {
+        @Text
+    }
+</span>
+
+@code {
+    /// <summary>Label text. Ignored when <see cref="ChildContent"/> is supplied.</summary>
+    [Parameter] public string? Text { get; set; }
+
+    /// <summary>Optional leading icon.</summary>
+    [Parameter] public string? Icon { get; set; }
+
+    /// <summary>Theme color. Drives text and background tint; never a hardcoded value.</summary>
+    [Parameter] public Color Color { get; set; } = Color.Default;
+
+    /// <summary>Renders a filled badge instead of the default tinted one.</summary>
+    [Parameter] public bool Filled { get; set; }
+
+    /// <summary>Custom badge content.</summary>
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    /// <summary>Extra CSS classes appended to the root element.</summary>
+    [Parameter] public string? Class { get; set; }
+
+    /// <summary>
+    /// Colors come from MudBlazor palette variables, so both themes are handled by the theme
+    /// provider. <see cref="MudBlazor.Color.Default"/> falls back to the neutral CSS class.
+    /// </summary>
+    private string Style
+    {
+        get
+        {
+            if (Color == Color.Default)
+            {
+                return string.Empty;
+            }
+
+            var token = Color.ToDescriptionString();
+            return Filled
+                ? $"background-color: var(--mud-palette-{token}); color: var(--mud-palette-{token}-text);"
+                : $"color: var(--mud-palette-{token}); background-color: var(--mud-palette-{token}-hover);";
+        }
+    }
+
+    private string CssClass => new CssBuilder("devhub-badge")
+        .AddClass("devhub-badge--filled", Filled)
+        .AddClass(Class)
+        .Build();
+}

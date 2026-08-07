@@ -1,0 +1,85 @@
+@*
+    One input side of a comparison: paste, upload, drop or type. Both sides use this component, so
+    the two panels can never drift apart in behaviour.
+*@
+
+<AppCard Class="devhub-diff-source">
+    <Header>
+        <div class="devhub-card__heading">
+            <MudIcon Icon="@Icon" Size="Size.Small" Color="Color.Primary" />
+            <MudText Typo="Typo.subtitle2">@Title</MudText>
+            <Badge Text="@($"{LineCount:N0} lines")" />
+        </div>
+    </Header>
+    <Actions>
+        <IconButton Icon="@Icons.Material.Filled.ContentPaste" Tooltip="@($"Paste into {Title}")" OnClick="PasteAsync" />
+        <IconButton Icon="@Icons.Material.Filled.Clear" Tooltip="@($"Clear {Title}")" Disabled="@IsEmpty" OnClick="ClearAsync" />
+    </Actions>
+    <ChildContent>
+        <MudTextField T="string"
+                      Value="@Text"
+                      ValueChanged="OnTextChangedAsync"
+                      Immediate="true"
+                      DebounceInterval="AppConstants.DebounceMilliseconds"
+                      Variant="Variant.Outlined"
+                      Lines="8"
+                      Class="devhub-diff-source__input"
+                      Placeholder="@Placeholder"
+                      aria-label="@Title" />
+
+        <FileDropZone Accept=".txt,.md,.json,.xml,.csv,.log,.cs,.js,.ts"
+                      Title="@($"Drop a file into {Title}")"
+                      Hint="or click to browse"
+                      Dense="true"
+                      Class="mt-2"
+                      OnFileLoaded="OnFileLoadedAsync" />
+    </ChildContent>
+</AppCard>
+
+@code {
+    /// <summary>Panel heading, e.g. "Original" or "Changed".</summary>
+    [Parameter, EditorRequired] public string Title { get; set; } = string.Empty;
+
+    /// <summary>Heading icon.</summary>
+    [Parameter] public string Icon { get; set; } = Icons.Material.Filled.Description;
+
+    /// <summary>Current text of this side.</summary>
+    [Parameter] public string Text { get; set; } = string.Empty;
+
+    /// <summary>Raised whenever the text changes, from typing, pasting, dropping or clearing.</summary>
+    [Parameter] public EventCallback<string> TextChanged { get; set; }
+
+    /// <summary>Placeholder shown while the panel is empty.</summary>
+    [Parameter] public string Placeholder { get; set; } = "Paste or type text here…";
+
+    [Inject] private IBrowserInteropService Interop { get; set; } = default!;
+
+    [Inject] private INotificationService Notifications { get; set; } = default!;
+
+    private bool IsEmpty => string.IsNullOrEmpty(Text);
+
+    private int LineCount => IsEmpty ? 0 : Text.AsSpan().Count('\n') + 1;
+
+    private Task OnTextChangedAsync(string? value) => TextChanged.InvokeAsync(value ?? string.Empty);
+
+    private async Task PasteAsync()
+    {
+        var clipboard = await Interop.ReadClipboardAsync();
+
+        if (string.IsNullOrEmpty(clipboard))
+        {
+            Notifications.Warning("Clipboard is empty or not readable in this browser.");
+            return;
+        }
+
+        await TextChanged.InvokeAsync(clipboard);
+    }
+
+    private Task ClearAsync() => TextChanged.InvokeAsync(string.Empty);
+
+    private async Task OnFileLoadedAsync(FileDropResult file)
+    {
+        await TextChanged.InvokeAsync(file.Text ?? string.Empty);
+        Notifications.Success($"Loaded {file.FileName} into {Title}.");
+    }
+}

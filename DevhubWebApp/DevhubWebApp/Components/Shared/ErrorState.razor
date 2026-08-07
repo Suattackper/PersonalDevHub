@@ -1,0 +1,53 @@
+@*
+    Failure surface. Shows a human-readable message and, when supplied, the technical detail behind
+    a collapsible section so the UI stays calm but debugging stays possible.
+*@
+
+<StateMessage Icon="@Icon"
+              Title="@Title"
+              Description="@Description"
+              ActionText="@RetryText"
+              ActionIcon="@Icons.Material.Filled.Refresh"
+              OnAction="OnRetry"
+              Accent="Color.Error"
+              Dense="@Dense"
+              Class="@Class">
+    @if (!string.IsNullOrWhiteSpace(Detail))
+    {
+        <MudExpansionPanels Elevation="0" Class="devhub-state__detail mt-4">
+            <MudExpansionPanel Text="Technical detail" Dense="true">
+                <pre class="devhub-state__detail-text">@Detail</pre>
+            </MudExpansionPanel>
+        </MudExpansionPanels>
+    }
+    @ChildContent
+</StateMessage>
+
+@code {
+    /// <summary>Icon representing the failure.</summary>
+    [Parameter] public string Icon { get; set; } = Icons.Material.Outlined.ErrorOutline;
+
+    /// <summary>Short, non-technical headline.</summary>
+    [Parameter] public string Title { get; set; } = "Something went wrong";
+
+    /// <summary>What the user can do about it.</summary>
+    [Parameter] public string? Description { get; set; }
+
+    /// <summary>Raw exception text or diagnostic payload, hidden behind an expander.</summary>
+    [Parameter] public string? Detail { get; set; }
+
+    /// <summary>Label of the retry button. The button is hidden when <see cref="OnRetry"/> has no handler.</summary>
+    [Parameter] public string? RetryText { get; set; } = "Try again";
+
+    /// <summary>Raised when the retry button is clicked.</summary>
+    [Parameter] public EventCallback OnRetry { get; set; }
+
+    /// <summary>Compact variant for use inside cards and panels.</summary>
+    [Parameter] public bool Dense { get; set; }
+
+    /// <summary>Additional content placed below the action.</summary>
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    /// <summary>Extra CSS classes appended to the root element.</summary>
+    [Parameter] public string? Class { get; set; }
+}

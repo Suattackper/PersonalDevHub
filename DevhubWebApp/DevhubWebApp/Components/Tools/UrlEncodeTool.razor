@@ -1,0 +1,76 @@
+@attribute [Tool(ToolIds.Url,
+              "URL Encode",
+              ToolCategories.EncodersId,
+              "Percent-encode and decode URL components.",
+              Icons.Material.Filled.Link,
+              Order = 20,
+              Keywords = new[] { "percent", "escape", "uri", "query" })]
+
+@using DevhubWebApp.Models.Tools.Url
+@inherits ToolComponentBase<UrlWorkspace>
+
+@* Escaping rules live in UrlToolkit; this component only binds them to the UI. *@
+
+<Toolbar Class="mb-3">
+    <ChildContent>
+        <Chip Text="Encode" Icon="@Icons.Material.Filled.Lock" Color="Color.Primary"
+              Selected="@Workspace.IsEncoding" OnClick="@(() => SetDirectionAsync(true))" />
+        <Chip Text="Decode" Icon="@Icons.Material.Filled.LockOpen" Color="Color.Primary"
+              Selected="@(!Workspace.IsEncoding)" OnClick="@(() => SetDirectionAsync(false))" />
+
+        @if (Workspace.IsEncoding)
+        {
+            <MudDivider Vertical="true" FlexItem="true" Class="mx-1" />
+            <Chip Text="Component" Icon="@Icons.Material.Filled.DataObject" Color="Color.Secondary"
+                  Selected="@Workspace.ComponentMode" OnClick="@(() => SetScopeAsync(true))" />
+            <Chip Text="Whole URL" Icon="@Icons.Material.Filled.Public" Color="Color.Secondary"
+                  Selected="@(!Workspace.ComponentMode)" OnClick="@(() => SetScopeAsync(false))" />
+        }
+    </ChildContent>
+
+    <EndContent>
+        <IconButton Icon="@Icons.Material.Filled.ContentPaste" Tooltip="Paste from clipboard" OnClick="PasteAsync" />
+        <IconButton Icon="@Icons.Material.Filled.SwapVert" Tooltip="Use result as input" Disabled="@IsEmpty" OnClick="SwapAsync" />
+        <CopyButton Text="@_output" IconOnly="true" />
+        <IconButton Icon="@Icons.Material.Filled.Download" Tooltip="Download result (Ctrl+S)" Disabled="@IsEmpty" OnClick="DownloadResultAsync" />
+    </EndContent>
+</Toolbar>
+
+<MudGrid Spacing="3">
+    <MudItem xs="12" md="6">
+        <AppCard Title="Input" Icon="@Icons.Material.Filled.Input">
+            <MudTextField T="string"
+                          Value="@Workspace.Input"
+                          ValueChanged="OnInputChangedAsync"
+                          Immediate="true"
+                          DebounceInterval="AppConstants.DebounceMilliseconds"
+                          Variant="Variant.Outlined"
+                          Lines="8"
+                          Class="devhub-mono-field"
+                          Placeholder="@(Workspace.IsEncoding ? "Text or URL to encode…" : "Percent-encoded text to decode…")"
+                          aria-label="Input" />
+        </AppCard>
+    </MudItem>
+
+    <MudItem xs="12" md="6">
+        <AppCard Title="Result" Icon="@Icons.Material.Filled.Output" Subtitle="@ScopeDescription">
+            @if (IsEmpty)
+            {
+                <EmptyState Icon="@Icons.Material.Outlined.Link"
+                            Title="Nothing to convert yet"
+                            Description="Type or paste a value on the left."
+                            Dense="true" />
+            }
+            else
+            {
+                <MudTextField T="string"
+                              Value="@_output"
+                              ReadOnly="true"
+                              Variant="Variant.Outlined"
+                              Lines="8"
+                              Class="devhub-mono-field"
+                              aria-label="Result" />
+            }
+        </AppCard>
+    </MudItem>
+</MudGrid>

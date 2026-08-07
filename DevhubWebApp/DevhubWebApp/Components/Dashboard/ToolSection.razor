@@ -1,0 +1,38 @@
+@inherits DashboardSectionBase
+
+@* One dashboard section of tool cards. Pinned, Favorites, Recent and Most Used are all this
+   component with a different loader — the layout and the four states exist once. *@
+
+<section class="devhub-dashboard-section">
+    <SectionTitle Title="@Title" Icon="@Icon" Count="@(_views.Count > 0 ? _views.Count : null)" />
+
+    @if (IsLoading)
+    {
+        <LoadingSkeleton Variant="SkeletonVariant.Card" Count="3" />
+    }
+    else if (ErrorMessage is not null)
+    {
+        <AppCard>
+            <ErrorState Title="@($"Could not load {Title.ToLowerInvariant()}")"
+                        Description="This section reads from local storage; the rest of the dashboard is unaffected."
+                        Detail="@ErrorMessage"
+                        Dense="true"
+                        OnRetry="ReloadAsync" />
+        </AppCard>
+    }
+    else if (_views.Count == 0)
+    {
+        <AppCard>
+            <EmptyState Icon="@EmptyIcon"
+                        Title="@EmptyTitle"
+                        Description="@EmptyDescription"
+                        Dense="true" />
+        </AppCard>
+    }
+    else
+    {
+        <ToolGrid Views="_views"
+                  OnToggleFavorite="ToggleFavoriteAsync"
+                  OnTogglePin="TogglePinAsync" />
+    }
+</section>

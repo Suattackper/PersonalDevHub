@@ -1,0 +1,27 @@
+@*
+    Copy-to-clipboard control with success feedback. Every tool uses this instead of calling the
+    clipboard interop directly, so the confirmation behaviour is identical everywhere.
+*@
+
+@if (IconOnly)
+{
+    <IconButton Icon="@CurrentIcon"
+                Tooltip="@CurrentLabel"
+                Color="@CurrentColor"
+                Size="@Size"
+                Disabled="@IsDisabled"
+                OnClick="CopyAsync"
+                Class="@Class" />
+}
+else
+{
+    <MudButton StartIcon="@CurrentIcon"
+               Color="@CurrentColor"
+               Size="@Size"
+               Variant="@Variant"
+               Disabled="@IsDisabled"
+               OnClick="CopyAsync"
+               Class="@Class">
+        @CurrentLabel
+    </MudButton>
+}

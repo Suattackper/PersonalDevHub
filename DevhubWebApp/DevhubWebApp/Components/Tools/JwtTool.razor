@@ -1,0 +1,135 @@
+@attribute [Tool(ToolIds.Jwt,
+              "JWT Decoder",
+              ToolCategories.EncodersId,
+              "Inspect JWT header, payload, issued-at and expiration claims.",
+              Icons.Material.Filled.VpnKey,
+              Order = 40,
+              Keywords = new[] { "token", "bearer", "claims", "auth", "expiry" },
+              Tags = new[] { "rfc-7519" })]
+
+@using DevhubWebApp.Models.Tools.Jwt
+@inherits ToolComponentBase<JwtWorkspace>
+
+@* Decoding lives in JwtDecoder; this component binds it to the three-panel layout. *@
+
+<Toolbar Class="mb-3">
+    <ChildContent>
+        @if (_token.IsValid)
+        {
+            <Badge Icon="@Icons.Material.Filled.Lock" Text="@_token.Algorithm.OrDefault("no alg")" Color="Color.Primary" />
+            <Badge Icon="@Icons.Material.Filled.Straighten" Text="@($"{_token.SizeInBytes:N0} bytes")" />
+            <Badge Icon="@ValidityIcon" Text="@ValidityLabel" Color="@ValidityColor" />
+            @if (_token.IsUnsigned)
+            {
+                <Badge Icon="@Icons.Material.Filled.GppMaybe" Text="Unsigned" Color="Color.Warning" />
+            }
+        }
+    </ChildContent>
+
+    <EndContent>
+        <IconButton Icon="@Icons.Material.Filled.ContentPaste" Tooltip="Paste token" OnClick="PasteAsync" />
+        <IconButton Icon="@Icons.Material.Filled.Download" Tooltip="Download decoded JSON (Ctrl+S)"
+                    Disabled="@(!_token.IsValid)" OnClick="DownloadAsync" />
+        <IconButton Icon="@Icons.Material.Filled.CleaningServices" Tooltip="Clear" Disabled="@IsEmpty" OnClick="ClearAsync" />
+    </EndContent>
+</Toolbar>
+
+<AppCard Class="mb-3" Title="Token" Icon="@Icons.Material.Filled.Key">
+    <ChildContent>
+        <MudTextField T="string"
+                      Value="@Workspace.Token"
+                      ValueChanged="OnTokenChangedAsync"
+                      Immediate="true"
+                      DebounceInterval="AppConstants.DebounceMilliseconds"
+                      Variant="Variant.Outlined"
+                      Lines="4"
+                      Class="devhub-mono-field devhub-jwt__input"
+                      Placeholder="Paste a JWT — header.payload.signature"
+                      aria-label="JWT" />
+    </ChildContent>
+</AppCard>
+
+@if (IsEmpty)
+{
+    <AppCard>
+        <EmptyState Icon="@Icons.Material.Outlined.VpnKey"
+                    Title="Paste a token to inspect it"
+                    Description="Everything is decoded locally in your browser — the token never leaves this device."
+                    Dense="true" />
+    </AppCard>
+}
+else if (!_token.IsValid)
+{
+    <AppCard>
+        <ErrorState Title="This is not a readable JWT"
+                    Description="@_token.Error"
+                    Dense="true"
+                    RetryText="@null" />
+    </AppCard>
+}
+else
+{
+    @if (_token.Validity == JwtValidity.Expired)
+    {
+        <MudAlert Severity="Severity.Warning" Dense="true" Class="mb-3">
+            This token expired @(_token.ExpiresAt?.ToRelativeLabel()) — any service checking <code>exp</code> will reject it.
+        </MudAlert>
+    }
+
+    <MudGrid Spacing="3">
+        <MudItem xs="12" lg="4">
+            <AppCard Title="Header" Icon="@Icons.Material.Filled.Tag" Subtitle="Algorithm and token type">
+                <Actions>
+                    <CopyButton Text="@_token.HeaderJson" IconOnly="true" />
+                </Actions>
+                <ChildContent>
+                    <pre class="devhub-jwt__json">@_token.HeaderJson</pre>
+                </ChildContent>
+            </AppCard>
+        </MudItem>
+
+        <MudItem xs="12" lg="4">
+            <AppCard Title="Payload" Icon="@Icons.Material.Filled.DataObject" Subtitle="Claims carried by the token">
+                <Actions>
+                    <CopyButton Text="@_token.PayloadJson" IconOnly="true" />
+                </Actions>
+                <ChildContent>
+                    <pre class="devhub-jwt__json">@_token.PayloadJson</pre>
+                </ChildContent>
+            </AppCard>
+        </MudItem>
+
+        <MudItem xs="12" lg="4">
+            <AppCard Title="Signature" Icon="@Icons.Material.Filled.Verified" Subtitle="Not verified — that needs the issuer's key">
+                <Actions>
+                    <CopyButton Text="@_token.Signature" IconOnly="true" />
+                </Actions>
+                <ChildContent>
+                    @if (_token.IsUnsigned)
+                    {
+                        <EmptyState Icon="@Icons.Material.Outlined.GppMaybe"
+                                    Title="This token is unsigned"
+                                    Description="There is no signature segment, so nothing about this token can be trusted."
+                                    Dense="true" />
+                    }
+                    else
+                    {
+                        <pre class="devhub-jwt__json devhub-jwt__signature">@_token.Signature</pre>
+                    }
+
+                    <MudSimpleTable Dense="true" Bordered="false" Striped="false" Class="devhub-url__parts mt-2">
+                        <tbody>
+                            @foreach (var claim in Claims)
+                            {
+                                <tr @key="claim.Label">
+                                    <td class="devhub-url__part-label">@claim.Label</td>
+                                    <td class="devhub-url__part-value">@claim.Value</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </MudSimpleTable>
+                </ChildContent>
+            </AppCard>
+        </MudItem>
+    </MudGrid>
+}

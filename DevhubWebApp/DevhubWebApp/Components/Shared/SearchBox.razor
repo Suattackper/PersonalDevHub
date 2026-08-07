@@ -1,0 +1,45 @@
+@*
+    Debounced search input with two-way binding. The debounce lives here so no caller has to
+    re-implement it, and no caller filters on every keystroke.
+*@
+
+<MudTextField T="string"
+              Value="@Value"
+              ValueChanged="OnValueChanged"
+              Immediate="true"
+              DebounceInterval="@DebounceInterval"
+              Placeholder="@Placeholder"
+              Label="@Label"
+              Variant="Variant.Outlined"
+              Margin="Margin.Dense"
+              Adornment="Adornment.Start"
+              AdornmentIcon="@Icons.Material.Filled.Search"
+              Clearable="true"
+              FullWidth="@FullWidth"
+              Class="@($"devhub-searchbox {Class}")"
+              aria-label="@(Label ?? Placeholder)" />
+
+@code {
+    /// <summary>Current search term.</summary>
+    [Parameter] public string Value { get; set; } = string.Empty;
+
+    /// <summary>Raised after the debounce interval when the term changes.</summary>
+    [Parameter] public EventCallback<string> ValueChanged { get; set; }
+
+    /// <summary>Placeholder text shown when the box is empty.</summary>
+    [Parameter] public string Placeholder { get; set; } = "Search…";
+
+    /// <summary>Optional floating label.</summary>
+    [Parameter] public string? Label { get; set; }
+
+    /// <summary>Debounce in milliseconds. Defaults to the application-wide value.</summary>
+    [Parameter] public double DebounceInterval { get; set; } = AppConstants.DebounceMilliseconds;
+
+    /// <summary>Stretches the box to the width of its container.</summary>
+    [Parameter] public bool FullWidth { get; set; } = true;
+
+    /// <summary>Extra CSS classes appended to the root element.</summary>
+    [Parameter] public string? Class { get; set; }
+
+    private Task OnValueChanged(string? value) => ValueChanged.InvokeAsync(value ?? string.Empty);
+}

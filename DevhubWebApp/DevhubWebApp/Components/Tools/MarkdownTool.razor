@@ -1,0 +1,121 @@
+@attribute [Tool(ToolIds.Markdown,
+              "Markdown",
+              ToolCategories.TextId,
+              "Write Markdown with a live side-by-side preview.",
+              Icons.Material.Filled.Article,
+              Order = 10,
+              Keywords = new[] { "md", "editor", "preview", "readme", "html" },
+              Tags = new[] { "commonmark" })]
+
+@using DevhubWebApp.Models.Tools.Markdown
+@inherits ToolComponentBase<MarkdownWorkspace>
+
+@* Rendering and analysis live in IMarkdownService; this component only binds them to the UI. *@
+
+<Toolbar Class="mb-3">
+    <ChildContent>
+        @foreach (var group in FormatGroups)
+        {
+            @foreach (var action in group)
+            {
+                <IconButton Icon="@GetActionIcon(action)"
+                            Tooltip="@GetActionTooltip(action)"
+                            OnClick="@(() => ApplyFormatAsync(action))" />
+            }
+            <MudDivider Vertical="true" FlexItem="true" Class="mx-1" />
+        }
+
+        <IconButton Icon="@Icons.Material.Filled.Undo" Tooltip="Undo (Ctrl+Z)" Disabled="@(!History.CanUndo)" OnClick="Undo" />
+        <IconButton Icon="@Icons.Material.Filled.Redo" Tooltip="Redo (Ctrl+Y)" Disabled="@(!History.CanRedo)" OnClick="Redo" />
+    </ChildContent>
+
+    <EndContent>
+        <IconButton Icon="@(Workspace.ShowPreview ? Icons.Material.Filled.Visibility : Icons.Material.Filled.VisibilityOff)"
+                    Tooltip="@(Workspace.ShowPreview ? "Hide preview" : "Show preview")"
+                    Color="@(Workspace.ShowPreview ? Color.Primary : Color.Default)"
+                    OnClick="TogglePreviewAsync" />
+        <IconButton Icon="@(_isFullscreen ? Icons.Material.Filled.FullscreenExit : Icons.Material.Filled.Fullscreen)"
+                    Tooltip="@(_isFullscreen ? "Exit fullscreen (Esc)" : "Fullscreen")"
+                    OnClick="ToggleFullscreen" />
+        <IconButton Icon="@Icons.Material.Filled.ContentPaste" Tooltip="Paste from clipboard" OnClick="PasteAsync" />
+
+        <MudMenu Icon="@Icons.Material.Filled.MoreVert" Size="Size.Small" AriaLabel="Document actions" Dense="true">
+            <MudMenuItem Icon="@Icons.Material.Filled.ContentCopy" OnClick="CopyMarkdownAsync">Copy Markdown</MudMenuItem>
+            <MudMenuItem Icon="@Icons.Material.Filled.Code" OnClick="CopyHtmlAsync">Copy HTML</MudMenuItem>
+            <MudDivider />
+            <MudMenuItem Icon="@Icons.Material.Filled.Download" OnClick="DownloadMarkdownAsync">Download .md (Ctrl+S)</MudMenuItem>
+            <MudMenuItem Icon="@Icons.Material.Filled.Html" OnClick="ExportHtmlAsync">Export HTML</MudMenuItem>
+            <MudDivider />
+            <MudMenuItem Icon="@Icons.Material.Filled.WrapText" OnClick="ToggleWordWrapAsync">
+                @(Workspace.WordWrap ? "Disable word wrap" : "Enable word wrap")
+            </MudMenuItem>
+            <MudMenuItem Icon="@Icons.Material.Filled.FormatListNumbered" OnClick="ToggleLineNumbersAsync">
+                @(Workspace.ShowLineNumbers ? "Hide line numbers" : "Show line numbers")
+            </MudMenuItem>
+            <MudDivider />
+            <MudMenuItem Icon="@Icons.Material.Filled.CleaningServices" OnClick="ClearAsync">Clear document</MudMenuItem>
+        </MudMenu>
+    </EndContent>
+</Toolbar>
+
+<div class="devhub-markdown @(_isFullscreen ? "devhub-markdown--fullscreen" : null) @(Workspace.ShowPreview ? "devhub-markdown--split" : null)">
+    <AppCard Flush="true" Class="devhub-markdown__editor">
+        <CodeEditor @ref="_editor"
+                    Value="@_content"
+                    ValueChanged="OnContentChangedAsync"
+                    Language="markdown"
+                    ShowLineNumbers="@Workspace.ShowLineNumbers"
+                    WordWrap="@Workspace.WordWrap" />
+    </AppCard>
+
+    @if (Workspace.ShowPreview)
+    {
+        <AppCard Flush="true" Class="devhub-markdown__preview">
+            @if (_isRendering)
+            {
+                <div class="pa-4"><LoadingSkeleton Variant="SkeletonVariant.Text" Lines="6" /></div>
+            }
+            else if (IsEmpty)
+            {
+                <EmptyState Icon="@Icons.Material.Outlined.Article"
+                            Title="Nothing to preview yet"
+                            Description="Start typing, paste Markdown, or drop a .md file below."
+                            Dense="true" />
+            }
+            else
+            {
+                <article class="devhub-markdown__preview-body">@((MarkupString)_previewHtml)</article>
+            }
+        </AppCard>
+    }
+</div>
+
+<div class="devhub-markdown__status">
+    <div class="devhub-markdown__stats">
+        <Badge Icon="@Icons.Material.Filled.Notes" Text="@($"{_statistics.Words:N0} words")" />
+        <Badge Icon="@Icons.Material.Filled.TextFields" Text="@($"{_statistics.Characters:N0} chars")" />
+        <Badge Icon="@Icons.Material.Filled.FormatLineSpacing" Text="@($"{_statistics.Lines:N0} lines")" />
+        <Badge Icon="@Icons.Material.Filled.Timer" Text="@_statistics.ReadingTimeLabel" Color="Color.Primary" />
+    </div>
+
+    @if (Workspace.RecentFiles.Count > 0)
+    {
+        <div class="devhub-markdown__recent">
+            <MudText Typo="Typo.caption" Class="mud-text-secondary">Recent files:</MudText>
+            @foreach (var file in Workspace.RecentFiles)
+            {
+                <Badge Icon="@Icons.Material.Filled.InsertDriveFile" Text="@file" />
+            }
+        </div>
+    }
+</div>
+
+@if (IsEmpty)
+{
+    <FileDropZone Accept=".md,.markdown,.txt,text/markdown"
+                  Title="Drop a Markdown file here"
+                  Hint="or click to browse — .md, .markdown, .txt"
+                  Dense="true"
+                  Class="mt-3"
+                  OnFileLoaded="OnFileLoadedAsync" />
+}

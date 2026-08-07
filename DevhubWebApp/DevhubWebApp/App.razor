@@ -1,0 +1,55 @@
+@using DevhubWebApp.Models
+@implements IDisposable
+@inject IUserPreferenceService Preferences
+@inject IHistoryService History
+@inject IThemeProvider ThemeProvider
+
+<MudThemeProvider Theme="ThemeProvider.Theme" IsDarkMode="ThemeProvider.IsDarkMode" />
+<MudPopoverProvider />
+<MudDialogProvider CloseButton="true" CloseOnEscapeKey="true" MaxWidth="MaxWidth.Small" />
+<MudSnackbarProvider />
+
+@if (_isReady)
+{
+    <Router AppAssembly="@typeof(Program).Assembly">
+        <Found Context="routeData">
+            <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
+            <FocusOnNavigate RouteData="@routeData" Selector="h1" />
+        </Found>
+        <NotFound>
+            <LayoutView Layout="@typeof(MainLayout)">
+                <EmptyState Icon="@Icons.Material.Outlined.TravelExplore"
+                            Title="Page not found"
+                            Description="The route you requested does not exist in DevHub."
+                            ActionText="Back to dashboard"
+                            ActionHref="@AppRoutes.Dashboard" />
+            </LayoutView>
+        </NotFound>
+    </Router>
+}
+else
+{
+    <AppSplash />
+}
+
+@code {
+    private bool _isReady;
+
+    /// <summary>
+    /// Hydrates persisted state before the router renders, so no page has to guard against
+    /// half-initialised preferences.
+    /// </summary>
+    protected override async Task OnInitializedAsync()
+    {
+        await Preferences.InitializeAsync();
+        await History.InitializeAsync();
+        await ThemeProvider.ApplyAsync(Preferences.Settings.Theme);
+
+        ThemeProvider.Changed += OnThemeChanged;
+        _isReady = true;
+    }
+
+    private void OnThemeChanged() => StateHasChanged();
+
+    public void Dispose() => ThemeProvider.Changed -= OnThemeChanged;
+}

@@ -1,0 +1,54 @@
+@inherits DashboardSectionBase
+
+@* Latest recorded actions. Tool name and icon are resolved through the service, so a renamed tool
+   updates here without touching stored history. *@
+
+<section class="devhub-dashboard-section">
+    <SectionTitle Title="Recent history" Icon="@Icons.Material.Filled.ManageSearch">
+        <Actions>
+            <MudButton Size="Size.Small" Variant="Variant.Text" Href="@AppRoutes.History">See all</MudButton>
+        </Actions>
+    </SectionTitle>
+
+    <AppCard Flush="@(!IsLoading && ErrorMessage is null && _entries.Count > 0)">
+        @if (IsLoading)
+        {
+            <LoadingSkeleton Variant="SkeletonVariant.List" Count="4" />
+        }
+        else if (ErrorMessage is not null)
+        {
+            <ErrorState Title="Could not load history"
+                        Detail="@ErrorMessage"
+                        Dense="true"
+                        OnRetry="ReloadAsync" />
+        }
+        else if (_entries.Count == 0)
+        {
+            <EmptyState Icon="@Icons.Material.Outlined.ManageSearch"
+                        Title="No activity recorded"
+                        Description="Actions you run inside a tool are logged here, on this device only."
+                        Dense="true" />
+        }
+        else
+        {
+            <MudList T="string" Dense="true" Class="devhub-history-list">
+                @foreach (var entry in _entries)
+                {
+                    var tool = DashboardService.ResolveTool(entry.ToolId);
+                    <MudListItem T="string"
+                                 @key="entry.Id"
+                                 Icon="@(tool?.Tool.Icon ?? Icons.Material.Filled.Bolt)"
+                                 Href="@(tool?.Route)"
+                                 SecondaryText="@entry.Preview">
+                        <div class="devhub-history-list__row">
+                            <span>@($"{entry.Action} · {tool?.Name ?? entry.ToolId}")</span>
+                            <MudText Typo="Typo.caption" Class="mud-text-secondary">
+                                @entry.TimestampUtc.ToRelativeLabel()
+                            </MudText>
+                        </div>
+                    </MudListItem>
+                }
+            </MudList>
+        }
+    </AppCard>
+</section>

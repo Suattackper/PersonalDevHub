@@ -1,0 +1,26 @@
+@*
+    Saves tool output to a file. Text and binary payloads share one control so file naming and
+    failure handling never diverge between tools.
+*@
+
+@if (IconOnly)
+{
+    <IconButton Icon="@Icons.Material.Filled.Download"
+                Tooltip="@Label"
+                Size="@Size"
+                Disabled="@IsDisabled"
+                OnClick="DownloadAsync"
+                Class="@Class" />
+}
+else
+{
+    <MudButton StartIcon="@Icons.Material.Filled.Download"
+               Size="@Size"
+               Variant="@Variant"
+               Color="@Color"
+               Disabled="@IsDisabled"
+               OnClick="DownloadAsync"
+               Class="@Class">
+        @Label
+    </MudButton>
+}

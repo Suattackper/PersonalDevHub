@@ -1,0 +1,52 @@
+@*
+    Icon button with a mandatory tooltip and accessible label. Wrapping MudIconButton here means
+    no icon action in DevHub can ship without a hover hint or a screen-reader name.
+*@
+
+<MudTooltip Text="@Tooltip" Placement="@TooltipPlacement" Arrow="true" Delay="400">
+    <MudIconButton Icon="@Icon"
+                   Color="@Color"
+                   Size="@Size"
+                   Variant="@Variant"
+                   Disabled="@Disabled"
+                   Href="@Href"
+                   Target="@Target"
+                   OnClick="OnClick"
+                   aria-label="@Tooltip"
+                   Class="@($"devhub-icon-button {Class}")" />
+</MudTooltip>
+
+@code {
+    /// <summary>Icon to render.</summary>
+    [Parameter, EditorRequired] public string Icon { get; set; } = string.Empty;
+
+    /// <summary>Tooltip text. Doubles as the accessible name, so it is required.</summary>
+    [Parameter, EditorRequired] public string Tooltip { get; set; } = string.Empty;
+
+    /// <summary>Theme color of the icon.</summary>
+    [Parameter] public Color Color { get; set; } = Color.Default;
+
+    /// <summary>Button size.</summary>
+    [Parameter] public Size Size { get; set; } = Size.Small;
+
+    /// <summary>Button variant; the default draws no container.</summary>
+    [Parameter] public Variant Variant { get; set; } = Variant.Text;
+
+    /// <summary>Disables interaction.</summary>
+    [Parameter] public bool Disabled { get; set; }
+
+    /// <summary>Optional navigation target, turning the button into a link.</summary>
+    [Parameter] public string? Href { get; set; }
+
+    /// <summary>Anchor target used together with <see cref="Href"/>.</summary>
+    [Parameter] public string? Target { get; set; }
+
+    /// <summary>Where the tooltip is placed relative to the button.</summary>
+    [Parameter] public Placement TooltipPlacement { get; set; } = Placement.Bottom;
+
+    /// <summary>Raised when the button is clicked.</summary>
+    [Parameter] public EventCallback<MouseEventArgs> OnClick { get; set; }
+
+    /// <summary>Extra CSS classes appended to the button.</summary>
+    [Parameter] public string? Class { get; set; }
+}

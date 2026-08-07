@@ -1,0 +1,59 @@
+@*
+    Interactive tag: selectable, optionally removable. Use for filters, keywords and multi-select
+    lists. Static labels belong in Badge instead.
+*@
+
+<MudChip T="string"
+         Text="@Text"
+         Icon="@Icon"
+         Color="@Color"
+         Size="@Size"
+         Variant="@(Selected ? Variant.Filled : Variant.Outlined)"
+         OnClick="OnClick"
+         OnClose="@(Closeable ? OnClose : default(EventCallback))"
+         Disabled="@Disabled"
+         Class="@($"devhub-chip {Class}")">
+    @if (ChildContent is not null)
+    {
+        @ChildContent
+    }
+    else
+    {
+        @Text
+    }
+</MudChip>
+
+@code {
+    /// <summary>Chip label.</summary>
+    [Parameter] public string? Text { get; set; }
+
+    /// <summary>Optional leading icon.</summary>
+    [Parameter] public string? Icon { get; set; }
+
+    /// <summary>Theme color used for both variants.</summary>
+    [Parameter] public Color Color { get; set; } = Color.Default;
+
+    /// <summary>Chip size.</summary>
+    [Parameter] public Size Size { get; set; } = Size.Small;
+
+    /// <summary>Renders the chip in its selected (filled) state.</summary>
+    [Parameter] public bool Selected { get; set; }
+
+    /// <summary>Shows the close affordance and enables <see cref="OnClose"/>.</summary>
+    [Parameter] public bool Closeable { get; set; }
+
+    /// <summary>Disables interaction.</summary>
+    [Parameter] public bool Disabled { get; set; }
+
+    /// <summary>Raised when the chip body is clicked.</summary>
+    [Parameter] public EventCallback OnClick { get; set; }
+
+    /// <summary>Raised when the close icon is clicked.</summary>
+    [Parameter] public EventCallback OnClose { get; set; }
+
+    /// <summary>Custom chip content.</summary>
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    /// <summary>Extra CSS classes appended to the root element.</summary>
+    [Parameter] public string? Class { get; set; }
+}

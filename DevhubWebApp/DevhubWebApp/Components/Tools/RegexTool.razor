@@ -1,0 +1,213 @@
+@attribute [Tool(ToolIds.Regex,
+              "Regex Tester",
+              ToolCategories.TextId,
+              "Test regular expressions against sample text with highlighted matches.",
+              Icons.Material.Filled.Rule,
+              Order = 20,
+              Keywords = new[] { "regular expression", "match", "pattern", "replace", "groups" },
+              Tags = new[] { "dotnet" })]
+
+@using DevhubWebApp.Models.Tools.Regex
+@using DevhubWebApp.Utilities
+@inherits ToolComponentBase<RegexWorkspace>
+
+@* Matching and replacement live in RegexTester; this component binds them to the UI. *@
+
+<Toolbar Class="mb-3">
+    <ChildContent>
+        @foreach (var flag in Flags)
+        {
+            <Chip Text="@flag.Label"
+                  Icon="@flag.Icon"
+                  Color="Color.Secondary"
+                  Selected="@flag.IsOn(Workspace)"
+                  OnClick="@(() => ToggleFlagAsync(flag))" />
+        }
+    </ChildContent>
+
+    <EndContent>
+        <Chip Text="Replace" Icon="@Icons.Material.Filled.FindReplace" Color="Color.Primary"
+              Selected="@Workspace.ReplaceMode" OnClick="ToggleReplaceAsync" />
+        <IconButton Icon="@Icons.Material.Filled.Undo" Tooltip="Undo pattern" Disabled="@(!History.CanUndo)" OnClick="UndoAsync" />
+        <IconButton Icon="@Icons.Material.Filled.Redo" Tooltip="Redo pattern" Disabled="@(!History.CanRedo)" OnClick="RedoAsync" />
+        <IconButton Icon="@Icons.Material.Filled.Download" Tooltip="Export matches (Ctrl+S)"
+                    Disabled="@(_result.MatchCount == 0)" OnClick="ExportAsync" />
+    </EndContent>
+</Toolbar>
+
+<MudGrid Spacing="3">
+    <MudItem xs="12" lg="8">
+        <AppCard Class="mb-3">
+            <ChildContent>
+                <MudTextField T="string"
+                              Value="@Workspace.Pattern"
+                              ValueChanged="OnPatternChangedAsync"
+                              Immediate="true"
+                              DebounceInterval="AppConstants.DebounceMilliseconds"
+                              Variant="Variant.Outlined"
+                              Margin="Margin.Dense"
+                              Label="Pattern"
+                              Placeholder="\d{4}-\d{2}-\d{2}"
+                              Adornment="Adornment.Start"
+                              AdornmentIcon="@Icons.Material.Filled.Rule"
+                              Class="devhub-mono-field"
+                              aria-label="Regular expression" />
+
+                @if (Workspace.ReplaceMode)
+                {
+                    <MudTextField T="string"
+                                  Value="@Workspace.Replacement"
+                                  ValueChanged="OnReplacementChangedAsync"
+                                  Immediate="true"
+                                  DebounceInterval="AppConstants.DebounceMilliseconds"
+                                  Variant="Variant.Outlined"
+                                  Margin="Margin.Dense"
+                                  Label="Replacement"
+                                  Placeholder="$1 or ${name}"
+                                  Class="devhub-mono-field mt-2"
+                                  aria-label="Replacement" />
+                }
+
+                @if (_result.Error is not null)
+                {
+                    <MudAlert Severity="@(_result.TimedOut ? Severity.Warning : Severity.Error)" Dense="true" Class="mt-2">
+                        @_result.Error
+                    </MudAlert>
+                }
+                else if (!string.IsNullOrEmpty(Workspace.Pattern))
+                {
+                    <div class="devhub-regex__summary mt-2">
+                        <Badge Icon="@Icons.Material.Filled.Search"
+                               Text="@($"{_result.MatchCount} match(es)")"
+                               Color="@(_result.MatchCount > 0 ? Color.Success : Color.Default)" />
+                        @if (_result.MatchCount >= RegexTester.MaxMatches)
+                        {
+                            <Badge Icon="@Icons.Material.Filled.Speed" Text="@($"showing first {RegexTester.MaxMatches}")" Color="Color.Warning" />
+                        }
+                    </div>
+                }
+            </ChildContent>
+        </AppCard>
+
+        <MudGrid Spacing="3">
+            <MudItem xs="12" md="@(Workspace.ReplaceMode ? 6 : 12)">
+                <AppCard Title="Test text" Icon="@Icons.Material.Filled.Subject" Flush="true">
+                    <Actions>
+                        <IconButton Icon="@Icons.Material.Filled.ContentPaste" Tooltip="Paste test text" OnClick="PasteAsync" />
+                    </Actions>
+                    <ChildContent>
+                        <CodeEditor Value="@Workspace.TestText"
+                                    ValueChanged="OnTestTextChangedAsync"
+                                    Language="plaintext"
+                                    WordWrap="true"
+                                    Class="devhub-regex__editor" />
+                    </ChildContent>
+                </AppCard>
+            </MudItem>
+
+            @if (Workspace.ReplaceMode)
+            {
+                <MudItem xs="12" md="6">
+                    <AppCard Title="Replace preview" Icon="@Icons.Material.Filled.Preview" Flush="true">
+                        <Actions>
+                            <CopyButton Text="@_replacePreview" IconOnly="true" />
+                        </Actions>
+                        <ChildContent>
+                            <CodeEditor Value="@_replacePreview"
+                                        Language="plaintext"
+                                        WordWrap="true"
+                                        ReadOnly="true"
+                                        Class="devhub-regex__editor" />
+                        </ChildContent>
+                    </AppCard>
+                </MudItem>
+            }
+        </MudGrid>
+
+        <AppCard Title="Matches" Icon="@Icons.Material.Filled.FormatListNumbered" Class="mt-3"
+                 Subtitle="@(_result.MatchCount > 0 ? "Click a match to copy it" : null)">
+            <ChildContent>
+                @if (string.IsNullOrEmpty(Workspace.Pattern))
+                {
+                    <EmptyState Icon="@Icons.Material.Outlined.Rule"
+                                Title="No pattern yet"
+                                Description="Enter a pattern above, or start from one of the common patterns."
+                                Dense="true" />
+                }
+                else if (_result.MatchCount == 0 && _result.IsSuccess)
+                {
+                    <EmptyState Icon="@Icons.Material.Outlined.SearchOff"
+                                Title="No matches"
+                                Description="The pattern is valid but nothing in the test text matches it."
+                                Dense="true" />
+                }
+                else if (_result.IsSuccess)
+                {
+                    <div class="devhub-regex__matches">
+                        @foreach (var (match, index) in _result.Matches.Select((value, position) => (value, position)))
+                        {
+                            <div class="devhub-regex__match" @key="index">
+                                <div class="devhub-regex__match-head">
+                                    <Badge Text="@($"#{index + 1}")" Color="Color.Primary" />
+                                    <code>@match.Value</code>
+                                    <MudText Typo="Typo.caption" Class="mud-text-secondary">
+                                        @($"at {match.Index}, length {match.Length}")
+                                    </MudText>
+                                    <CopyButton Text="@match.Value" IconOnly="true" Notify="false" />
+                                </div>
+
+                                @if (match.Groups.Count > 0)
+                                {
+                                    <div class="devhub-regex__groups">
+                                        @foreach (var group in match.Groups)
+                                        {
+                                            <div class="devhub-regex__group" @key="group.Name">
+                                                <span class="devhub-regex__group-name">@group.Name</span>
+                                                <code>@(group.Success ? group.Value : "(no match)")</code>
+                                            </div>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+                }
+            </ChildContent>
+        </AppCard>
+    </MudItem>
+
+    <MudItem xs="12" lg="4">
+        <AppCard Title="Common patterns" Icon="@Icons.Material.Filled.Bookmarks">
+            <ChildContent>
+                <MudList T="string" Dense="true">
+                    @foreach (var template in RegexLibrary.Templates)
+                    {
+                        <MudListItem T="string" OnClick="@(() => ApplyTemplateAsync(template))" @key="template.Name">
+                            <MudText Typo="Typo.body2">@template.Name</MudText>
+                            <MudText Typo="Typo.caption" Class="mud-text-secondary">@template.Description</MudText>
+                        </MudListItem>
+                    }
+                </MudList>
+            </ChildContent>
+        </AppCard>
+
+        <AppCard Title="Cheatsheet" Icon="@Icons.Material.Filled.MenuBook" Class="mt-3">
+            <ChildContent>
+                <MudExpansionPanels Elevation="0" MultiExpansion="true">
+                    @foreach (var group in RegexLibrary.Cheatsheet.GroupBy(entry => entry.Category))
+                    {
+                        <MudExpansionPanel Text="@group.Key" Dense="true" @key="group.Key">
+                            @foreach (var entry in group)
+                            {
+                                <div class="devhub-regex__cheat" @key="entry.Token">
+                                    <code>@entry.Token</code>
+                                    <span>@entry.Meaning</span>
+                                </div>
+                            }
+                        </MudExpansionPanel>
+                    }
+                </MudExpansionPanels>
+            </ChildContent>
+        </AppCard>
+    </MudItem>
+</MudGrid>

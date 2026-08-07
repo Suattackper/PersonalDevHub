@@ -1,0 +1,35 @@
+@*
+    Drag-and-drop or click-to-browse file input. Reads the file as text or bytes and hands the
+    result to the caller; it has no opinion about what the content means.
+*@
+
+<div class="@CssClass"
+     @ondragenter:preventDefault="true"
+     @ondragenter="OnDragEnter"
+     @ondragover:preventDefault="true"
+     @ondragleave="OnDragLeave"
+     @ondrop:preventDefault="true">
+
+    <InputFile OnChange="OnFileSelectedAsync"
+               accept="@Accept"
+               class="devhub-dropzone__input"
+               aria-label="@Title" />
+
+    <div class="devhub-dropzone__content">
+        @if (_isBusy)
+        {
+            <MudProgressCircular Indeterminate="true" Size="Size.Medium" Color="Color.Primary" />
+            <MudText Typo="Typo.body2" Class="mt-3">Reading @(_fileName ?? "file")…</MudText>
+        }
+        else
+        {
+            <MudIcon Icon="@Icon" Size="Size.Large" Class="devhub-dropzone__icon" />
+            <MudText Typo="Typo.subtitle2" Class="mt-2">@Title</MudText>
+            <MudText Typo="Typo.caption" Class="mud-text-secondary">@Hint</MudText>
+            @if (!string.IsNullOrWhiteSpace(_fileName))
+            {
+                <Badge Text="@_fileName" Icon="@Icons.Material.Filled.InsertDriveFile" Color="Color.Success" Class="mt-3" />
+            }
+        }
+    </div>
+</div>

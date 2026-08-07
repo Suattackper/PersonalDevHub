@@ -1,0 +1,54 @@
+@page "/"
+@using DevhubWebApp.Components.Dashboard
+
+@* Composition only. The page holds no state and subscribes to nothing, so it renders once; each
+   section below owns its data, its loading/error state and its own re-renders. *@
+
+<PageTitle>@AppConstants.AppName</PageTitle>
+
+<PageHeader Title="Dashboard"
+            Subtitle="@AppConstants.AppTagline"
+            Icon="@Icons.Material.Filled.SpaceDashboard">
+    <Actions>
+        <MudButton StartIcon="@Icons.Material.Filled.History" Href="@AppRoutes.History" Variant="Variant.Text">
+            History
+        </MudButton>
+        <MudButton StartIcon="@Icons.Material.Filled.Settings" Href="@AppRoutes.Settings" Variant="Variant.Text">
+            Settings
+        </MudButton>
+    </Actions>
+</PageHeader>
+
+<StatisticsPanel />
+
+<QuickSearchPanel />
+
+<ToolSection Title="Pinned"
+             Icon="@Icons.Material.Filled.PushPin"
+             Loader="LoadPinnedAsync"
+             EmptyIcon="@Icons.Material.Outlined.PushPin"
+             EmptyTitle="No pinned tools"
+             EmptyDescription="Pin a tool to keep it in the sidebar on every page." />
+
+<ToolSection Title="Favorites"
+             Icon="@Icons.Material.Filled.Star"
+             Loader="LoadFavoritesAsync"
+             EmptyIcon="@Icons.Material.Outlined.StarBorder"
+             EmptyTitle="No favorites yet"
+             EmptyDescription="Star the tools you reach for most and they will appear here." />
+
+<ToolSection Title="Recent tools"
+             Icon="@Icons.Material.Filled.Schedule"
+             Loader="LoadRecentAsync"
+             EmptyIcon="@Icons.Material.Outlined.Schedule"
+             EmptyTitle="No tool opened yet"
+             EmptyDescription="Tools you open appear here so you can jump straight back in." />
+
+<ToolSection Title="Most used"
+             Icon="@Icons.Material.Filled.TrendingUp"
+             Loader="LoadMostUsedAsync"
+             EmptyIcon="@Icons.Material.Outlined.TrendingUp"
+             EmptyTitle="No usage recorded"
+             EmptyDescription="Open a tool a few times and your top tools will be ranked here." />
+
+<HistoryPanel />

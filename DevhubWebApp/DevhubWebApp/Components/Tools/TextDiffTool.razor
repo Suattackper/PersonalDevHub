@@ -1,0 +1,126 @@
+@attribute [Tool(ToolIds.TextDiff,
+              "Text Diff",
+              ToolCategories.TextId,
+              "Compare two texts with line numbers and highlighted changes.",
+              Icons.Material.Filled.Difference,
+              Order = 30,
+              Keywords = new[] { "compare", "changes", "merge", "patch" },
+              Tags = new[] { "side-by-side" })]
+
+@using DevhubWebApp.Models.Tools.Diff
+@using DevhubWebApp.Utilities
+@inherits ToolComponentBase<DiffWorkspace>
+
+@* Comparison lives in DiffEngine and export in DiffExporter; this component binds them to the UI. *@
+
+<Toolbar Class="mb-3">
+    <ChildContent>
+        <Chip Text="Side by side"
+              Icon="@Icons.Material.Filled.VerticalSplit"
+              Color="Color.Primary"
+              Selected="@Workspace.SideBySide"
+              OnClick="@(() => UpdateAsync(w => w.SideBySide = true))" />
+        <Chip Text="Inline"
+              Icon="@Icons.Material.Filled.ViewStream"
+              Color="Color.Primary"
+              Selected="@(!Workspace.SideBySide)"
+              OnClick="@(() => UpdateAsync(w => w.SideBySide = false))" />
+
+        <MudDivider Vertical="true" FlexItem="true" Class="mx-1" />
+
+        <Chip Text="Ignore whitespace"
+              Icon="@Icons.Material.Filled.SpaceBar"
+              Color="Color.Secondary"
+              Selected="@Workspace.IgnoreWhitespace"
+              OnClick="@(() => UpdateAsync(w => w.IgnoreWhitespace = !w.IgnoreWhitespace))" />
+        <Chip Text="Ignore case"
+              Icon="@Icons.Material.Filled.TextFormat"
+              Color="Color.Secondary"
+              Selected="@Workspace.IgnoreCase"
+              OnClick="@(() => UpdateAsync(w => w.IgnoreCase = !w.IgnoreCase))" />
+        <Chip Text="Ignore blank lines"
+              Icon="@Icons.Material.Filled.FormatLineSpacing"
+              Color="Color.Secondary"
+              Selected="@Workspace.IgnoreBlankLines"
+              OnClick="@(() => UpdateAsync(w => w.IgnoreBlankLines = !w.IgnoreBlankLines))" />
+    </ChildContent>
+
+    <EndContent>
+        <IconButton Icon="@Icons.Material.Filled.Search" Tooltip="Find in diff (Ctrl+F)" OnClick="FocusSearchAsync" />
+        <IconButton Icon="@Icons.Material.Filled.SwapHoriz" Tooltip="Swap sides" OnClick="SwapAsync" />
+
+        <MudMenu Icon="@Icons.Material.Filled.MoreVert" Size="Size.Small" AriaLabel="Diff actions" Dense="true">
+            <MudMenuItem Icon="@Icons.Material.Filled.ContentCopy" OnClick="CopyDiffAsync">Copy diff</MudMenuItem>
+            <MudMenuItem Icon="@Icons.Material.Filled.Description" OnClick="ExportTextAsync">Export .txt (Ctrl+S)</MudMenuItem>
+            <MudMenuItem Icon="@Icons.Material.Filled.Html" OnClick="ExportHtmlAsync">Export HTML</MudMenuItem>
+            <MudDivider />
+            <MudMenuItem Icon="@Icons.Material.Filled.WrapText" OnClick="@(() => UpdateAsync(w => w.WordWrap = !w.WordWrap))">
+                @(Workspace.WordWrap ? "Disable word wrap" : "Enable word wrap")
+            </MudMenuItem>
+            <MudMenuItem Icon="@Icons.Material.Filled.FormatListNumbered" OnClick="@(() => UpdateAsync(w => w.ShowLineNumbers = !w.ShowLineNumbers))">
+                @(Workspace.ShowLineNumbers ? "Hide line numbers" : "Show line numbers")
+            </MudMenuItem>
+            <MudDivider />
+            <MudMenuItem Icon="@Icons.Material.Filled.CleaningServices" OnClick="ClearAsync">Clear both sides</MudMenuItem>
+        </MudMenu>
+    </EndContent>
+</Toolbar>
+
+<MudGrid Spacing="2" Class="mb-3">
+    <MudItem xs="12" md="6">
+        <DiffSourcePanel Title="Original"
+                         Icon="@Icons.Material.Filled.West"
+                         Text="@Workspace.Left"
+                         TextChanged="OnLeftChangedAsync" />
+    </MudItem>
+    <MudItem xs="12" md="6">
+        <DiffSourcePanel Title="Changed"
+                         Icon="@Icons.Material.Filled.East"
+                         Text="@Workspace.Right"
+                         TextChanged="OnRightChangedAsync" />
+    </MudItem>
+</MudGrid>
+
+@if (HasContent)
+{
+    <div class="devhub-diff-summary mb-3">
+        <Badge Icon="@Icons.Material.Filled.AddCircleOutline" Text="@($"{_statistics.Added:N0} added")" Color="Color.Success" />
+        <Badge Icon="@Icons.Material.Filled.RemoveCircleOutline" Text="@($"{_statistics.Removed:N0} removed")" Color="Color.Error" />
+        <Badge Icon="@Icons.Material.Filled.CheckCircleOutline" Text="@($"{_statistics.Unchanged:N0} unchanged")" />
+        <Badge Icon="@Icons.Material.Filled.Percent" Text="@($"{_statistics.ChangePercentage}% changed")" Color="Color.Primary" />
+        @if (_isApproximate)
+        {
+            <Badge Icon="@Icons.Material.Filled.Speed"
+                   Text="@($"approximate above {DiffEngine.MaxLinesForExactDiff:N0} lines")"
+                   Color="Color.Warning" />
+        }
+    </div>
+}
+
+<AppCard Flush="true" Class="devhub-diff__viewer">
+    @if (!HasContent)
+    {
+        <EmptyState Icon="@Icons.Material.Outlined.Difference"
+                    Title="Nothing to compare yet"
+                    Description="Paste or drop text into both panels above; the comparison updates as you type."
+                    Dense="true" />
+    }
+    else if (_statistics.AreIdentical)
+    {
+        <EmptyState Icon="@Icons.Material.Outlined.CheckCircle"
+                    Title="The two texts are identical"
+                    Description="@IdenticalDescription"
+                    Dense="true" />
+    }
+    else
+    {
+        <DiffEditor @ref="_diffEditor"
+                    Original="@Workspace.Left"
+                    Modified="@Workspace.Right"
+                    SideBySide="@Workspace.SideBySide"
+                    IgnoreTrimWhitespace="@Workspace.IgnoreWhitespace"
+                    WordWrap="@Workspace.WordWrap"
+                    ShowLineNumbers="@Workspace.ShowLineNumbers"
+                    ReadOnly="true" />
+    }
+</AppCard>

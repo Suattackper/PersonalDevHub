@@ -1,0 +1,132 @@
+@attribute [Tool(ToolIds.NumberBase,
+              "Number Base",
+              ToolCategories.ConvertersId,
+              "Convert numbers between binary, octal, decimal and hexadecimal.",
+              Icons.Material.Filled.Calculate,
+              Order = 20,
+              Keywords = new[] { "binary", "hex", "octal", "radix", "ascii", "unicode" })]
+
+@using DevhubWebApp.Models.Tools.Numbers
+@using DevhubWebApp.Utilities
+@inherits ToolComponentBase<NumberWorkspace>
+
+@* Parsing, formatting and validation live in NumberBaseConverter; this component binds them. *@
+
+<Toolbar Class="mb-3">
+    <ChildContent>
+        @foreach (var numberBase in NumberBaseConverter.All)
+        {
+            <Chip Text="@NumberBaseConverter.GetName(numberBase)"
+                  Color="Color.Primary"
+                  Selected="@(Workspace.SourceBase == numberBase)"
+                  OnClick="@(() => SetBaseAsync(numberBase))" />
+        }
+        <MudDivider Vertical="true" FlexItem="true" Class="mx-1" />
+        <Chip Text="Show prefixes" Icon="@Icons.Material.Filled.Tag" Color="Color.Secondary"
+              Selected="@Workspace.ShowPrefix" OnClick="@(() => UpdateAsync(w => w.ShowPrefix = !w.ShowPrefix))" />
+    </ChildContent>
+
+    <EndContent>
+        <IconButton Icon="@Icons.Material.Filled.ContentPaste" Tooltip="Paste" OnClick="PasteAsync" />
+        <IconButton Icon="@Icons.Material.Filled.Download" Tooltip="Download conversions (Ctrl+S)"
+                    Disabled="@(!_parse.IsSuccess)" OnClick="DownloadAsync" />
+        <IconButton Icon="@Icons.Material.Filled.CleaningServices" Tooltip="Clear" OnClick="ClearAsync" />
+    </EndContent>
+</Toolbar>
+
+<MudGrid Spacing="3">
+    <MudItem xs="12" lg="5">
+        <AppCard Title="Value" Icon="@Icons.Material.Filled.Pin"
+                 Subtitle="@($"Interpreted as {NumberBaseConverter.GetName(Workspace.SourceBase).ToLowerInvariant()}")">
+            <ChildContent>
+                <MudTextField T="string"
+                              Value="@Workspace.Input"
+                              ValueChanged="OnInputChangedAsync"
+                              Immediate="true"
+                              DebounceInterval="AppConstants.DebounceMilliseconds"
+                              Variant="Variant.Outlined"
+                              Margin="Margin.Dense"
+                              Class="devhub-mono-field"
+                              Placeholder="@Placeholder"
+                              Error="@(_parse.Error is not null)"
+                              ErrorText="@_parse.Error"
+                              aria-label="Value to convert" />
+            </ChildContent>
+        </AppCard>
+
+        <AppCard Title="Text to code points" Icon="@Icons.Material.Filled.Abc" Class="mt-3"
+                 Subtitle="Unicode scalars of any text — emoji included">
+            <Actions>
+                <CopyButton Text="@_codePoints" IconOnly="true" Disabled="@string.IsNullOrEmpty(_codePoints)" />
+            </Actions>
+            <ChildContent>
+                <MudTextField T="string"
+                              Value="@Workspace.Text"
+                              ValueChanged="OnTextChangedAsync"
+                              Immediate="true"
+                              DebounceInterval="AppConstants.DebounceMilliseconds"
+                              Variant="Variant.Outlined"
+                              Margin="Margin.Dense"
+                              Placeholder="Type text to see its code points…"
+                              aria-label="Text" />
+
+                @if (!string.IsNullOrEmpty(_codePoints))
+                {
+                    <pre class="devhub-number__codepoints mt-2">@_codePoints</pre>
+                }
+            </ChildContent>
+        </AppCard>
+    </MudItem>
+
+    <MudItem xs="12" lg="7">
+        <AppCard Title="Conversions" Icon="@Icons.Material.Filled.SwapHoriz">
+            <ChildContent>
+                @if (!_parse.HasValue)
+                {
+                    <EmptyState Icon="@Icons.Material.Outlined.Calculate"
+                                Title="Nothing to convert yet"
+                                Description="Enter a value on the left; every base updates as you type."
+                                Dense="true" />
+                }
+                else if (!_parse.IsSuccess)
+                {
+                    <ErrorState Title="That value cannot be parsed"
+                                Description="@_parse.Error"
+                                Dense="true"
+                                RetryText="@null" />
+                }
+                else
+                {
+                    <MudSimpleTable Dense="true" Hover="true" Bordered="false" Striped="false" Class="devhub-url__parts">
+                        <tbody>
+                            @foreach (var numberBase in NumberBaseConverter.All)
+                            {
+                                <tr @key="numberBase">
+                                    <td class="devhub-url__part-label">@NumberBaseConverter.GetName(numberBase)</td>
+                                    <td class="devhub-url__part-value">@Render(numberBase)</td>
+                                    <td class="devhub-url__part-action">
+                                        <CopyButton Text="@Render(numberBase)" IconOnly="true" Notify="false" />
+                                    </td>
+                                </tr>
+                            }
+
+                            <tr>
+                                <td class="devhub-url__part-label">Character</td>
+                                <td class="devhub-url__part-value">@CharacterLabel</td>
+                                <td class="devhub-url__part-action">
+                                    <CopyButton Text="@NumberBaseConverter.ToCharacter(_parse.Value)" IconOnly="true" Notify="false"
+                                                Disabled="@(NumberBaseConverter.ToCharacter(_parse.Value).Length == 0)" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="devhub-url__part-label">Code point</td>
+                                <td class="devhub-url__part-value">@CodePointLabel</td>
+                                <td class="devhub-url__part-action"></td>
+                            </tr>
+                        </tbody>
+                    </MudSimpleTable>
+                }
+            </ChildContent>
+        </AppCard>
+    </MudItem>
+</MudGrid>

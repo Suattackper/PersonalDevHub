@@ -1,0 +1,55 @@
+@* Activity sidebar. Workspace links are static; everything below them is rendered from the tool
+   catalogue, so a newly declared tool appears here without any edit to this file. *@
+@implements IDisposable
+
+<nav class="devhub-sidebar" aria-label="Tool navigation">
+    <div class="devhub-sidebar__filter">
+        <SearchBox Value="@_filter" ValueChanged="OnFilterChanged" Placeholder="Filter tools" />
+    </div>
+
+    <MudNavMenu Class="devhub-sidebar__menu" Rounded="true" Margin="Margin.Dense" Color="Color.Primary">
+        <MudNavLink Href="@AppRoutes.Dashboard" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.SpaceDashboard">
+            Dashboard
+        </MudNavLink>
+        <MudNavLink Href="@AppRoutes.History" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.History">
+            History
+        </MudNavLink>
+        <MudNavLink Href="@AppRoutes.Settings" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Settings">
+            Settings
+        </MudNavLink>
+
+        @if (_pinned.Count > 0)
+        {
+            <div class="devhub-sidebar__group-label">Pinned</div>
+            @foreach (var view in _pinned)
+            {
+                <MudNavLink Href="@view.Route" Match="NavLinkMatch.Prefix" Icon="@view.Tool.Icon">@view.Name</MudNavLink>
+            }
+        }
+
+        @if (_groups.Count == 0)
+        {
+            <div class="devhub-sidebar__empty">No tool matches “@_filter”.</div>
+        }
+
+        @foreach (var group in _groups)
+        {
+            <MudNavGroup Title="@group.Category.Label"
+                         Icon="@group.Category.Icon"
+                         Expanded="@IsGroupExpanded(group)">
+                @foreach (var view in group.Tools)
+                {
+                    <MudNavLink Href="@view.Route" Match="NavLinkMatch.Prefix" Icon="@view.Tool.Icon">
+                        @view.Name
+                    </MudNavLink>
+                }
+            </MudNavGroup>
+        }
+    </MudNavMenu>
+
+    <div class="devhub-sidebar__footer">
+        <MudText Typo="Typo.caption" Class="mud-text-secondary">
+            @($"v{AppConstants.AppVersion} · {_toolCount} tools · offline ready")
+        </MudText>
+    </div>
+</nav>

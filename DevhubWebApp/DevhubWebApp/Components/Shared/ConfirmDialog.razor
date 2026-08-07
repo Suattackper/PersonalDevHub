@@ -1,0 +1,49 @@
+@*
+    Generic confirmation dialog. Never instantiate it directly — call IDialogService through
+    DialogServiceExtensions.ConfirmAsync so every destructive action asks the same way.
+*@
+
+<MudDialog>
+    <TitleContent>
+        <div class="devhub-confirm__title">
+            <MudIcon Icon="@Icon" Color="@Color" />
+            <MudText Typo="Typo.h6">@Title</MudText>
+        </div>
+    </TitleContent>
+
+    <DialogContent>
+        <MudText Typo="Typo.body2" Class="mud-text-secondary">@Message</MudText>
+    </DialogContent>
+
+    <DialogActions>
+        <MudButton Variant="Variant.Text" OnClick="Cancel">@CancelText</MudButton>
+        <MudButton Variant="Variant.Filled" Color="@Color" OnClick="Confirm">@ConfirmText</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    /// <summary>Supplied by MudBlazor when the dialog is shown.</summary>
+    [CascadingParameter] private IMudDialogInstance Dialog { get; set; } = default!;
+
+    /// <summary>Dialog heading.</summary>
+    [Parameter] public string Title { get; set; } = "Are you sure?";
+
+    /// <summary>Explanation of the consequence, ideally naming what will be lost.</summary>
+    [Parameter] public string Message { get; set; } = "This action cannot be undone.";
+
+    /// <summary>Label of the confirming button.</summary>
+    [Parameter] public string ConfirmText { get; set; } = "Confirm";
+
+    /// <summary>Label of the dismissing button.</summary>
+    [Parameter] public string CancelText { get; set; } = "Cancel";
+
+    /// <summary>Icon shown next to the title.</summary>
+    [Parameter] public string Icon { get; set; } = Icons.Material.Filled.WarningAmber;
+
+    /// <summary>Severity color; use Error for destructive actions.</summary>
+    [Parameter] public Color Color { get; set; } = Color.Error;
+
+    private void Confirm() => Dialog.Close(DialogResult.Ok(true));
+
+    private void Cancel() => Dialog.Cancel();
+}

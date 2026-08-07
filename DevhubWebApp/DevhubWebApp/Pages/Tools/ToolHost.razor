@@ -1,0 +1,50 @@
+@page "/tools/{ToolId}"
+@using DevhubWebApp.Models.Tools
+@implements IDisposable
+
+@* Single route for every tool. The host resolves metadata from the registry and renders the
+   discovered component dynamically — adding a tool never touches this file. *@
+
+@if (_view is null)
+{
+    <PageTitle>@AppConstants.AppName</PageTitle>
+
+    <EmptyState Icon="@Icons.Material.Outlined.SearchOff"
+                Title="Unknown tool"
+                Description="@($"There is no tool registered with the id “{ToolId}”.")"
+                ActionText="Back to dashboard"
+                ActionHref="@AppRoutes.Dashboard" />
+}
+else
+{
+    <PageTitle>@_view.Name · @AppConstants.AppName</PageTitle>
+
+    <PageHeader Title="@_view.Name" Subtitle="@_view.Tool.Description" Icon="@_view.Tool.Icon" IconColor="@_view.Tool.Color">
+        <MetaContent>
+            <Badge Text="@_view.Tool.Category.Label" Icon="@_view.Tool.Category.Icon" />
+            <Badge Text="@($"v{_view.Tool.Version}")" />
+            @if (_view.Tool.IsExperimental)
+            {
+                <Badge Text="Experimental" Icon="@Icons.Material.Filled.Science" Color="Color.Warning" />
+            }
+            @foreach (var tag in _view.Tool.Tags)
+            {
+                <Badge Text="@tag" />
+            }
+        </MetaContent>
+        <Actions>
+            <IconButton Icon="@(_view.IsFavorite ? Icons.Material.Filled.Star : Icons.Material.Outlined.StarBorder)"
+                        Tooltip="@(_view.IsFavorite ? "Remove from favorites" : "Add to favorites")"
+                        Color="@(_view.IsFavorite ? Color.Warning : Color.Default)"
+                        OnClick="ToggleFavoriteAsync" />
+            <IconButton Icon="@(_view.IsPinned ? Icons.Material.Filled.PushPin : Icons.Material.Outlined.PushPin)"
+                        Tooltip="@(_view.IsPinned ? "Unpin from sidebar" : "Pin to sidebar")"
+                        Color="@(_view.IsPinned ? Color.Primary : Color.Default)"
+                        OnClick="TogglePinAsync" />
+        </Actions>
+    </PageHeader>
+
+    <CascadingValue Value="_context" IsFixed="false">
+        <DynamicComponent Type="_view.Tool.ComponentType" />
+    </CascadingValue>
+}

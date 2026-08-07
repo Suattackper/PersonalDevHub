@@ -1,0 +1,49 @@
+@*
+    "Nothing here yet" surface. A thin, intent-revealing wrapper over StateMessage so empty and
+    error states cannot drift apart visually.
+*@
+
+<StateMessage Icon="@Icon"
+              Title="@Title"
+              Description="@Description"
+              ActionText="@ActionText"
+              ActionIcon="@ActionIcon"
+              ActionHref="@ActionHref"
+              OnAction="OnAction"
+              Accent="Color.Primary"
+              Dense="@Dense"
+              Class="@Class">
+    @ChildContent
+</StateMessage>
+
+@code {
+    /// <summary>Icon representing the missing content.</summary>
+    [Parameter] public string Icon { get; set; } = Icons.Material.Outlined.Inbox;
+
+    /// <summary>Headline, e.g. "No favorites yet".</summary>
+    [Parameter, EditorRequired] public string Title { get; set; } = string.Empty;
+
+    /// <summary>Guidance on how to populate this area.</summary>
+    [Parameter] public string? Description { get; set; }
+
+    /// <summary>Label of the optional call-to-action.</summary>
+    [Parameter] public string? ActionText { get; set; }
+
+    /// <summary>Optional icon rendered before the action label.</summary>
+    [Parameter] public string? ActionIcon { get; set; }
+
+    /// <summary>Navigation target for the action button.</summary>
+    [Parameter] public string? ActionHref { get; set; }
+
+    /// <summary>Raised when the action button is clicked.</summary>
+    [Parameter] public EventCallback OnAction { get; set; }
+
+    /// <summary>Compact variant for use inside cards and panels.</summary>
+    [Parameter] public bool Dense { get; set; }
+
+    /// <summary>Additional content placed below the action.</summary>
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    /// <summary>Extra CSS classes appended to the root element.</summary>
+    [Parameter] public string? Class { get; set; }
+}

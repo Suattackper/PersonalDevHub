@@ -1,0 +1,29 @@
+@*
+    Responsive grid of tool cards. Wrapping the layout here means every "list of tools" surface —
+    dashboard sections, search results, category pages — shares one breakpoint set.
+*@
+
+<MudGrid Spacing="3" Class="@Class">
+    @foreach (var view in Views)
+    {
+        <MudItem xs="12" sm="6" lg="4" xl="3" @key="view.Id">
+            <ToolCard View="view"
+                      OnToggleFavorite="OnToggleFavorite"
+                      OnTogglePin="OnTogglePin" />
+        </MudItem>
+    }
+</MudGrid>
+
+@code {
+    /// <summary>Tools to render, already ordered by the caller.</summary>
+    [Parameter, EditorRequired] public IReadOnlyList<ToolView> Views { get; set; } = Array.Empty<ToolView>();
+
+    /// <summary>Forwarded from each card's favorite toggle.</summary>
+    [Parameter] public EventCallback<ToolView> OnToggleFavorite { get; set; }
+
+    /// <summary>Forwarded from each card's pin toggle.</summary>
+    [Parameter] public EventCallback<ToolView> OnTogglePin { get; set; }
+
+    /// <summary>Extra CSS classes appended to the grid.</summary>
+    [Parameter] public string? Class { get; set; }
+}

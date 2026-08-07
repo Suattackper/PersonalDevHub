@@ -1,0 +1,17 @@
+@using BlazorMonaco.Editor
+@using MudBlazor.Utilities
+
+@*
+    Monaco wrapper shared by every tool that edits text. It owns the editor lifecycle, theme
+    synchronisation and error markers, so no tool component talks to Monaco directly.
+*@
+
+<div class="@CssClass">
+    <StandaloneCodeEditor @ref="_editor"
+                          Id="@_elementId"
+                          ConstructionOptions="BuildOptions"
+                          OnDidInit="OnEditorInitAsync"
+                          OnDidChangeModelContent="OnContentChangedAsync"
+                          OnDidPaste="OnPasteAsync"
+                          CssClass="devhub-editor__surface" />
+</div>

@@ -1,0 +1,71 @@
+@*
+    Centred icon + title + description + optional action. This is the shared primitive behind
+    EmptyState and ErrorState; prefer those wrappers in feature code so intent stays explicit.
+*@
+
+<div class="@CssClass">
+    <div class="devhub-state__badge devhub-state__badge--@(Accent.ToDescriptionString())">
+        <MudIcon Icon="@Icon" Size="Size.Large" />
+    </div>
+
+    <MudText Typo="Typo.h6" Class="mt-4">@Title</MudText>
+
+    @if (!string.IsNullOrWhiteSpace(Description))
+    {
+        <MudText Typo="Typo.body2" Class="mud-text-secondary mt-1 devhub-state__description">@Description</MudText>
+    }
+
+    @if (!string.IsNullOrWhiteSpace(ActionText))
+    {
+        <MudButton Class="mt-4"
+                   Variant="Variant.Filled"
+                   Color="@Accent"
+                   StartIcon="@ActionIcon"
+                   Href="@ActionHref"
+                   OnClick="OnAction">
+            @ActionText
+        </MudButton>
+    }
+
+    @ChildContent
+</div>
+
+@code {
+    /// <summary>Illustrative icon shown above the title.</summary>
+    [Parameter] public string Icon { get; set; } = Icons.Material.Outlined.Inbox;
+
+    /// <summary>Headline describing the state.</summary>
+    [Parameter, EditorRequired] public string Title { get; set; } = string.Empty;
+
+    /// <summary>Optional explanation of what happened or what to do next.</summary>
+    [Parameter] public string? Description { get; set; }
+
+    /// <summary>Label of the call-to-action button. The button is hidden when empty.</summary>
+    [Parameter] public string? ActionText { get; set; }
+
+    /// <summary>Optional icon rendered before the action label.</summary>
+    [Parameter] public string? ActionIcon { get; set; }
+
+    /// <summary>Navigation target for the action button.</summary>
+    [Parameter] public string? ActionHref { get; set; }
+
+    /// <summary>Raised when the action button is clicked.</summary>
+    [Parameter] public EventCallback OnAction { get; set; }
+
+    /// <summary>Theme color driving the icon badge and the action button.</summary>
+    [Parameter] public Color Accent { get; set; } = Color.Default;
+
+    /// <summary>Renders the state inline (no vertical padding), for use inside small panels.</summary>
+    [Parameter] public bool Dense { get; set; }
+
+    /// <summary>Additional content placed below the action.</summary>
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    /// <summary>Extra CSS classes appended to the root element.</summary>
+    [Parameter] public string? Class { get; set; }
+
+    private string CssClass => new CssBuilder("devhub-state")
+        .AddClass("devhub-state--dense", Dense)
+        .AddClass(Class)
+        .Build();
+}

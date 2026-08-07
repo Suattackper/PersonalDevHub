@@ -1,0 +1,206 @@
+﻿@attribute [Tool(ToolIds.QrCode,
+              "QR Code",
+              ToolCategories.GeneratorsId,
+              "Generate QR codes for text, links, Wi-Fi, contacts and more.",
+              Icons.Material.Filled.QrCode2,
+              Order = 30,
+              Keywords = new[] { "qr", "barcode", "scan", "wifi", "vcard", "png", "svg" })]
+
+@using DevhubWebApp.Models.Tools.Qr
+@using DevhubWebApp.Utilities
+@inherits ToolComponentBase<QrWorkspace>
+
+@* Payload construction and rendering are services; this component binds them to the UI. *@
+
+<Toolbar Class="mb-3">
+    <ChildContent>
+        @foreach (var kind in Kinds)
+        {
+            <Chip Text="@QrPayloadBuilder.GetName(kind)"
+                  Icon="@GetKindIcon(kind)"
+                  Color="Color.Primary"
+                  Selected="@(Workspace.Kind == kind)"
+                  OnClick="@(() => SetKindAsync(kind))" />
+        }
+    </ChildContent>
+
+    <EndContent>
+        <IconButton Icon="@Icons.Material.Filled.ContentPaste" Tooltip="Paste" OnClick="PasteAsync" />
+        <IconButton Icon="@Icons.Material.Filled.Image" Tooltip="Download PNG (Ctrl+S)"
+                    Disabled="@(!HasCode)" OnClick="DownloadPngAsync" />
+        <IconButton Icon="@Icons.Material.Filled.Code" Tooltip="Download SVG"
+                    Disabled="@(!HasCode)" OnClick="DownloadSvgAsync" />
+        <CopyButton Text="@_content" IconOnly="true" Label="Copy payload" Disabled="@(!HasCode)" />
+    </EndContent>
+</Toolbar>
+
+<MudGrid Spacing="3">
+    <MudItem xs="12" lg="6">
+        <AppCard Title="@($"{QrPayloadBuilder.GetName(Workspace.Kind)} content")" Icon="@GetKindIcon(Workspace.Kind)">
+            <ChildContent>
+                @switch (Workspace.Kind)
+                {
+                    case QrPayloadKind.WiFi:
+                        <MudTextField T="string" Value="@Workspace.Ssid" ValueChanged="@(v => Update(w => w.Ssid = v ?? string.Empty))"
+                                      Immediate="true" DebounceInterval="AppConstants.DebounceMilliseconds"
+                                      Variant="Variant.Outlined" Margin="Margin.Dense" Label="Network name (SSID)" />
+                        <MudSelect T="WiFiSecurity" Value="@Workspace.Security" ValueChanged="@(v => Update(w => w.Security = v))"
+                                   Variant="Variant.Outlined" Margin="Margin.Dense" Dense="true" Label="Security" Class="mt-2">
+                            @foreach (var security in SecurityModes)
+                            {
+                                <MudSelectItem T="WiFiSecurity" Value="@security">@security</MudSelectItem>
+                            }
+                        </MudSelect>
+                        @if (Workspace.Security != WiFiSecurity.None)
+                        {
+                            <MudTextField T="string" Value="@Workspace.Password" ValueChanged="@(v => Update(w => w.Password = v ?? string.Empty))"
+                                          Immediate="true" DebounceInterval="AppConstants.DebounceMilliseconds"
+                                          Variant="Variant.Outlined" Margin="Margin.Dense" Label="Password" Class="mt-2" />
+                        }
+                        <SettingItem Label="Hidden network" Description="The SSID is not broadcast." Last="true">
+                            <MudSwitch T="bool" Value="@Workspace.HiddenNetwork" ValueChanged="@(v => Update(w => w.HiddenNetwork = v))" Color="Color.Primary" />
+                        </SettingItem>
+                        break;
+
+                    case QrPayloadKind.VCard:
+                        <div class="devhub-qr__pair">
+                            <MudTextField T="string" Value="@Workspace.FirstName" ValueChanged="@(v => Update(w => w.FirstName = v ?? string.Empty))"
+                                          Immediate="true" DebounceInterval="AppConstants.DebounceMilliseconds"
+                                          Variant="Variant.Outlined" Margin="Margin.Dense" Label="First name" />
+                            <MudTextField T="string" Value="@Workspace.LastName" ValueChanged="@(v => Update(w => w.LastName = v ?? string.Empty))"
+                                          Immediate="true" DebounceInterval="AppConstants.DebounceMilliseconds"
+                                          Variant="Variant.Outlined" Margin="Margin.Dense" Label="Last name" />
+                        </div>
+                        <div class="devhub-qr__pair mt-2">
+                            <MudTextField T="string" Value="@Workspace.Organisation" ValueChanged="@(v => Update(w => w.Organisation = v ?? string.Empty))"
+                                          Immediate="true" DebounceInterval="AppConstants.DebounceMilliseconds"
+                                          Variant="Variant.Outlined" Margin="Margin.Dense" Label="Organisation" />
+                            <MudTextField T="string" Value="@Workspace.Title" ValueChanged="@(v => Update(w => w.Title = v ?? string.Empty))"
+                                          Immediate="true" DebounceInterval="AppConstants.DebounceMilliseconds"
+                                          Variant="Variant.Outlined" Margin="Margin.Dense" Label="Job title" />
+                        </div>
+                        <div class="devhub-qr__pair mt-2">
+                            <MudTextField T="string" Value="@Workspace.Email" ValueChanged="@(v => Update(w => w.Email = v ?? string.Empty))"
+                                          Immediate="true" DebounceInterval="AppConstants.DebounceMilliseconds"
+                                          Variant="Variant.Outlined" Margin="Margin.Dense" Label="Email" />
+                            <MudTextField T="string" Value="@Workspace.Phone" ValueChanged="@(v => Update(w => w.Phone = v ?? string.Empty))"
+                                          Immediate="true" DebounceInterval="AppConstants.DebounceMilliseconds"
+                                          Variant="Variant.Outlined" Margin="Margin.Dense" Label="Phone" />
+                        </div>
+                        <MudTextField T="string" Value="@Workspace.Website" ValueChanged="@(v => Update(w => w.Website = v ?? string.Empty))"
+                                      Immediate="true" DebounceInterval="AppConstants.DebounceMilliseconds"
+                                      Variant="Variant.Outlined" Margin="Margin.Dense" Label="Website" Class="mt-2" />
+                        break;
+
+                    case QrPayloadKind.Location:
+                        <div class="devhub-qr__pair">
+                            <MudTextField T="string" Value="@Workspace.Latitude" ValueChanged="@(v => Update(w => w.Latitude = v ?? string.Empty))"
+                                          Immediate="true" DebounceInterval="AppConstants.DebounceMilliseconds"
+                                          Variant="Variant.Outlined" Margin="Margin.Dense" Label="Latitude" />
+                            <MudTextField T="string" Value="@Workspace.Longitude" ValueChanged="@(v => Update(w => w.Longitude = v ?? string.Empty))"
+                                          Immediate="true" DebounceInterval="AppConstants.DebounceMilliseconds"
+                                          Variant="Variant.Outlined" Margin="Margin.Dense" Label="Longitude" />
+                        </div>
+                        break;
+
+                    case QrPayloadKind.Email:
+                        <MudTextField T="string" Value="@Workspace.Email" ValueChanged="@(v => Update(w => w.Email = v ?? string.Empty))"
+                                      Immediate="true" DebounceInterval="AppConstants.DebounceMilliseconds"
+                                      Variant="Variant.Outlined" Margin="Margin.Dense" Label="Recipient" />
+                        <MudTextField T="string" Value="@Workspace.Subject" ValueChanged="@(v => Update(w => w.Subject = v ?? string.Empty))"
+                                      Immediate="true" DebounceInterval="AppConstants.DebounceMilliseconds"
+                                      Variant="Variant.Outlined" Margin="Margin.Dense" Label="Subject" Class="mt-2" />
+                        <MudTextField T="string" Value="@Workspace.Body" ValueChanged="@(v => Update(w => w.Body = v ?? string.Empty))"
+                                      Immediate="true" DebounceInterval="AppConstants.DebounceMilliseconds"
+                                      Variant="Variant.Outlined" Margin="Margin.Dense" Lines="3" Label="Message" Class="mt-2" />
+                        break;
+
+                    case QrPayloadKind.Phone:
+                    case QrPayloadKind.Sms:
+                        <MudTextField T="string" Value="@Workspace.Phone" ValueChanged="@(v => Update(w => w.Phone = v ?? string.Empty))"
+                                      Immediate="true" DebounceInterval="AppConstants.DebounceMilliseconds"
+                                      Variant="Variant.Outlined" Margin="Margin.Dense" Label="Phone number" />
+                        @if (Workspace.Kind == QrPayloadKind.Sms)
+                        {
+                            <MudTextField T="string" Value="@Workspace.Body" ValueChanged="@(v => Update(w => w.Body = v ?? string.Empty))"
+                                          Immediate="true" DebounceInterval="AppConstants.DebounceMilliseconds"
+                                          Variant="Variant.Outlined" Margin="Margin.Dense" Lines="3" Label="Message" Class="mt-2" />
+                        }
+                        break;
+
+                    default:
+                        <MudTextField T="string" Value="@Workspace.Text" ValueChanged="@(v => Update(w => w.Text = v ?? string.Empty))"
+                                      Immediate="true" DebounceInterval="AppConstants.DebounceMilliseconds"
+                                      Variant="Variant.Outlined" Margin="Margin.Dense" Lines="5"
+                                      Label="@(Workspace.Kind == QrPayloadKind.Url ? "URL" : "Text")"
+                                      Placeholder="@(Workspace.Kind == QrPayloadKind.Url ? "example.com" : "Anything you want to encodeâ€¦")" />
+                        break;
+                }
+
+                @if (_capacityExceeded)
+                {
+                    <MudAlert Severity="Severity.Error" Dense="true" Class="mt-2">
+                        @($"This payload is {_content.Length:N0} characters; the limit at this correction level is {_capacity:N0}. Shorten it or lower the correction level.")
+                    </MudAlert>
+                }
+            </ChildContent>
+        </AppCard>
+
+        <AppCard Title="Appearance" Icon="@Icons.Material.Filled.Palette" Class="mt-3">
+            <ChildContent>
+                <SettingItem Label="Module size" Description="@($"{Workspace.PixelsPerModule} px per module")">
+                    <MudSlider T="int" Value="@Workspace.PixelsPerModule" ValueChanged="@(v => Update(w => w.PixelsPerModule = v))"
+                               Min="4" Max="30" Color="Color.Primary" Class="devhub-password__slider" />
+                </SettingItem>
+                <SettingItem Label="Quiet zone" Description="Scanners need a clear margin around the code.">
+                    <MudSlider T="int" Value="@Workspace.MarginModules" ValueChanged="@(v => Update(w => w.MarginModules = v))"
+                               Min="0" Max="8" Color="Color.Primary" Class="devhub-password__slider" />
+                </SettingItem>
+                <SettingItem Label="Error correction" Description="@CorrectionDescription">
+                    <MudSelect T="QrErrorCorrection" Value="@Workspace.Correction" ValueChanged="@(v => Update(w => w.Correction = v))"
+                               Variant="Variant.Outlined" Margin="Margin.Dense" Dense="true" Class="devhub-password__number">
+                        @foreach (var level in CorrectionLevels)
+                        {
+                            <MudSelectItem T="QrErrorCorrection" Value="@level">@level</MudSelectItem>
+                        }
+                    </MudSelect>
+                </SettingItem>
+                <SettingItem Label="Colours" Description="Keep the contrast high or scanners will fail." Last="true">
+                    <div class="devhub-qr__colors">
+                        <MudTextField T="string" Value="@Workspace.Foreground" ValueChanged="@(v => Update(w => w.Foreground = v ?? "#000000"))"
+                                      Variant="Variant.Outlined" Margin="Margin.Dense" Label="Foreground" Class="devhub-mono-field" />
+                        <MudTextField T="string" Value="@Workspace.Background" ValueChanged="@(v => Update(w => w.Background = v ?? "#ffffff"))"
+                                      Variant="Variant.Outlined" Margin="Margin.Dense" Label="Background" Class="devhub-mono-field" />
+                    </div>
+                </SettingItem>
+            </ChildContent>
+        </AppCard>
+    </MudItem>
+
+    <MudItem xs="12" lg="6">
+        <AppCard Title="Preview" Icon="@Icons.Material.Filled.Preview" Subtitle="@PreviewSubtitle">
+            <ChildContent>
+                @if (_error is not null)
+                {
+                    <ErrorState Title="Could not render this code" Description="@_error" Dense="true" RetryText="@null" />
+                }
+                else if (!HasCode)
+                {
+                    <EmptyState Icon="@Icons.Material.Outlined.QrCode2"
+                                Title="Nothing to encode yet"
+                                Description="Fill in the fields on the left; the code updates as you type."
+                                Dense="true" />
+                }
+                else
+                {
+                    <div class="devhub-qr__preview" style="@($"background-color: {Workspace.Background};")">
+                        <img src="@_previewDataUri" alt="QR code preview" />
+                    </div>
+
+                    <pre class="devhub-qr__payload mt-3">@_content</pre>
+                }
+            </ChildContent>
+        </AppCard>
+    </MudItem>
+</MudGrid>
+

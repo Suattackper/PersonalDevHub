@@ -1,0 +1,1267 @@
+/* DevHub design system — component styling.
+   Every color is a MudBlazor palette variable, so light and dark themes are handled by the
+   theme provider and nothing here needs a media query. */
+
+:root {
+    --devhub-radius: 10px;
+    --devhub-radius-sm: 6px;
+    --devhub-ease: 140ms cubic-bezier(0.4, 0, 0.2, 1);
+    --devhub-shadow-hover: 0 6px 20px rgba(0, 0, 0, 0.28);
+}
+
+/* ---------- AppCard ---------- */
+
+.devhub-card {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--mud-palette-divider);
+    border-radius: var(--devhub-radius);
+    background-color: var(--mud-palette-surface);
+    transition: border-color var(--devhub-ease), transform var(--devhub-ease), box-shadow var(--devhub-ease);
+}
+
+.devhub-card__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--mud-palette-divider);
+}
+
+.devhub-card__heading {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.devhub-card__actions {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.devhub-card__body {
+    flex: 1 1 auto;
+    padding: 16px;
+}
+
+.devhub-card--flush > .devhub-card__body {
+    padding: 0;
+}
+
+.devhub-card__footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 10px 16px;
+    border-top: 1px solid var(--mud-palette-divider);
+}
+
+.devhub-card--interactive {
+    cursor: pointer;
+}
+
+.devhub-card--interactive:hover {
+    border-color: var(--mud-palette-primary);
+    transform: translateY(-2px);
+    box-shadow: var(--devhub-shadow-hover);
+}
+
+.devhub-card--interactive:focus-visible {
+    outline: 2px solid var(--mud-palette-primary);
+    outline-offset: 2px;
+}
+
+/* ---------- ToolCard ---------- */
+
+.devhub-tool-card__head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+}
+
+.devhub-tool-card__icon {
+    display: grid;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    border-radius: var(--devhub-radius-sm);
+    background-color: var(--mud-palette-primary-hover);
+}
+
+.devhub-tool-card__actions {
+    display: flex;
+    opacity: 0;
+    transition: opacity var(--devhub-ease);
+}
+
+.devhub-card:hover .devhub-tool-card__actions,
+.devhub-tool-card__actions:focus-within {
+    opacity: 1;
+}
+
+.devhub-tool-card__description {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    min-height: 2.6em;
+}
+
+/* ---------- StatCard ---------- */
+
+.devhub-stat__row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.devhub-stat__value-row {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+}
+
+.devhub-stat__value {
+    font-variant-numeric: tabular-nums;
+    line-height: 1.2;
+}
+
+.devhub-stat__icon {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border-radius: var(--devhub-radius-sm);
+    flex: 0 0 auto;
+}
+
+/* ---------- states ---------- */
+
+.devhub-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 56px 24px;
+    animation: devhub-fade-in var(--devhub-ease);
+}
+
+.devhub-state--dense {
+    padding: 24px 16px;
+}
+
+.devhub-state__description {
+    max-width: 46ch;
+}
+
+.devhub-state__badge {
+    display: grid;
+    place-items: center;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    color: var(--mud-palette-text-secondary);
+    background-color: var(--mud-palette-action-default-hover);
+}
+
+.devhub-state__badge--primary {
+    color: var(--mud-palette-primary);
+    background-color: var(--mud-palette-primary-hover);
+}
+
+.devhub-state__badge--error {
+    color: var(--mud-palette-error);
+    background-color: var(--mud-palette-error-hover);
+}
+
+.devhub-state__badge--warning {
+    color: var(--mud-palette-warning);
+    background-color: var(--mud-palette-warning-hover);
+}
+
+.devhub-state__badge--success {
+    color: var(--mud-palette-success);
+    background-color: var(--mud-palette-success-hover);
+}
+
+.devhub-state__detail {
+    width: min(560px, 100%);
+    text-align: left;
+    background-color: transparent;
+}
+
+.devhub-state__detail-text {
+    margin: 0;
+    white-space: pre-wrap;
+    word-break: break-word;
+    font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+    font-size: 0.75rem;
+    color: var(--mud-palette-text-secondary);
+}
+
+/* ---------- skeleton ---------- */
+
+.devhub-skeleton__card {
+    padding: 16px;
+    border: 1px solid var(--mud-palette-divider);
+    border-radius: var(--devhub-radius);
+    margin-bottom: 12px;
+}
+
+.devhub-skeleton__row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+}
+
+.devhub-skeleton__row-text {
+    flex: 1 1 auto;
+}
+
+/* ---------- section / divider titles ---------- */
+
+.devhub-section-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.devhub-section-title__main,
+.devhub-section-title__actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.devhub-divider-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 24px 0 12px;
+    color: var(--mud-palette-text-secondary);
+}
+
+.devhub-divider-title__text {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.devhub-divider-title__line {
+    flex: 1 1 auto;
+    height: 1px;
+    background-color: var(--mud-palette-divider);
+}
+
+/* ---------- page header ---------- */
+
+.devhub-page-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.devhub-page-header__title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.devhub-page-header__icon {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border-radius: var(--devhub-radius-sm);
+    background-color: var(--mud-palette-primary-hover);
+}
+
+.devhub-page-header__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 8px;
+}
+
+.devhub-page-header__actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* ---------- toolbar ---------- */
+
+.devhub-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    border-radius: var(--devhub-radius);
+}
+
+.devhub-toolbar--bordered {
+    border: 1px solid var(--mud-palette-divider);
+    background-color: var(--mud-palette-surface);
+}
+
+.devhub-toolbar--dense {
+    padding: 6px 8px;
+}
+
+.devhub-toolbar__group {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+}
+
+.devhub-toolbar__spacer {
+    flex: 1 1 auto;
+}
+
+/* ---------- badge & chip ---------- */
+
+.devhub-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    line-height: 1.6;
+    white-space: nowrap;
+    color: var(--mud-palette-text-secondary);
+    background-color: var(--mud-palette-action-default-hover);
+}
+
+.devhub-badge__icon {
+    font-size: 0.9rem;
+}
+
+.devhub-chip {
+    transition: transform var(--devhub-ease);
+}
+
+.devhub-chip:hover {
+    transform: translateY(-1px);
+}
+
+/* ---------- drop zone ---------- */
+
+.devhub-dropzone {
+    position: relative;
+    display: grid;
+    place-items: center;
+    min-height: 160px;
+    padding: 24px;
+    border: 1px dashed var(--mud-palette-lines-default);
+    border-radius: var(--devhub-radius);
+    background-color: var(--mud-palette-surface);
+    text-align: center;
+    transition: border-color var(--devhub-ease), background-color var(--devhub-ease);
+}
+
+.devhub-dropzone--dense {
+    min-height: 96px;
+    padding: 12px;
+}
+
+.devhub-dropzone--active {
+    border-color: var(--mud-palette-primary);
+    background-color: var(--mud-palette-primary-hover);
+}
+
+.devhub-dropzone__input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.devhub-dropzone__icon {
+    color: var(--mud-palette-text-secondary);
+}
+
+.devhub-dropzone__content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    pointer-events: none;
+}
+
+/* ---------- overlay & dialog ---------- */
+
+.devhub-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 10;
+    display: grid;
+    place-items: center;
+    background-color: var(--mud-palette-overlay-dark);
+    border-radius: inherit;
+    animation: devhub-fade-in var(--devhub-ease);
+}
+
+.devhub-overlay--fullscreen {
+    position: fixed;
+    z-index: 2000;
+}
+
+.devhub-overlay__box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.devhub-confirm__title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* ---------- setting row ---------- */
+
+.devhub-setting {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--mud-palette-divider);
+}
+
+.devhub-setting--last {
+    border-bottom: none;
+}
+
+.devhub-setting__label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.devhub-setting__control {
+    flex: 0 0 auto;
+    min-width: 180px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+/* ---------- dashboard ---------- */
+
+.devhub-dashboard-section {
+    margin-top: 28px;
+}
+
+.devhub-dashboard-section:first-of-type {
+    margin-top: 8px;
+}
+
+.devhub-history-list__row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    width: 100%;
+}
+
+/* ---------- code editor ---------- */
+
+.devhub-editor,
+.devhub-editor__surface {
+    height: 100%;
+    min-height: 0;
+}
+
+/* ---------- JSON tool ---------- */
+
+.devhub-json {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+    height: clamp(320px, 58vh, 720px);
+}
+
+/* The split is user-resizable: the editor keeps a sane minimum and the tree takes the rest. */
+.devhub-json--split {
+    grid-template-columns: minmax(320px, 1fr) minmax(260px, 34%);
+}
+
+.devhub-json__editor,
+.devhub-json__tree {
+    overflow: hidden;
+    min-width: 0;
+    resize: horizontal;
+}
+
+.devhub-json__tree {
+    resize: none;
+}
+
+.devhub-json__tree-scroll {
+    height: 100%;
+    overflow: auto;
+    padding: 8px;
+}
+
+.devhub-json__node {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    min-width: 0;
+    font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+    font-size: 0.75rem;
+}
+
+.devhub-json__node-name {
+    color: var(--mud-palette-primary);
+    white-space: nowrap;
+}
+
+.devhub-json__node-value {
+    color: var(--mud-palette-text-secondary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.devhub-json__status {
+    margin-top: 16px;
+}
+
+.devhub-json__error-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    width: 100%;
+}
+
+@media (max-width: 900px) {
+    .devhub-json--split {
+        grid-template-columns: 1fr;
+        height: auto;
+    }
+
+    .devhub-json__editor {
+        height: 45vh;
+        resize: none;
+    }
+
+    .devhub-json__tree {
+        height: 40vh;
+    }
+}
+
+/* ---------- Markdown tool ---------- */
+
+.devhub-markdown {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+    height: clamp(320px, 58vh, 760px);
+}
+
+.devhub-markdown--split {
+    grid-template-columns: 1fr 1fr;
+}
+
+.devhub-markdown--fullscreen {
+    position: fixed;
+    inset: 0;
+    z-index: 1400;
+    height: 100vh;
+    padding: 16px;
+    background-color: var(--mud-palette-background);
+}
+
+.devhub-markdown__editor,
+.devhub-markdown__preview {
+    overflow: hidden;
+    min-width: 0;
+}
+
+.devhub-markdown__preview-body {
+    display: block;
+    height: 100%;
+    overflow: auto;
+    padding: 20px 24px;
+    line-height: 1.65;
+}
+
+.devhub-markdown__preview-body h1,
+.devhub-markdown__preview-body h2 {
+    padding-bottom: .3em;
+    border-bottom: 1px solid var(--mud-palette-divider);
+}
+
+.devhub-markdown__preview-body code {
+    padding: .2em .4em;
+    border-radius: 6px;
+    background-color: var(--mud-palette-action-default-hover);
+    font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+    font-size: .85em;
+}
+
+.devhub-markdown__preview-body pre {
+    padding: 14px;
+    overflow: auto;
+    border-radius: var(--devhub-radius-sm);
+    background-color: var(--mud-palette-background-gray);
+}
+
+.devhub-markdown__preview-body pre code {
+    padding: 0;
+    background: none;
+}
+
+.devhub-markdown__preview-body blockquote {
+    margin: 0;
+    padding: 0 1em;
+    color: var(--mud-palette-text-secondary);
+    border-left: .25em solid var(--mud-palette-divider);
+}
+
+.devhub-markdown__preview-body table {
+    border-collapse: collapse;
+    display: block;
+    overflow: auto;
+}
+
+.devhub-markdown__preview-body th,
+.devhub-markdown__preview-body td {
+    padding: 6px 13px;
+    border: 1px solid var(--mud-palette-divider);
+}
+
+.devhub-markdown__preview-body img {
+    max-width: 100%;
+}
+
+.devhub-markdown__status {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.devhub-markdown__stats,
+.devhub-markdown__recent {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+}
+
+@media (max-width: 900px) {
+    .devhub-markdown--split {
+        grid-template-columns: 1fr;
+        height: auto;
+    }
+
+    .devhub-markdown--split .devhub-markdown__editor,
+    .devhub-markdown--split .devhub-markdown__preview {
+        height: 45vh;
+    }
+}
+
+/* ---------- text diff tool ---------- */
+
+.devhub-diff-summary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.devhub-diff-source__input textarea {
+    font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+    font-size: 0.8125rem;
+}
+
+.devhub-diff__viewer {
+    height: clamp(280px, 46vh, 640px);
+    overflow: hidden;
+}
+
+/* ---------- Base64 toolkit ---------- */
+
+.devhub-base64__input textarea {
+    font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+    font-size: 0.8125rem;
+    word-break: break-all;
+}
+
+.devhub-base64__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.devhub-base64__preview {
+    display: grid;
+    place-items: center;
+    padding: 16px;
+    border: 1px solid var(--mud-palette-divider);
+    border-radius: var(--devhub-radius-sm);
+    background-color: var(--mud-palette-background-gray);
+}
+
+.devhub-base64__preview img {
+    max-width: 100%;
+    max-height: 320px;
+}
+
+/* ---------- shared field treatment ---------- */
+
+.devhub-mono-field input,
+.devhub-mono-field textarea {
+    font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+    font-size: 0.8125rem;
+}
+
+/* ---------- URL toolkit ---------- */
+
+.devhub-url__actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.devhub-url__parts td {
+    border: none;
+    padding: 6px 8px;
+}
+
+.devhub-url__part-label {
+    width: 110px;
+    color: var(--mud-palette-text-secondary);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+}
+
+.devhub-url__part-value {
+    font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+    font-size: 0.8125rem;
+    word-break: break-all;
+}
+
+.devhub-url__part-action {
+    width: 40px;
+    text-align: right;
+}
+
+.devhub-url__param {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto auto;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 0;
+}
+
+@media (max-width: 700px) {
+    .devhub-url__param {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+/* ---------- JWT decoder ---------- */
+
+.devhub-jwt__input textarea {
+    word-break: break-all;
+}
+
+.devhub-jwt__json {
+    margin: 0;
+    max-height: 320px;
+    overflow: auto;
+    padding: 12px;
+    border-radius: var(--devhub-radius-sm);
+    background-color: var(--mud-palette-background-gray);
+    font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+    font-size: 0.75rem;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.devhub-jwt__signature {
+    color: var(--mud-palette-secondary);
+}
+
+/* ---------- hash tool ---------- */
+
+.devhub-hash__file {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border: 1px solid var(--mud-palette-divider);
+    border-radius: var(--devhub-radius-sm);
+    background-color: var(--mud-palette-background-gray);
+}
+
+.devhub-hash__file-info {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.devhub-hash__value {
+    display: block;
+    padding: 10px 12px;
+    border-radius: var(--devhub-radius-sm);
+    background-color: var(--mud-palette-background-gray);
+    font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+    font-size: 0.75rem;
+    word-break: break-all;
+}
+
+/* ---------- UUID generator ---------- */
+
+.devhub-uuid__quantity {
+    max-width: 120px;
+}
+
+.devhub-uuid__format {
+    max-width: 160px;
+}
+
+.devhub-uuid__scroll {
+    max-height: 460px;
+    overflow: auto;
+}
+
+.devhub-uuid__value,
+.devhub-uuid__card code,
+.devhub-uuid__history-row code {
+    font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+    font-size: 0.8125rem;
+    word-break: break-all;
+}
+
+.devhub-uuid__action {
+    width: 44px;
+    text-align: right;
+}
+
+.devhub-uuid__cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 8px;
+    max-height: 460px;
+    overflow: auto;
+}
+
+.devhub-uuid__card,
+.devhub-uuid__history-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 8px 10px;
+    border: 1px solid var(--mud-palette-divider);
+    border-radius: var(--devhub-radius-sm);
+}
+
+.devhub-uuid__history-row {
+    border: none;
+    border-bottom: 1px solid var(--mud-palette-divider);
+    border-radius: 0;
+}
+
+/* ---------- regex tester ---------- */
+
+.devhub-regex__editor {
+    height: clamp(200px, 30vh, 380px);
+}
+
+.devhub-regex__summary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.devhub-regex__matches {
+    max-height: 420px;
+    overflow: auto;
+}
+
+.devhub-regex__match {
+    padding: 8px 0;
+    border-bottom: 1px solid var(--mud-palette-divider);
+}
+
+.devhub-regex__match:last-child {
+    border-bottom: none;
+}
+
+.devhub-regex__match-head {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.devhub-regex__match-head code,
+.devhub-regex__group code,
+.devhub-regex__cheat code {
+    padding: 2px 6px;
+    border-radius: 4px;
+    background-color: var(--mud-palette-primary-hover);
+    font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+    font-size: 0.75rem;
+    word-break: break-all;
+}
+
+.devhub-regex__groups {
+    margin: 6px 0 0 24px;
+}
+
+.devhub-regex__group,
+.devhub-regex__cheat {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 3px 0;
+    font-size: 0.8125rem;
+}
+
+.devhub-regex__group-name {
+    min-width: 90px;
+    color: var(--mud-palette-text-secondary);
+    font-size: 0.75rem;
+}
+
+.devhub-regex__cheat code {
+    min-width: 96px;
+    background-color: var(--mud-palette-action-default-hover);
+}
+
+/* ---------- password generator ---------- */
+
+.devhub-password__value {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 16px;
+    border: 1px solid var(--mud-palette-divider);
+    border-radius: var(--devhub-radius-sm);
+    background-color: var(--mud-palette-background-gray);
+}
+
+.devhub-password__value code,
+.devhub-password__batch-row code {
+    font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+    font-size: 1rem;
+    word-break: break-all;
+}
+
+.devhub-password__batch-row code {
+    font-size: 0.8125rem;
+    flex: 1 1 auto;
+}
+
+.devhub-password__meter-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 6px;
+}
+
+.devhub-password__batch {
+    max-height: 300px;
+    overflow: auto;
+}
+
+.devhub-password__batch-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--mud-palette-divider);
+}
+
+.devhub-password__number {
+    max-width: 140px;
+}
+
+.devhub-password__slider {
+    min-width: 160px;
+}
+
+.devhub-password__bulk {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+/* ---------- lorem ipsum ---------- */
+
+.devhub-lorem__text,
+.devhub-lorem__code {
+    max-height: 480px;
+    overflow: auto;
+    margin: 0;
+    white-space: pre-wrap;
+    word-break: break-word;
+    line-height: 1.7;
+}
+
+.devhub-lorem__code {
+    padding: 12px;
+    border-radius: var(--devhub-radius-sm);
+    background-color: var(--mud-palette-background-gray);
+    font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+    font-size: 0.8125rem;
+}
+
+.devhub-lorem__seed {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* ---------- case converter ---------- */
+
+.devhub-case__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 12px;
+}
+
+.devhub-case__value {
+    margin: 0;
+    max-height: 140px;
+    overflow: auto;
+    font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+    font-size: 0.8125rem;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+/* ---------- number base converter ---------- */
+
+.devhub-number__codepoints {
+    margin: 0;
+    padding: 10px 12px;
+    max-height: 160px;
+    overflow: auto;
+    border-radius: var(--devhub-radius-sm);
+    background-color: var(--mud-palette-background-gray);
+    font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+    font-size: 0.75rem;
+    white-space: pre-wrap;
+    word-break: break-all;
+}
+
+/* ---------- QR generator ---------- */
+
+.devhub-qr__pair,
+.devhub-qr__colors {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
+.devhub-qr__preview {
+    display: grid;
+    place-items: center;
+    padding: 20px;
+    border: 1px solid var(--mud-palette-divider);
+    border-radius: var(--devhub-radius-sm);
+}
+
+.devhub-qr__preview img {
+    max-width: 100%;
+    image-rendering: pixelated;
+}
+
+.devhub-qr__payload {
+    margin: 0;
+    padding: 10px 12px;
+    max-height: 140px;
+    overflow: auto;
+    border-radius: var(--devhub-radius-sm);
+    background-color: var(--mud-palette-background-gray);
+    font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+    font-size: 0.72rem;
+    white-space: pre-wrap;
+    word-break: break-all;
+}
+
+@media (max-width: 600px) {
+    .devhub-qr__pair,
+    .devhub-qr__colors {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ---------- barcode generator ---------- */
+
+.devhub-barcode__preview {
+    display: grid;
+    place-items: center;
+    padding: 16px;
+    overflow-x: auto;
+    border: 1px solid var(--mud-palette-divider);
+    border-radius: var(--devhub-radius-sm);
+    background-color: #ffffff;
+}
+
+/* ---------- colour toolkit ---------- */
+
+.devhub-color__input {
+    min-width: 260px;
+}
+
+.devhub-color__picker {
+    max-width: 180px;
+}
+
+.devhub-color__preview {
+    display: grid;
+    place-items: center;
+    height: 120px;
+    border-radius: var(--devhub-radius-sm);
+    font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.devhub-color__contrast {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 16px;
+    border-radius: var(--devhub-radius-sm);
+    border: 1px solid var(--mud-palette-divider);
+}
+
+.devhub-color__contrast-large {
+    font-size: 22px;
+    font-weight: 600;
+}
+
+.devhub-color__contrast-small {
+    font-size: 14px;
+}
+
+.devhub-color__badges,
+.devhub-color__kinds,
+.devhub-color__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.devhub-color__swatches {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    gap: 8px;
+}
+
+.devhub-color__swatch {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 12px 10px;
+    border: none;
+    border-radius: var(--devhub-radius-sm);
+    cursor: pointer;
+    text-align: left;
+    font-family: inherit;
+    transition: transform var(--devhub-ease);
+}
+
+.devhub-color__swatch:hover {
+    transform: translateY(-2px);
+}
+
+.devhub-color__swatch-name {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: .04em;
+}
+
+.devhub-color__swatch-hex {
+    font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+    font-size: 0.7rem;
+}
+
+.devhub-color__chip {
+    padding: 6px 10px;
+    border: none;
+    border-radius: 999px;
+    cursor: pointer;
+    font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+    font-size: 0.72rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .devhub-color__swatch:hover {
+        transform: none;
+    }
+}
+
+/* ---------- shared motion ---------- */
+
+@keyframes devhub-fade-in {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: none; }
+}
+
+/* ---------- responsive ---------- */
+
+@media (max-width: 700px) {
+    .devhub-setting {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .devhub-setting__control {
+        width: 100%;
+        min-width: 0;
+        justify-content: flex-start;
+    }
+
+    .devhub-page-header__actions {
+        width: 100%;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .devhub-card--interactive:hover,
+    .devhub-chip:hover {
+        transform: none;
+    }
+
+    .devhub-state,
+    .devhub-overlay {
+        animation: none;
+    }
+}

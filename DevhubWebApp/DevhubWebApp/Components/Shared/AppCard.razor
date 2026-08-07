@@ -1,0 +1,97 @@
+@*
+    Generic surface container. Every panel, widget and grouped block in DevHub is built from this
+    component so borders, radius, padding and hover behaviour stay identical across the app.
+*@
+
+<MudPaper Elevation="0"
+          Class="@CssClass"
+          Style="@Style"
+          @onclick="OnClick"
+          @attributes="AdditionalAttributes">
+    @if (Header is not null || !string.IsNullOrWhiteSpace(Title))
+    {
+        <div class="devhub-card__header">
+            @if (Header is not null)
+            {
+                @Header
+            }
+            else
+            {
+                <div class="devhub-card__heading">
+                    @if (!string.IsNullOrWhiteSpace(Icon))
+                    {
+                        <MudIcon Icon="@Icon" Size="Size.Small" Color="Color.Primary" />
+                    }
+                    <div>
+                        <MudText Typo="Typo.subtitle1">@Title</MudText>
+                        @if (!string.IsNullOrWhiteSpace(Subtitle))
+                        {
+                            <MudText Typo="Typo.caption" Class="mud-text-secondary">@Subtitle</MudText>
+                        }
+                    </div>
+                </div>
+            }
+            @if (Actions is not null)
+            {
+                <div class="devhub-card__actions">@Actions</div>
+            }
+        </div>
+    }
+
+    <div class="devhub-card__body">
+        @ChildContent
+    </div>
+
+    @if (Footer is not null)
+    {
+        <div class="devhub-card__footer">@Footer</div>
+    }
+</MudPaper>
+
+@code {
+    /// <summary>Optional heading text. Ignored when <see cref="Header"/> is supplied.</summary>
+    [Parameter] public string? Title { get; set; }
+
+    /// <summary>Secondary line rendered under <see cref="Title"/>.</summary>
+    [Parameter] public string? Subtitle { get; set; }
+
+    /// <summary>Leading icon for the default header.</summary>
+    [Parameter] public string? Icon { get; set; }
+
+    /// <summary>Replaces the default header layout entirely.</summary>
+    [Parameter] public RenderFragment? Header { get; set; }
+
+    /// <summary>Trailing header content, typically buttons.</summary>
+    [Parameter] public RenderFragment? Actions { get; set; }
+
+    /// <summary>Main card content.</summary>
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    /// <summary>Content pinned below the body, separated by a divider.</summary>
+    [Parameter] public RenderFragment? Footer { get; set; }
+
+    /// <summary>Adds a lift-and-highlight hover effect. Use for clickable cards.</summary>
+    [Parameter] public bool Interactive { get; set; }
+
+    /// <summary>Removes the body padding, for cards that host their own full-bleed content.</summary>
+    [Parameter] public bool Flush { get; set; }
+
+    /// <summary>Raised when the card surface is clicked.</summary>
+    [Parameter] public EventCallback<MouseEventArgs> OnClick { get; set; }
+
+    /// <summary>Extra CSS classes appended to the card.</summary>
+    [Parameter] public string? Class { get; set; }
+
+    /// <summary>Inline styles appended to the card.</summary>
+    [Parameter] public string? Style { get; set; }
+
+    /// <summary>Any other attribute is forwarded to the root element.</summary>
+    [Parameter(CaptureUnmatchedValues = true)]
+    public IReadOnlyDictionary<string, object>? AdditionalAttributes { get; set; }
+
+    private string CssClass => new CssBuilder("devhub-card")
+        .AddClass("devhub-card--interactive", Interactive)
+        .AddClass("devhub-card--flush", Flush)
+        .AddClass(Class)
+        .Build();
+}

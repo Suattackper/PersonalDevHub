@@ -1,0 +1,31 @@
+@*
+    Horizontal rule with an inline label. Used to separate groups inside long forms and panels
+    where a full SectionTitle would be too heavy.
+*@
+
+<div class="devhub-divider-title @Class" role="separator" aria-label="@Title">
+    @if (!string.IsNullOrWhiteSpace(Icon))
+    {
+        <MudIcon Icon="@Icon" Size="Size.Small" Class="devhub-divider-title__icon" />
+    }
+    <span class="devhub-divider-title__text">@Title</span>
+    <span class="devhub-divider-title__line"></span>
+    @if (Actions is not null)
+    {
+        <span class="devhub-divider-title__actions">@Actions</span>
+    }
+</div>
+
+@code {
+    /// <summary>Label rendered before the rule.</summary>
+    [Parameter, EditorRequired] public string Title { get; set; } = string.Empty;
+
+    /// <summary>Optional leading icon.</summary>
+    [Parameter] public string? Icon { get; set; }
+
+    /// <summary>Trailing content rendered after the rule.</summary>
+    [Parameter] public RenderFragment? Actions { get; set; }
+
+    /// <summary>Extra CSS classes appended to the root element.</summary>
+    [Parameter] public string? Class { get; set; }
+}

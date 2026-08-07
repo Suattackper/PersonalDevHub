@@ -1,0 +1,201 @@
+@page "/playground"
+
+@* Living gallery of the design system. Development aid: it renders every shared component with
+   real parameters so regressions are visible at a glance. It holds no business logic. *@
+
+<PageTitle>Design system · @AppConstants.AppName</PageTitle>
+
+<PageHeader Title="Design system"
+            Subtitle="Every reusable component in DevHub, rendered with live parameters."
+            Icon="@Icons.Material.Filled.Palette">
+    <MetaContent>
+        <Badge Text="@($"v{AppConstants.AppVersion}")" />
+        <Badge Text="20 components" Color="Color.Primary" />
+    </MetaContent>
+    <Actions>
+        <MudButton StartIcon="@Icons.Material.Filled.ArrowBack" Href="@AppRoutes.Dashboard" Variant="Variant.Text">
+            Dashboard
+        </MudButton>
+    </Actions>
+</PageHeader>
+
+<DividerTitle Title="Surfaces" Icon="@Icons.Material.Filled.Layers" />
+
+<MudGrid Spacing="3">
+    <MudItem xs="12" md="6" lg="4">
+        <AppCard Title="AppCard" Subtitle="Base surface" Icon="@Icons.Material.Filled.CropSquare">
+            <Actions>
+                <IconButton Icon="@Icons.Material.Filled.MoreVert" Tooltip="More actions" />
+            </Actions>
+            <ChildContent>
+                <MudText Typo="Typo.body2" Class="mud-text-secondary">
+                    Header, body and footer slots. Every panel in DevHub is built from this component.
+                </MudText>
+            </ChildContent>
+            <Footer>
+                <Badge Text="Foundation" />
+                <MudText Typo="Typo.caption" Class="mud-text-secondary">footer slot</MudText>
+            </Footer>
+        </AppCard>
+    </MudItem>
+
+    <MudItem xs="12" md="6" lg="4">
+        @if (_sampleTool is not null)
+        {
+            <ToolCard View="_sampleTool"
+                      Meta="used 12 times"
+                      OnToggleFavorite="ToggleFavoriteAsync"
+                      OnTogglePin="TogglePinAsync" />
+        }
+    </MudItem>
+
+    <MudItem xs="12" md="6" lg="4">
+        <StatCard Label="Tools used"
+                  Value="128"
+                  Unit="runs"
+                  Hint="across 14 tools"
+                  Icon="@Icons.Material.Filled.Insights"
+                  Color="Color.Primary" />
+    </MudItem>
+</MudGrid>
+
+<DividerTitle Title="Feedback states" Icon="@Icons.Material.Filled.Feedback" />
+
+<MudGrid Spacing="3">
+    <MudItem xs="12" md="6">
+        <AppCard Title="EmptyState">
+            <EmptyState Icon="@Icons.Material.Outlined.StarBorder"
+                        Title="No favorites yet"
+                        Description="Star a tool to keep it within reach."
+                        ActionText="Browse tools"
+                        ActionIcon="@Icons.Material.Filled.Search"
+                        Dense="true" />
+        </AppCard>
+    </MudItem>
+
+    <MudItem xs="12" md="6">
+        <AppCard Title="ErrorState">
+            <ErrorState Title="Could not parse the document"
+                        Description="Check the input and try again."
+                        Detail="SyntaxError: Unexpected token } in JSON at position 42"
+                        Dense="true"
+                        OnRetry="@(() => Notifications.Info("Retry requested."))" />
+        </AppCard>
+    </MudItem>
+
+    <MudItem xs="12" md="4">
+        <AppCard Title="LoadingSkeleton" Subtitle="Text">
+            <LoadingSkeleton Variant="SkeletonVariant.Text" Lines="4" />
+        </AppCard>
+    </MudItem>
+
+    <MudItem xs="12" md="4">
+        <AppCard Title="LoadingSkeleton" Subtitle="List">
+            <LoadingSkeleton Variant="SkeletonVariant.List" Count="3" />
+        </AppCard>
+    </MudItem>
+
+    <MudItem xs="12" md="4">
+        <AppCard Title="LoadingOverlay" Subtitle="Scoped to its container" Class="devhub-playground__overlay-host">
+            <MudText Typo="Typo.body2" Class="mud-text-secondary mb-4">
+                Blocks its own container only, never the shell.
+            </MudText>
+            <MudButton Variant="Variant.Outlined" Size="Size.Small" OnClick="ShowOverlayAsync">
+                Show for 2 seconds
+            </MudButton>
+            <LoadingOverlay Visible="_overlayVisible" Message="Working…" />
+        </AppCard>
+    </MudItem>
+</MudGrid>
+
+<DividerTitle Title="Titles and toolbars" Icon="@Icons.Material.Filled.Title" />
+
+<AppCard>
+    <SectionTitle Title="SectionTitle"
+                  Icon="@Icons.Material.Filled.ViewAgenda"
+                  Count="7"
+                  Description="with counter and actions">
+        <Actions>
+            <MudButton Size="Size.Small" Variant="Variant.Text">See all</MudButton>
+        </Actions>
+    </SectionTitle>
+
+    <Toolbar>
+        <ChildContent>
+            <MudButton StartIcon="@Icons.Material.Filled.PlayArrow" Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small">
+                Run
+            </MudButton>
+            <MudButton StartIcon="@Icons.Material.Filled.CleaningServices" Variant="Variant.Text" Size="Size.Small">
+                Clear
+            </MudButton>
+            <Chip Text="Pretty" Selected="_prettySelected" OnClick="@(_ => _prettySelected = !_prettySelected)" Color="Color.Primary" />
+            <Chip Text="Minify" Selected="@(!_prettySelected)" OnClick="@(_ => _prettySelected = !_prettySelected)" Color="Color.Primary" />
+        </ChildContent>
+        <EndContent>
+            <CopyButton Text="@SampleJson" />
+            <DownloadButton Content="@SampleJson" FileName="sample.json" MimeType="@MimeTypes.Json" />
+            <IconButton Icon="@Icons.Material.Filled.Fullscreen" Tooltip="Fullscreen" />
+        </EndContent>
+    </Toolbar>
+
+    <DividerTitle Title="DividerTitle" Icon="@Icons.Material.Filled.HorizontalRule" />
+
+    <div class="devhub-playground__row">
+        <Badge Text="Default" />
+        <Badge Text="Primary" Color="Color.Primary" />
+        <Badge Text="Success" Color="Color.Success" Icon="@Icons.Material.Filled.Check" />
+        <Badge Text="Warning" Color="Color.Warning" />
+        <Badge Text="Error filled" Color="Color.Error" Filled="true" />
+        <Chip Text="Removable" Closeable="true" OnClose="@(_ => Notifications.Info("Chip removed."))" />
+        <Chip Text="Disabled" Disabled="true" />
+    </div>
+</AppCard>
+
+<DividerTitle Title="Input" Icon="@Icons.Material.Filled.Keyboard" />
+
+<MudGrid Spacing="3">
+    <MudItem xs="12" md="6">
+        <AppCard Title="SearchBox" Subtitle="@($"debounced at {AppConstants.DebounceMilliseconds} ms")">
+            <SearchBox @bind-Value="_searchTerm" Placeholder="Search tools…" />
+            <MudText Typo="Typo.caption" Class="mud-text-secondary mt-2">
+                Current term: <strong>@_searchTerm.OrDefault("(empty)")</strong>
+            </MudText>
+        </AppCard>
+    </MudItem>
+
+    <MudItem xs="12" md="6">
+        <AppCard Title="FileDropZone" Flush="true">
+            <FileDropZone Accept=".json,.txt,.md"
+                          Hint="JSON, TXT or MD — up to 5 MB"
+                          OnFileLoaded="OnFileLoaded" />
+        </AppCard>
+    </MudItem>
+</MudGrid>
+
+<DividerTitle Title="Settings rows and dialogs" Icon="@Icons.Material.Filled.Tune" />
+
+<AppCard Title="SettingItem" Subtitle="Label, description and a control per row">
+    <SettingItem Label="Dark theme"
+                 Description="Use the dark palette across the application."
+                 Icon="@Icons.Material.Filled.DarkMode">
+        <MudSwitch T="bool" @bind-Value="_darkPreview" Color="Color.Primary" />
+    </SettingItem>
+
+    <SettingItem Label="Auto-save workspace"
+                 Description="Restore tool input when you come back."
+                 Icon="@Icons.Material.Filled.Save"
+                 BadgeText="Recommended"
+                 BadgeColor="Color.Success">
+        <MudSwitch T="bool" @bind-Value="_autoSavePreview" Color="Color.Primary" />
+    </SettingItem>
+
+    <SettingItem Label="Clear local data"
+                 Description="Removes history, favorites and pinned tools from this browser."
+                 Icon="@Icons.Material.Filled.DeleteForever"
+                 IconColor="Color.Error"
+                 Last="true">
+        <MudButton Variant="Variant.Outlined" Color="Color.Error" Size="Size.Small" OnClick="ConfirmClearAsync">
+            Clear…
+        </MudButton>
+    </SettingItem>
+</AppCard>

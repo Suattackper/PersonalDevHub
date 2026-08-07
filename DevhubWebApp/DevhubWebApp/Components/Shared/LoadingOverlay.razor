@@ -1,0 +1,39 @@
+@*
+    Blocking progress layer for operations that must not be interrupted. Scoped to its parent
+    container by default, so the rest of the shell stays usable.
+*@
+
+@if (Visible)
+{
+    <div class="@CssClass" role="status" aria-live="polite" aria-busy="true">
+        <div class="devhub-overlay__box">
+            <MudProgressCircular Indeterminate="true" Color="Color.Primary" Size="@Size" />
+            @if (!string.IsNullOrWhiteSpace(Message))
+            {
+                <MudText Typo="Typo.body2" Class="mt-3">@Message</MudText>
+            }
+        </div>
+    </div>
+}
+
+@code {
+    /// <summary>Controls visibility. The overlay renders nothing when <c>false</c>.</summary>
+    [Parameter] public bool Visible { get; set; }
+
+    /// <summary>Optional status text below the spinner.</summary>
+    [Parameter] public string? Message { get; set; }
+
+    /// <summary>Spinner size.</summary>
+    [Parameter] public Size Size { get; set; } = Size.Medium;
+
+    /// <summary>Covers the whole viewport instead of the nearest positioned ancestor.</summary>
+    [Parameter] public bool FullScreen { get; set; }
+
+    /// <summary>Extra CSS classes appended to the root element.</summary>
+    [Parameter] public string? Class { get; set; }
+
+    private string CssClass => new CssBuilder("devhub-overlay")
+        .AddClass("devhub-overlay--fullscreen", FullScreen)
+        .AddClass(Class)
+        .Build();
+}

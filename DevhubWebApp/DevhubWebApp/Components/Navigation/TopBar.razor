@@ -1,0 +1,59 @@
+@* Application top bar: drawer toggle, product mark, global tool search, theme switch. The search
+   result set comes from the catalogue, so it covers every declared tool automatically. *@
+@using DevhubWebApp.Models.Tools
+
+<MudAppBar Elevation="0" Dense="true" Class="devhub-topbar">
+    <MudIconButton Icon="@Icons.Material.Filled.Menu"
+                   Color="Color.Inherit"
+                   Edge="Edge.Start"
+                   aria-label="Toggle navigation"
+                   OnClick="OnToggleSidebar" />
+
+    <MudLink Href="@AppRoutes.Dashboard" Underline="Underline.None" Class="devhub-topbar__brand">
+        <MudIcon Icon="@Icons.Material.Filled.Terminal" Color="Color.Primary" Size="Size.Small" />
+        <MudText Typo="Typo.subtitle1" Class="ml-2">@AppConstants.AppName</MudText>
+    </MudLink>
+
+    <div class="devhub-topbar__search">
+        <MudAutocomplete T="ToolView"
+                         Value="null"
+                         SearchFunc="SearchToolsAsync"
+                         ToStringFunc="@(view => view?.Name ?? string.Empty)"
+                         ValueChanged="OnToolSelected"
+                         Placeholder="Search tools…"
+                         Variant="Variant.Outlined"
+                         Margin="Margin.Dense"
+                         Dense="true"
+                         ResetValueOnEmptyText="true"
+                         CoerceText="false"
+                         Adornment="Adornment.Start"
+                         AdornmentIcon="@Icons.Material.Filled.Search"
+                         MaxItems="8">
+            <ItemTemplate Context="view">
+                <div class="devhub-topbar__result">
+                    <MudIcon Icon="@view.Tool.Icon" Size="Size.Small" Color="@view.Tool.Color" />
+                    <div>
+                        <MudText Typo="Typo.body2">@view.Name</MudText>
+                        <MudText Typo="Typo.caption" Class="mud-text-secondary">@view.Tool.Description</MudText>
+                    </div>
+                </div>
+            </ItemTemplate>
+        </MudAutocomplete>
+    </div>
+
+    <MudSpacer />
+
+    <MudTooltip Text="@(ThemeProvider.IsDarkMode ? "Switch to light theme" : "Switch to dark theme")">
+        <MudIconButton Icon="@(ThemeProvider.IsDarkMode ? Icons.Material.Filled.LightMode : Icons.Material.Filled.DarkMode)"
+                       Color="Color.Inherit"
+                       aria-label="Toggle theme"
+                       OnClick="ToggleThemeAsync" />
+    </MudTooltip>
+
+    <MudTooltip Text="Settings">
+        <MudIconButton Icon="@Icons.Material.Filled.Settings"
+                       Color="Color.Inherit"
+                       aria-label="Settings"
+                       Href="@AppRoutes.Settings" />
+    </MudTooltip>
+</MudAppBar>

@@ -1,0 +1,134 @@
+@attribute [Tool(ToolIds.UrlParser,
+              "URL Parser",
+              ToolCategories.WebId,
+              "Break a URL into protocol, host, path, query and hash — and edit the query.",
+              Icons.Material.Filled.AccountTree,
+              Order = 10,
+              Keywords = new[] { "query string", "host", "path", "uri", "builder" },
+              Tags = new[] { "query editor" })]
+
+@using DevhubWebApp.Models.Tools.Url
+@inherits ToolComponentBase<UrlParserWorkspace>
+
+@* Parsing and query building live in UrlToolkit; this component binds them to the UI. *@
+
+<AppCard Class="mb-3">
+    <ChildContent>
+    <MudTextField T="string"
+                  Value="@Workspace.Url"
+                  ValueChanged="OnUrlChangedAsync"
+                  Immediate="true"
+                  DebounceInterval="AppConstants.DebounceMilliseconds"
+                  Variant="Variant.Outlined"
+                  Margin="Margin.Dense"
+                  Label="URL"
+                  Placeholder="https://example.com/path?page=2#section"
+                  Adornment="Adornment.Start"
+                  AdornmentIcon="@Icons.Material.Filled.Link"
+                  Class="devhub-mono-field"
+                  aria-label="URL" />
+    </ChildContent>
+
+    <Footer>
+        <div class="devhub-url__actions">
+            <IconButton Icon="@Icons.Material.Filled.ContentPaste" Tooltip="Paste from clipboard" OnClick="PasteAsync" />
+            <CopyButton Text="@Workspace.Url" IconOnly="true" Label="Copy URL" />
+            <IconButton Icon="@Icons.Material.Filled.Download" Tooltip="Download parts as JSON (Ctrl+S)"
+                        Disabled="@(!_parts.IsValid)" OnClick="DownloadPartsAsync" />
+            <IconButton Icon="@Icons.Material.Filled.CleaningServices" Tooltip="Clear" OnClick="ClearAsync" />
+        </div>
+    </Footer>
+</AppCard>
+
+@if (string.IsNullOrWhiteSpace(Workspace.Url))
+{
+    <AppCard>
+        <EmptyState Icon="@Icons.Material.Outlined.AccountTree"
+                    Title="Nothing to parse yet"
+                    Description="Paste a URL above to see its parts and edit its query string."
+                    Dense="true" />
+    </AppCard>
+}
+else if (!_parts.IsValid)
+{
+    <AppCard>
+        <ErrorState Title="That is not an absolute URL"
+                    Description="@_parts.Error"
+                    Dense="true"
+                    RetryText="@null" />
+    </AppCard>
+}
+else
+{
+    <MudGrid Spacing="3">
+        <MudItem xs="12" lg="5">
+            <AppCard Title="Parts" Icon="@Icons.Material.Filled.Segment">
+                <MudSimpleTable Dense="true" Hover="true" Bordered="false" Striped="false" Class="devhub-url__parts">
+                    <tbody>
+                        @foreach (var part in Parts)
+                        {
+                            <tr @key="part.Label">
+                                <td class="devhub-url__part-label">@part.Label</td>
+                                <td class="devhub-url__part-value">@(string.IsNullOrEmpty(part.Value) ? "—" : part.Value)</td>
+                                <td class="devhub-url__part-action">
+                                    <CopyButton Text="@part.Value" IconOnly="true" Notify="false" />
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </MudSimpleTable>
+            </AppCard>
+        </MudItem>
+
+        <MudItem xs="12" lg="7">
+            <AppCard Title="Query parameters" Icon="@Icons.Material.Filled.Tune"
+                     Subtitle="@($"{_parameters.Count} parameter(s) — edits rebuild the URL above")">
+                <Actions>
+                    <IconButton Icon="@Icons.Material.Filled.SortByAlpha" Tooltip="Sort by name"
+                                Disabled="@(_parameters.Count < 2)" OnClick="SortAsync" />
+                    <IconButton Icon="@Icons.Material.Filled.Add" Tooltip="Add parameter" OnClick="AddAsync" />
+                </Actions>
+                <ChildContent>
+                    @if (_parameters.Count == 0)
+                    {
+                        <EmptyState Icon="@Icons.Material.Outlined.Tune"
+                                    Title="No query parameters"
+                                    Description="Add one to start building a query string."
+                                    ActionText="Add parameter"
+                                    ActionIcon="@Icons.Material.Filled.Add"
+                                    OnAction="AddAsync"
+                                    Dense="true" />
+                    }
+                    else
+                    {
+                        @foreach (var (parameter, index) in _parameters.Select((value, position) => (value, position)))
+                        {
+                            <div class="devhub-url__param" @key="index">
+                                <MudTextField T="string"
+                                              Value="@parameter.Name"
+                                              ValueChanged="@(value => UpdateParameterAsync(index, value, parameter.Value))"
+                                              Immediate="true"
+                                              DebounceInterval="AppConstants.DebounceMilliseconds"
+                                              Variant="Variant.Outlined"
+                                              Margin="Margin.Dense"
+                                              Label="Name" />
+                                <MudTextField T="string"
+                                              Value="@parameter.Value"
+                                              ValueChanged="@(value => UpdateParameterAsync(index, parameter.Name, value))"
+                                              Immediate="true"
+                                              DebounceInterval="AppConstants.DebounceMilliseconds"
+                                              Variant="Variant.Outlined"
+                                              Margin="Margin.Dense"
+                                              Label="Value" />
+                                <IconButton Icon="@Icons.Material.Filled.ContentCopy" Tooltip="Duplicate"
+                                            OnClick="@(() => DuplicateAsync(index))" />
+                                <IconButton Icon="@Icons.Material.Filled.Delete" Tooltip="Remove" Color="Color.Error"
+                                            OnClick="@(() => RemoveAsync(index))" />
+                            </div>
+                        }
+                    }
+                </ChildContent>
+            </AppCard>
+        </MudItem>
+    </MudGrid>
+}

@@ -1,0 +1,151 @@
+@attribute [Tool(ToolIds.Hash,
+              "Hash",
+              ToolCategories.EncodersId,
+              "Compute MD5, SHA-1, SHA-256, SHA-384 and SHA-512 digests.",
+              Icons.Material.Filled.Tag,
+              Order = 30,
+              Keywords = new[] { "md5", "sha", "checksum", "digest", "verify" },
+              Tags = new[] { "crypto" })]
+
+@using DevhubWebApp.Models.Tools.Hash
+@using DevhubWebApp.Utilities
+@inherits ToolComponentBase<HashWorkspace>
+
+@* Digests, detection and verification live in HashCalculator; this component binds them to the UI. *@
+
+<Toolbar Class="mb-3">
+    <ChildContent>
+        <Chip Text="Hex" Icon="@Icons.Material.Filled.Numbers" Color="Color.Primary"
+              Selected="@(!Workspace.ShowBase64)" OnClick="@(() => UpdateAsync(w => w.ShowBase64 = false))" />
+        <Chip Text="Base64" Icon="@Icons.Material.Filled.Transform" Color="Color.Primary"
+              Selected="@Workspace.ShowBase64" OnClick="@(() => UpdateAsync(w => w.ShowBase64 = true))" />
+        <Chip Text="Uppercase" Icon="@Icons.Material.Filled.TextFields" Color="Color.Secondary"
+              Selected="@Workspace.Uppercase" OnClick="@(() => UpdateAsync(w => w.Uppercase = !w.Uppercase))" />
+    </ChildContent>
+
+    <EndContent>
+        <IconButton Icon="@Icons.Material.Filled.ContentPaste" Tooltip="Paste text" OnClick="PasteAsync" />
+        <IconButton Icon="@Icons.Material.Filled.Download" Tooltip="Download all digests (Ctrl+S)"
+                    Disabled="@(!HasResults)" OnClick="DownloadAsync" />
+        <IconButton Icon="@Icons.Material.Filled.CleaningServices" Tooltip="Clear" Disabled="@IsEmpty" OnClick="ClearAsync" />
+    </EndContent>
+</Toolbar>
+
+<MudGrid Spacing="3">
+    <MudItem xs="12" lg="5">
+        <AppCard Title="Input" Icon="@Icons.Material.Filled.Input" Subtitle="@InputSubtitle">
+            <ChildContent>
+                <MudTextField T="string"
+                              Value="@Workspace.Text"
+                              ValueChanged="OnTextChangedAsync"
+                              Immediate="true"
+                              DebounceInterval="AppConstants.DebounceMilliseconds"
+                              Variant="Variant.Outlined"
+                              Lines="6"
+                              Disabled="@(_file is not null)"
+                              Placeholder="Type or paste text to hash…"
+                              aria-label="Text to hash" />
+
+                @if (_file is not null)
+                {
+                    <div class="devhub-hash__file mt-3">
+                        <MudIcon Icon="@Icons.Material.Filled.InsertDriveFile" Color="Color.Primary" />
+                        <div class="devhub-hash__file-info">
+                            <MudText Typo="Typo.body2">@_file.FileName</MudText>
+                            <MudText Typo="Typo.caption" Class="mud-text-secondary">
+                                @($"{Base64Converter.FormatSize(_file.Size)} · {_file.ContentType.OrDefault("unknown type")}")
+                            </MudText>
+                        </div>
+                        <IconButton Icon="@Icons.Material.Filled.Close" Tooltip="Remove file" OnClick="RemoveFileAsync" />
+                    </div>
+                }
+                else
+                {
+                    <FileDropZone Accept="*/*"
+                                  Title="Drop a file to hash"
+                                  Hint="any file — up to 25 MB"
+                                  Dense="true"
+                                  ReadAsBytes="true"
+                                  MaxFileSize="26214400"
+                                  Class="mt-3"
+                                  OnFileLoaded="OnFileLoadedAsync" />
+                }
+            </ChildContent>
+        </AppCard>
+
+        <AppCard Title="Verify" Icon="@Icons.Material.Filled.Fingerprint" Class="mt-3"
+                 Subtitle="Paste an expected digest — the algorithm is detected from its length">
+            <ChildContent>
+                <MudTextField T="string"
+                              Value="@Workspace.ExpectedHash"
+                              ValueChanged="OnExpectedChangedAsync"
+                              Immediate="true"
+                              DebounceInterval="AppConstants.DebounceMilliseconds"
+                              Variant="Variant.Outlined"
+                              Margin="Margin.Dense"
+                              Class="devhub-mono-field"
+                              Placeholder="e.g. ba7816bf8f01cfea…"
+                              aria-label="Expected digest" />
+
+                @if (_verification.Error is not null)
+                {
+                    <MudAlert Severity="Severity.Warning" Dense="true" Class="mt-2">@_verification.Error</MudAlert>
+                }
+                else if (_verification.HasExpectedValue)
+                {
+                    <MudAlert Severity="@(_verification.IsMatch ? Severity.Success : Severity.Error)" Dense="true" Class="mt-2">
+                        @(_verification.IsMatch
+                            ? $"Match — this is the {HashCalculator.GetName(_verification.Algorithm!.Value)} digest of the input."
+                            : $"No match against the computed {HashCalculator.GetName(_verification.Algorithm!.Value)} digest.")
+                    </MudAlert>
+                }
+            </ChildContent>
+        </AppCard>
+    </MudItem>
+
+    <MudItem xs="12" lg="7">
+        @if (_isHashing)
+        {
+            <LoadingSkeleton Variant="SkeletonVariant.Card" Count="3" />
+        }
+        else if (!HasResults)
+        {
+            <AppCard>
+                <EmptyState Icon="@Icons.Material.Outlined.Tag"
+                            Title="Nothing hashed yet"
+                            Description="Type text or drop a file on the left to see every digest at once."
+                            Dense="true" />
+            </AppCard>
+        }
+        else
+        {
+            @foreach (var result in _results)
+            {
+                <AppCard Class="mb-2" @key="result.Algorithm">
+                    <Header>
+                        <div class="devhub-card__heading">
+                            <MudText Typo="Typo.subtitle2">@HashCalculator.GetName(result.Algorithm)</MudText>
+                            <Badge Text="@($"{result.Bits} bits")" />
+                            @if (result.IsLegacy)
+                            {
+                                <Badge Text="Legacy" Icon="@Icons.Material.Filled.GppMaybe" Color="Color.Warning" />
+                            }
+                            @if (_verification.Algorithm == result.Algorithm && _verification.HasExpectedValue && _verification.Error is null)
+                            {
+                                <Badge Text="@(_verification.IsMatch ? "Matches" : "Differs")"
+                                       Icon="@(_verification.IsMatch ? Icons.Material.Filled.CheckCircle : Icons.Material.Filled.Cancel)"
+                                       Color="@(_verification.IsMatch ? Color.Success : Color.Error)" />
+                            }
+                        </div>
+                    </Header>
+                    <Actions>
+                        <CopyButton Text="@Render(result)" IconOnly="true" />
+                    </Actions>
+                    <ChildContent>
+                        <code class="devhub-hash__value">@Render(result)</code>
+                    </ChildContent>
+                </AppCard>
+            }
+        }
+    </MudItem>
+</MudGrid>

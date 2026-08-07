@@ -1,0 +1,82 @@
+@attribute [Tool(ToolIds.CaseConverter,
+              "Case Converter",
+              ToolCategories.TextId,
+              "Convert text to camelCase, PascalCase, snake_case, Title Case and more.",
+              Icons.Material.Filled.TextFields,
+              Order = 40,
+              Keywords = new[] { "camel", "pascal", "snake", "kebab", "title", "constant" })]
+
+@using DevhubWebApp.Models.Tools.Text
+@using DevhubWebApp.Utilities
+@inherits ToolComponentBase<CaseWorkspace>
+
+@* Conversion lives in CaseConverter; this component binds it to the UI. *@
+
+<Toolbar Class="mb-3">
+    <ChildContent>
+        <Chip Text="Trim lines" Icon="@Icons.Material.Filled.ContentCut" Color="Color.Secondary"
+              Selected="@Workspace.TrimLines" OnClick="@(() => UpdateAsync(w => w.TrimLines = !w.TrimLines))" />
+        <Chip Text="Remove empty lines" Icon="@Icons.Material.Filled.PlaylistRemove" Color="Color.Secondary"
+              Selected="@Workspace.RemoveEmptyLines" OnClick="@(() => UpdateAsync(w => w.RemoveEmptyLines = !w.RemoveEmptyLines))" />
+        <Chip Text="Collapse spaces" Icon="@Icons.Material.Filled.SpaceBar" Color="Color.Secondary"
+              Selected="@Workspace.CollapseSpaces" OnClick="@(() => UpdateAsync(w => w.CollapseSpaces = !w.CollapseSpaces))" />
+    </ChildContent>
+
+    <EndContent>
+        <IconButton Icon="@Icons.Material.Filled.ContentPaste" Tooltip="Paste" OnClick="PasteAsync" />
+        <IconButton Icon="@Icons.Material.Filled.Download" Tooltip="Download all conversions (Ctrl+S)"
+                    Disabled="@IsEmpty" OnClick="DownloadAsync" />
+        <IconButton Icon="@Icons.Material.Filled.CleaningServices" Tooltip="Clear" Disabled="@IsEmpty" OnClick="ClearAsync" />
+    </EndContent>
+</Toolbar>
+
+<MudGrid Spacing="3">
+    <MudItem xs="12" lg="5">
+        <AppCard Title="Input" Icon="@Icons.Material.Filled.Input" Subtitle="@InputSubtitle">
+            <ChildContent>
+                <MudTextField T="string"
+                              Value="@Workspace.Input"
+                              ValueChanged="OnInputChangedAsync"
+                              Immediate="true"
+                              DebounceInterval="AppConstants.DebounceMilliseconds"
+                              Variant="Variant.Outlined"
+                              Lines="14"
+                              Placeholder="Type or paste text — every style updates as you type…"
+                              aria-label="Text to convert" />
+            </ChildContent>
+        </AppCard>
+    </MudItem>
+
+    <MudItem xs="12" lg="7">
+        @if (IsEmpty)
+        {
+            <AppCard>
+                <EmptyState Icon="@Icons.Material.Outlined.TextFields"
+                            Title="Nothing to convert yet"
+                            Description="Type on the left and every naming style appears here at once."
+                            Dense="true" />
+            </AppCard>
+        }
+        else
+        {
+            <div class="devhub-case__grid">
+                @foreach (var style in CaseConverter.All)
+                {
+                    <AppCard @key="style" Class="devhub-case__card">
+                        <Header>
+                            <div class="devhub-card__heading">
+                                <MudText Typo="Typo.subtitle2">@CaseConverter.GetName(style)</MudText>
+                            </div>
+                        </Header>
+                        <Actions>
+                            <CopyButton Text="@_results[style]" IconOnly="true" Notify="false" />
+                        </Actions>
+                        <ChildContent>
+                            <pre class="devhub-case__value">@_results[style]</pre>
+                        </ChildContent>
+                    </AppCard>
+                }
+            </div>
+        }
+    </MudItem>
+</MudGrid>

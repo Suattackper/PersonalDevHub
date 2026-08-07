@@ -1,0 +1,145 @@
+@attribute [Tool(ToolIds.Base64,
+              "Base64",
+              ToolCategories.EncodersId,
+              "Encode and decode Base64 text and files.",
+              Icons.Material.Filled.Transform,
+              Order = 10,
+              Keywords = new[] { "encode", "decode", "binary", "data uri", "image" },
+              Tags = new[] { "rfc-4648" })]
+
+@using DevhubWebApp.Models.Tools.Base64
+@using DevhubWebApp.Utilities
+@inherits ToolComponentBase<Base64Workspace>
+
+@* Conversion and sniffing live in Base64Converter; this component only binds them to the UI. *@
+
+<Toolbar Class="mb-3">
+    <ChildContent>
+        <Chip Text="Encode"
+              Icon="@Icons.Material.Filled.Lock"
+              Color="Color.Primary"
+              Selected="@(Workspace.Mode == Base64Mode.Encode)"
+              OnClick="@(() => SetModeAsync(Base64Mode.Encode))" />
+        <Chip Text="Decode"
+              Icon="@Icons.Material.Filled.LockOpen"
+              Color="Color.Primary"
+              Selected="@(Workspace.Mode == Base64Mode.Decode)"
+              OnClick="@(() => SetModeAsync(Base64Mode.Decode))" />
+
+        @if (Workspace.Mode == Base64Mode.Encode)
+        {
+            <MudDivider Vertical="true" FlexItem="true" Class="mx-1" />
+            <Chip Text="As data URI"
+                  Icon="@Icons.Material.Filled.Link"
+                  Color="Color.Secondary"
+                  Selected="@Workspace.AsDataUri"
+                  OnClick="ToggleDataUriAsync" />
+        }
+    </ChildContent>
+
+    <EndContent>
+        <IconButton Icon="@Icons.Material.Filled.ContentPaste" Tooltip="Paste from clipboard" OnClick="PasteAsync" />
+        <IconButton Icon="@Icons.Material.Filled.SwapVert" Tooltip="Use result as input" Disabled="@(!HasTextOutput)" OnClick="SwapAsync" />
+        <IconButton Icon="@Icons.Material.Filled.CleaningServices" Tooltip="Clear" Disabled="@IsEmpty" OnClick="ClearAsync" />
+    </EndContent>
+</Toolbar>
+
+<MudGrid Spacing="3">
+    <MudItem xs="12" md="6">
+        <AppCard Title="@(Workspace.Mode == Base64Mode.Encode ? "Text or file to encode" : "Base64 to decode")"
+                 Icon="@Icons.Material.Filled.Input">
+            <ChildContent>
+                <MudTextField T="string"
+                              Value="@Workspace.Input"
+                              ValueChanged="OnInputChangedAsync"
+                              Immediate="true"
+                              DebounceInterval="AppConstants.DebounceMilliseconds"
+                              Variant="Variant.Outlined"
+                              Lines="10"
+                              Class="devhub-base64__input"
+                              Placeholder="@InputPlaceholder"
+                              aria-label="Input" />
+
+                @if (_sourceFile is not null)
+                {
+                    <div class="mt-2">
+                        <Badge Icon="@Icons.Material.Filled.InsertDriveFile"
+                               Text="@($"{_sourceFile.FileName} · {Base64Converter.FormatSize(_sourceFile.Size)}")"
+                               Color="Color.Success" />
+                    </div>
+                }
+
+                <FileDropZone Accept="*/*"
+                              Title="Drop any file here"
+                              Hint="text, image, PDF or binary — up to 5 MB"
+                              Dense="true"
+                              ReadAsBytes="true"
+                              MaxFileSize="5242880"
+                              Class="mt-3"
+                              OnFileLoaded="OnFileLoadedAsync" />
+            </ChildContent>
+        </AppCard>
+    </MudItem>
+
+    <MudItem xs="12" md="6">
+        <AppCard Title="Result" Icon="@Icons.Material.Filled.Output">
+            <Actions>
+                <CopyButton Text="@_result.Output" IconOnly="true" Disabled="@(!HasTextOutput)" />
+                <IconButton Icon="@Icons.Material.Filled.Download"
+                            Tooltip="Download result"
+                            Disabled="@(!HasAnyOutput)"
+                            OnClick="DownloadAsync" />
+            </Actions>
+            <ChildContent>
+                @if (_result.Error is not null)
+                {
+                    <ErrorState Title="Could not decode this input"
+                                Description="@_result.Error"
+                                Dense="true"
+                                RetryText="@null" />
+                }
+                else if (IsEmpty)
+                {
+                    <EmptyState Icon="@Icons.Material.Outlined.Transform"
+                                Title="Nothing to convert yet"
+                                Description="Type, paste or drop a file on the left."
+                                Dense="true" />
+                }
+                else
+                {
+                    @if (_descriptor is not null)
+                    {
+                        <div class="devhub-base64__meta mb-3">
+                            <Badge Icon="@Icons.Material.Filled.Category" Text="@_descriptor.MimeType" Color="Color.Primary" />
+                            <Badge Icon="@Icons.Material.Filled.Straighten" Text="@Base64Converter.FormatSize(_result.Bytes.Length)" />
+                        </div>
+                    }
+
+                    @if (_previewDataUri is not null)
+                    {
+                        <div class="devhub-base64__preview">
+                            <img src="@_previewDataUri" alt="Decoded image preview" />
+                        </div>
+                    }
+                    else if (HasTextOutput)
+                    {
+                        <MudTextField T="string"
+                                      Value="@_result.Output"
+                                      ReadOnly="true"
+                                      Variant="Variant.Outlined"
+                                      Lines="10"
+                                      Class="devhub-base64__input"
+                                      aria-label="Result" />
+                    }
+                    else
+                    {
+                        <EmptyState Icon="@Icons.Material.Outlined.DataArray"
+                                    Title="Binary payload"
+                                    Description="This content is not text; download it to inspect it in a dedicated application."
+                                    Dense="true" />
+                    }
+                }
+            </ChildContent>
+        </AppCard>
+    </MudItem>
+</MudGrid>

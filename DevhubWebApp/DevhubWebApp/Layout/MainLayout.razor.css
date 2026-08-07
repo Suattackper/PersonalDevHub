@@ -1,0 +1,10 @@
+/* Scoped shell styling. Global chrome lives in wwwroot/css/app.css. */
+
+.devhub-shell {
+    min-height: 100vh;
+    background-color: var(--mud-palette-background);
+}
+
+::deep .mud-main-content {
+    padding-top: var(--devhub-topbar-height);
+}

@@ -1,0 +1,163 @@
+@attribute [Tool(ToolIds.Json,
+              "JSON",
+              ToolCategories.FormattersId,
+              "Pretty-print, minify and validate JSON documents.",
+              Icons.Material.Filled.DataObject,
+              Order = 10,
+              Keywords = new[] { "format", "beautify", "minify", "validate", "tree" },
+              Tags = new[] { "rfc-8259" })]
+
+@using DevhubWebApp.Models.Tools.Json
+@implements IAsyncDisposable
+
+@* All transformations live in JsonFormatter; this component only binds them to the UI. *@
+
+<Toolbar Class="mb-3">
+    <ChildContent>
+        <MudButton StartIcon="@Icons.Material.Filled.AutoFixHigh"
+                   Variant="Variant.Filled"
+                   Color="Color.Primary"
+                   Size="Size.Small"
+                   Disabled="@IsEmpty"
+                   OnClick="PrettyAsync">
+            Pretty
+        </MudButton>
+        <MudButton StartIcon="@Icons.Material.Filled.Compress"
+                   Variant="Variant.Outlined"
+                   Size="Size.Small"
+                   Disabled="@IsEmpty"
+                   OnClick="MinifyAsync">
+            Minify
+        </MudButton>
+
+        <MudDivider Vertical="true" FlexItem="true" Class="mx-1" />
+
+        <IconButton Icon="@Icons.Material.Filled.Undo" Tooltip="Undo (Ctrl+Z)" Disabled="@(!_history.CanUndo)" OnClick="Undo" />
+        <IconButton Icon="@Icons.Material.Filled.Redo" Tooltip="Redo (Ctrl+Y)" Disabled="@(!_history.CanRedo)" OnClick="Redo" />
+
+        <MudDivider Vertical="true" FlexItem="true" Class="mx-1" />
+
+        <Chip Text="Sort keys"
+              Icon="@Icons.Material.Filled.SortByAlpha"
+              Color="Color.Primary"
+              Selected="@_workspace.SortProperties"
+              OnClick="ToggleSortAsync" />
+        <Chip Text="@DuplicateChipLabel"
+              Icon="@Icons.Material.Filled.FilterAlt"
+              Color="@(_duplicateCount > 0 ? Color.Warning : Color.Primary)"
+              Selected="@_workspace.RemoveDuplicateProperties"
+              OnClick="ToggleDuplicatesAsync" />
+    </ChildContent>
+
+    <EndContent>
+        <IconButton Icon="@Icons.Material.Filled.ContentPaste" Tooltip="Paste from clipboard" OnClick="PasteAsync" />
+        <CopyButton Text="@_content" IconOnly="true" />
+        <DownloadButton Content="@_content" FileName="devhub.json" MimeType="@MimeTypes.Json" IconOnly="true" />
+
+        <MudMenu Icon="@Icons.Material.Filled.Tune" Size="Size.Small" AriaLabel="Editor options" Dense="true">
+            <MudMenuItem OnClick="ToggleWordWrapAsync">
+                <MudIcon Icon="@(_workspace.WordWrap ? Icons.Material.Filled.Check : Icons.Material.Filled.WrapText)" Size="Size.Small" Class="mr-2" />
+                Word wrap
+            </MudMenuItem>
+            <MudMenuItem OnClick="ToggleLineNumbersAsync">
+                <MudIcon Icon="@(_workspace.ShowLineNumbers ? Icons.Material.Filled.Check : Icons.Material.Filled.FormatListNumbered)" Size="Size.Small" Class="mr-2" />
+                Line numbers
+            </MudMenuItem>
+            <MudMenuItem OnClick="ToggleFormatOnPasteAsync">
+                <MudIcon Icon="@(_workspace.FormatOnPaste ? Icons.Material.Filled.Check : Icons.Material.Filled.ContentPaste)" Size="Size.Small" Class="mr-2" />
+                Format on paste
+            </MudMenuItem>
+            <MudMenuItem OnClick="ToggleTreeAsync">
+                <MudIcon Icon="@(_workspace.ShowTree ? Icons.Material.Filled.Check : Icons.Material.Filled.AccountTree)" Size="Size.Small" Class="mr-2" />
+                Tree view
+            </MudMenuItem>
+            <MudDivider />
+            <MudMenuItem OnClick="ClearAsync">
+                <MudIcon Icon="@Icons.Material.Filled.CleaningServices" Size="Size.Small" Class="mr-2" />
+                Clear
+            </MudMenuItem>
+        </MudMenu>
+    </EndContent>
+</Toolbar>
+
+<div class="devhub-json @(_workspace.ShowTree ? "devhub-json--split" : null)">
+    <LoadingOverlay Visible="_isBusy" Message="Rewriting document…" FullScreen="true" />
+    <AppCard Flush="true" Class="devhub-json__editor">
+        <CodeEditor @ref="_editor"
+                    Value="@_content"
+                    ValueChanged="OnContentChangedAsync"
+                    Language="json"
+                    ShowLineNumbers="@_workspace.ShowLineNumbers"
+                    WordWrap="@_workspace.WordWrap"
+                    Markers="@_markers"
+                    OnPaste="OnPasteAsync" />
+    </AppCard>
+
+    @if (_workspace.ShowTree)
+    {
+        <AppCard Flush="true" Class="devhub-json__tree">
+            @if (_tree is null)
+            {
+                <EmptyState Icon="@Icons.Material.Outlined.AccountTree"
+                            Title="@TreePlaceholderTitle"
+                            Description="@TreePlaceholderDescription"
+                            Dense="true" />
+            }
+            else
+            {
+                <div class="devhub-json__tree-scroll">
+                    @* Children are materialised on expand (ServerData). Rendering a whole large
+                       document at once would create thousands of components and stall the UI. *@
+                    <MudTreeView T="JsonTreeNode"
+                                 Items="_treeItems"
+                                 ServerData="LoadChildrenAsync"
+                                 Hover="true"
+                                 Dense="true"
+                                 ExpandOnClick="true">
+                        <ItemTemplate Context="item">
+                            <MudTreeViewItem T="JsonTreeNode"
+                                             Items="@item.Children"
+                                             Value="@item.Value"
+                                             Expanded="@item.Expanded"
+                                             CanExpand="@item.Expandable"
+                                             Icon="@GetNodeIcon(item.Value!)">
+                                <BodyContent>
+                                    <div class="devhub-json__node">
+                                        <span class="devhub-json__node-name">@item.Value!.Name</span>
+                                        <span class="devhub-json__node-value">@item.Value.Value</span>
+                                    </div>
+                                </BodyContent>
+                            </MudTreeViewItem>
+                        </ItemTemplate>
+                    </MudTreeView>
+                </div>
+            }
+        </AppCard>
+    }
+</div>
+
+<div class="devhub-json__status">
+    @if (_error is not null)
+    {
+        <MudAlert Severity="Severity.Error" Dense="true" Class="devhub-json__error">
+            <div class="devhub-json__error-row">
+                <span><strong>@_error.Location</strong> — @_error.Message</span>
+                <MudButton Size="Size.Small" Variant="Variant.Text" Color="Color.Inherit" OnClick="GoToErrorAsync">
+                    Go to error
+                </MudButton>
+            </div>
+        </MudAlert>
+    }
+    else if (!IsEmpty)
+    {
+        <MudAlert Severity="Severity.Success" Dense="true">Valid JSON · @_statusLabel</MudAlert>
+    }
+    else
+    {
+        <FileDropZone Accept=".json,.txt,application/json"
+                      Title="Drop a JSON file here"
+                      Hint="or click to browse — up to 5 MB"
+                      Dense="true"
+                      OnFileLoaded="OnFileLoadedAsync" />
+    }
+</div>

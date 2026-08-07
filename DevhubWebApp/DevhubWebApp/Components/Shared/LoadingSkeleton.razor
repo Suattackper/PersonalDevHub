@@ -1,0 +1,69 @@
+@*
+    Placeholder shown while data is being read from storage. Shapes mirror the real content so the
+    layout does not shift when the skeleton is replaced.
+*@
+
+<div class="devhub-skeleton @Class" aria-busy="true" aria-live="polite">
+    @switch (Variant)
+    {
+        case SkeletonVariant.Text:
+            @for (var line = 0; line < Lines; line++)
+            {
+                <MudSkeleton Animation="Animation.Wave"
+                             SkeletonType="SkeletonType.Text"
+                             Height="16px"
+                             Width="@(line == Lines - 1 ? "60%" : "100%")"
+                             Class="mb-2" />
+            }
+            break;
+
+        case SkeletonVariant.Card:
+            @for (var card = 0; card < Count; card++)
+            {
+                <div class="devhub-skeleton__card">
+                    <MudSkeleton Animation="Animation.Wave" SkeletonType="SkeletonType.Circle" Width="34px" Height="34px" />
+                    <MudSkeleton Animation="Animation.Wave" SkeletonType="SkeletonType.Text" Width="55%" Height="18px" Class="mt-3" />
+                    <MudSkeleton Animation="Animation.Wave" SkeletonType="SkeletonType.Text" Width="90%" Height="14px" />
+                    <MudSkeleton Animation="Animation.Wave" SkeletonType="SkeletonType.Text" Width="70%" Height="14px" />
+                </div>
+            }
+            break;
+
+        case SkeletonVariant.List:
+            @for (var row = 0; row < Count; row++)
+            {
+                <div class="devhub-skeleton__row">
+                    <MudSkeleton Animation="Animation.Wave" SkeletonType="SkeletonType.Circle" Width="28px" Height="28px" />
+                    <div class="devhub-skeleton__row-text">
+                        <MudSkeleton Animation="Animation.Wave" SkeletonType="SkeletonType.Text" Width="40%" Height="14px" />
+                        <MudSkeleton Animation="Animation.Wave" SkeletonType="SkeletonType.Text" Width="75%" Height="12px" />
+                    </div>
+                </div>
+            }
+            break;
+
+        default:
+            <MudSkeleton Animation="Animation.Wave"
+                         SkeletonType="SkeletonType.Rectangle"
+                         Height="@Height"
+                         Width="100%" />
+            break;
+    }
+</div>
+
+@code {
+    /// <summary>Shape of the placeholder.</summary>
+    [Parameter] public SkeletonVariant Variant { get; set; } = SkeletonVariant.Text;
+
+    /// <summary>Number of text lines rendered by <see cref="SkeletonVariant.Text"/>.</summary>
+    [Parameter] public int Lines { get; set; } = 3;
+
+    /// <summary>Number of cards or rows rendered by the card and list variants.</summary>
+    [Parameter] public int Count { get; set; } = 3;
+
+    /// <summary>Height used by <see cref="SkeletonVariant.Block"/>.</summary>
+    [Parameter] public string Height { get; set; } = "180px";
+
+    /// <summary>Extra CSS classes appended to the root element.</summary>
+    [Parameter] public string? Class { get; set; }
+}

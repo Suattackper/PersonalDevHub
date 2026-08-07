@@ -1,0 +1,21 @@
+@inherits LayoutComponentBase
+
+@* Desktop-application shell: fixed top bar, persistent left sidebar, scrollable workspace. *@
+
+<MudLayout Class="devhub-shell">
+    <TopBar OnToggleSidebar="ToggleSidebar" />
+
+    <MudDrawer @bind-Open="_sidebarOpen"
+               Variant="@DrawerVariant.Responsive"
+               ClipMode="DrawerClipMode.Always"
+               Elevation="0"
+               Class="devhub-drawer">
+        <SideBar />
+    </MudDrawer>
+
+    <MudMainContent Class="devhub-workspace">
+        <article class="devhub-workspace__inner">
+            @Body
+        </article>
+    </MudMainContent>
+</MudLayout>

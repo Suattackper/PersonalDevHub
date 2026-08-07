@@ -1,0 +1,57 @@
+@*
+    Standard page heading: icon, H1 title, subtitle and right-aligned actions. Every routable page
+    starts with this component so titles line up pixel-for-pixel across the app.
+*@
+
+<header class="devhub-page-header @Class">
+    <div class="devhub-page-header__title">
+        @if (!string.IsNullOrWhiteSpace(Icon))
+        {
+            <div class="devhub-page-header__icon">
+                <MudIcon Icon="@Icon" Color="@IconColor" />
+            </div>
+        }
+        <div>
+            <MudText Typo="Typo.h5" HtmlTag="h1">@Title</MudText>
+            @if (!string.IsNullOrWhiteSpace(Subtitle))
+            {
+                <MudText Typo="Typo.body2" Class="mud-text-secondary">@Subtitle</MudText>
+            }
+            @if (MetaContent is not null)
+            {
+                <div class="devhub-page-header__meta">@MetaContent</div>
+            }
+        </div>
+    </div>
+
+    @if (Actions is not null)
+    {
+        <div class="devhub-page-header__actions">@Actions</div>
+    }
+</header>
+
+@code {
+    /// <summary>Page title, rendered as the document's single H1.</summary>
+    [Parameter, EditorRequired] public string Title { get; set; } = string.Empty;
+
+    /// <summary>One-line description of the page.</summary>
+    [Parameter] public string? Subtitle { get; set; }
+
+    /// <summary>Optional leading icon.</summary>
+    [Parameter] public string? Icon { get; set; }
+
+    /// <summary>Color of the leading icon.</summary>
+    [Parameter] public Color IconColor { get; set; } = Color.Primary;
+
+    /// <summary>
+    /// Small badges or chips rendered under the subtitle. Named <c>MetaContent</c> rather than
+    /// <c>Meta</c> because Razor would resolve a &lt;Meta&gt; tag to the void HTML element.
+    /// </summary>
+    [Parameter] public RenderFragment? MetaContent { get; set; }
+
+    /// <summary>Right-aligned page-level actions.</summary>
+    [Parameter] public RenderFragment? Actions { get; set; }
+
+    /// <summary>Extra CSS classes appended to the root element.</summary>
+    [Parameter] public string? Class { get; set; }
+}

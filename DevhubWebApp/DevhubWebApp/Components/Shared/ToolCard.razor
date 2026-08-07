@@ -1,0 +1,50 @@
+@*
+    Catalogue tile for a single tool. Binds to a ToolView, so metadata and personal state arrive
+    together and the card never queries a service itself.
+*@
+
+<AppCard Interactive="true"
+         OnClick="NavigateToTool"
+         Class="@($"devhub-tool-card {Class}")"
+         aria-label="@View.Name">
+    <ChildContent>
+        <div class="devhub-tool-card__head">
+            <div class="devhub-tool-card__icon" style="@IconStyle">
+                <MudIcon Icon="@View.Tool.Icon" Color="@View.Tool.Color" />
+            </div>
+
+            <div class="devhub-tool-card__actions" @onclick:stopPropagation="true">
+                @if (ShowFavorite)
+                {
+                    <IconButton Icon="@(View.IsFavorite ? Icons.Material.Filled.Star : Icons.Material.Outlined.StarBorder)"
+                                Tooltip="@(View.IsFavorite ? "Remove from favorites" : "Add to favorites")"
+                                Color="@(View.IsFavorite ? Color.Warning : Color.Default)"
+                                OnClick="ToggleFavoriteAsync" />
+                }
+                @if (ShowPin)
+                {
+                    <IconButton Icon="@(View.IsPinned ? Icons.Material.Filled.PushPin : Icons.Material.Outlined.PushPin)"
+                                Tooltip="@(View.IsPinned ? "Unpin from sidebar" : "Pin to sidebar")"
+                                Color="@(View.IsPinned ? Color.Primary : Color.Default)"
+                                OnClick="TogglePinAsync" />
+                }
+            </div>
+        </div>
+
+        <div class="devhub-tool-card__title">
+            <MudText Typo="Typo.subtitle1">@View.Name</MudText>
+            @if (View.Tool.IsExperimental)
+            {
+                <Badge Text="Experimental" Icon="@Icons.Material.Filled.Science" Color="Color.Warning" />
+            }
+        </div>
+        <MudText Typo="Typo.body2" Class="mud-text-secondary devhub-tool-card__description">
+            @View.Tool.Description
+        </MudText>
+    </ChildContent>
+
+    <Footer>
+        <Badge Text="@View.Tool.Category.Label" Icon="@View.Tool.Category.Icon" />
+        <MudText Typo="Typo.caption" Class="mud-text-secondary">@FooterMeta</MudText>
+    </Footer>
+</AppCard>

@@ -1,0 +1,14 @@
+@using BlazorMonaco.Editor
+
+@*
+    Monaco diff view, reusable by any tool that compares two texts. Like CodeEditor it owns the
+    editor lifecycle and theme synchronisation, and exposes content through parameters only.
+*@
+
+<div class="devhub-editor @Class">
+    <StandaloneDiffEditor @ref="_editor"
+                          Id="@_elementId"
+                          ConstructionOptions="BuildOptions"
+                          OnDidInit="OnEditorInitAsync"
+                          CssClass="devhub-editor__surface" />
+</div>

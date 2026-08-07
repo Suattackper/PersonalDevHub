@@ -1,0 +1,100 @@
+@attribute [Tool(ToolIds.LoremIpsum,
+              "Lorem Ipsum",
+              ToolCategories.GeneratorsId,
+              "Generate placeholder paragraphs, sentences and words.",
+              Icons.Material.Filled.Notes,
+              Order = 40,
+              Keywords = new[] { "placeholder", "dummy", "text", "filler" },
+              Tags = new[] { "seeded" })]
+
+@using DevhubWebApp.Models.Tools.Lorem
+@using DevhubWebApp.Utilities
+@inherits ToolComponentBase<LoremWorkspace>
+
+@* Generation lives in LoremGenerator; this component binds it to the UI. *@
+
+<Toolbar Class="mb-3">
+    <ChildContent>
+        <MudButton StartIcon="@Icons.Material.Filled.Autorenew"
+                   Variant="Variant.Filled"
+                   Color="Color.Primary"
+                   Size="Size.Small"
+                   OnClick="GenerateAsync">
+            Generate (Ctrl+Enter)
+        </MudButton>
+
+        @foreach (var unit in Units)
+        {
+            <Chip Text="@unit.ToString()" Icon="@GetUnitIcon(unit)" Color="Color.Primary"
+                  Selected="@(Workspace.Unit == unit)" OnClick="@(() => UpdateAsync(w => w.Unit = unit))" />
+        }
+    </ChildContent>
+
+    <EndContent>
+        @foreach (var format in Formats)
+        {
+            <Chip Text="@GetFormatLabel(format)" Color="Color.Secondary"
+                  Selected="@(Workspace.Format == format)" OnClick="@(() => UpdateAsync(w => w.Format = format))" />
+        }
+        <CopyButton Text="@_output" IconOnly="true" Disabled="@string.IsNullOrEmpty(_output)" />
+        <IconButton Icon="@Icons.Material.Filled.Download" Tooltip="Download (Ctrl+S)"
+                    Disabled="@string.IsNullOrEmpty(_output)" OnClick="DownloadAsync" />
+    </EndContent>
+</Toolbar>
+
+<MudGrid Spacing="3">
+    <MudItem xs="12" md="4">
+        <AppCard Title="Options" Icon="@Icons.Material.Filled.Tune">
+            <ChildContent>
+                <SettingItem Label="@($"{UnitLabel} to generate")" Description="@($"{Workspace.Count} {UnitLabel.ToLowerInvariant()}")">
+                    <MudSlider T="int" Value="@Workspace.Count" ValueChanged="@(value => UpdateAsync(w => w.Count = value))"
+                               Min="1" Max="@MaxForUnit" Step="1" Color="Color.Primary" Class="devhub-password__slider" />
+                </SettingItem>
+
+                <SettingItem Label="Classic opening" Description="Start with “Lorem ipsum dolor sit amet…”.">
+                    <MudSwitch T="bool" Value="@Workspace.StartWithLoremIpsum"
+                               ValueChanged="@(value => UpdateAsync(w => w.StartWithLoremIpsum = value))" Color="Color.Primary" />
+                </SettingItem>
+
+                <SettingItem Label="Fixed seed"
+                             Description="Reproduces the same passage every time — useful in tests and screenshots."
+                             Last="true">
+                    <div class="devhub-lorem__seed">
+                        <MudSwitch T="bool" Value="@(Workspace.Seed is not null)" ValueChanged="OnSeedToggledAsync" Color="Color.Primary" />
+                        @if (Workspace.Seed is not null)
+                        {
+                            <MudNumericField T="int" Value="@Workspace.Seed.Value"
+                                             ValueChanged="@(value => UpdateAsync(w => w.Seed = value))"
+                                             Variant="Variant.Outlined" Margin="Margin.Dense" Class="devhub-password__number" />
+                        }
+                    </div>
+                </SettingItem>
+            </ChildContent>
+        </AppCard>
+    </MudItem>
+
+    <MudItem xs="12" md="8">
+        <AppCard Title="Preview" Icon="@Icons.Material.Filled.Preview" Subtitle="@StatusLabel">
+            <ChildContent>
+                @if (string.IsNullOrEmpty(_output))
+                {
+                    <EmptyState Icon="@Icons.Material.Outlined.Notes"
+                                Title="Nothing generated yet"
+                                Description="Choose how much placeholder text you need and generate it."
+                                ActionText="Generate"
+                                ActionIcon="@Icons.Material.Filled.Autorenew"
+                                OnAction="GenerateAsync"
+                                Dense="true" />
+                }
+                else if (Workspace.Format == LoremFormat.Html)
+                {
+                    <pre class="devhub-lorem__code">@_output</pre>
+                }
+                else
+                {
+                    <div class="devhub-lorem__text">@_output</div>
+                }
+            </ChildContent>
+        </AppCard>
+    </MudItem>
+</MudGrid>

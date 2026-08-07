@@ -1,0 +1,61 @@
+@*
+    Single metric tile: label, value, optional unit, icon and trailing hint. Built on AppCard so
+    dashboard statistics share the surface treatment of every other panel.
+*@
+
+<AppCard Interactive="@Interactive" OnClick="OnClick" Class="@($"devhub-stat {Class}")">
+    <div class="devhub-stat__row">
+        <div class="devhub-stat__text">
+            <MudText Typo="Typo.caption" Class="mud-text-secondary devhub-stat__label">@Label</MudText>
+            <div class="devhub-stat__value-row">
+                <MudText Typo="Typo.h5" Class="devhub-stat__value">@Value</MudText>
+                @if (!string.IsNullOrWhiteSpace(Unit))
+                {
+                    <MudText Typo="Typo.body2" Class="mud-text-secondary">@Unit</MudText>
+                }
+            </div>
+            @if (!string.IsNullOrWhiteSpace(Hint))
+            {
+                <MudText Typo="Typo.caption" Class="mud-text-secondary">@Hint</MudText>
+            }
+        </div>
+
+        @if (!string.IsNullOrWhiteSpace(Icon))
+        {
+            <div class="devhub-stat__icon" style="@IconStyle">
+                <MudIcon Icon="@Icon" Color="@Color" />
+            </div>
+        }
+    </div>
+</AppCard>
+
+@code {
+    /// <summary>Metric name, e.g. "Tools used".</summary>
+    [Parameter, EditorRequired] public string Label { get; set; } = string.Empty;
+
+    /// <summary>Formatted metric value. Formatting belongs to the caller, not to this component.</summary>
+    [Parameter, EditorRequired] public string Value { get; set; } = "0";
+
+    /// <summary>Optional unit rendered next to the value.</summary>
+    [Parameter] public string? Unit { get; set; }
+
+    /// <summary>Optional secondary line, e.g. "since yesterday".</summary>
+    [Parameter] public string? Hint { get; set; }
+
+    /// <summary>Optional icon shown in a tinted square.</summary>
+    [Parameter] public string? Icon { get; set; }
+
+    /// <summary>Theme color of the icon and its tint.</summary>
+    [Parameter] public Color Color { get; set; } = Color.Primary;
+
+    /// <summary>Enables the hover treatment; pair it with <see cref="OnClick"/>.</summary>
+    [Parameter] public bool Interactive { get; set; }
+
+    /// <summary>Raised when the tile is clicked.</summary>
+    [Parameter] public EventCallback<MouseEventArgs> OnClick { get; set; }
+
+    /// <summary>Extra CSS classes appended to the card.</summary>
+    [Parameter] public string? Class { get; set; }
+
+    private string IconStyle => $"background-color: var(--mud-palette-{Color.ToDescriptionString()}-hover);";
+}
