@@ -260,6 +260,33 @@ rather than by a lightness threshold, which is what makes mid-tone backgrounds c
 `PaletteGenerator` builds 50-900 scales (step 500 is the base colour, pinned by a test) and
 harmonies, exporting to CSS custom properties, SCSS variables plus a map, or JSON.
 
+### Timestamp, MIME, HTTP status
+
+- `TimestampConverter` reads Unix seconds or milliseconds (detected from magnitude), ISO 8601 and
+  common layouts, and treats a value without an offset as UTC so results never depend on the host.
+  The browser runtime ships full time-zone data — 313 zones are available and verified in the app.
+- `MimeCatalog` and `HttpStatusCatalog` are data; their tools are list rendering over a lookup
+  service. Search ranks exact hits first, so typing `png` or `404` shows that entry, not the first
+  substring match. A test asserts the HTTP catalogue has **no dangling related-code references** —
+  it caught five when it was first run.
+
+### Cron
+
+`CronParser` supports both dialects: five-field Linux cron and Quartz with seconds and an optional
+year. Parsing expands every field into its explicit value set, which is what makes description and
+scheduling simple. Two behaviours are worth knowing, and both are pinned by tests:
+
+- When **both** day fields are restricted, cron takes their **union** — `0 9 1 * MON` fires on the
+  1st *and* on every Monday. Getting this wrong is the classic cron bug.
+- The next-run search is bounded to five years, so an unsatisfiable schedule such as `0 9 30 2 *`
+  (30 February) terminates and reports "this schedule never runs" instead of hanging.
+
+### Data converter
+
+`DataConversionService` routes all six directions through one in-memory shape (`JsonNode`): three
+readers, three writers, no bespoke translators. XML attributes round-trip as `@name` properties and
+repeated elements as arrays. JSON keys that are illegal XML names are sanitised rather than throwing.
+
 ## Dashboard
 
 `Pages/Dashboard.razor` is composition only — it holds no state, subscribes to nothing and blocks
@@ -345,5 +372,10 @@ themes supported by construction, XML documentation on every parameter.
 | 18 — QR code generator | done |
 | 19 — Barcode generator (5 of 8 symbologies — see the scope note) | done |
 | 20 — Colour toolkit | done |
-| Remaining tool workspaces (SQL formatter, HTML escape, HTTP status, MIME type, timestamp) | declared and routable; implemented one module at a time |
+| 21 — Timestamp converter | done |
+| 22 — MIME type explorer | done |
+| 23 — HTTP status explorer | done |
+| 24 — Cron expression builder | done |
+| 25 — JSON / YAML / XML converter | done |
+| Remaining tool workspaces (SQL formatter, HTML escape) | declared and routable; implemented one module at a time |
 | Settings, History pages | placeholder pages, full modules pending |

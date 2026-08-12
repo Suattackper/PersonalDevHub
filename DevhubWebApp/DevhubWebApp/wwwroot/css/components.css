@@ -1227,6 +1227,201 @@
     }
 }
 
+/* ---------- timestamp tool ---------- */
+
+.devhub-time__pickers {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
+.devhub-time__clock {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 14px 16px;
+    border-radius: var(--devhub-radius-sm);
+    background-color: var(--mud-palette-background-gray);
+}
+
+.devhub-time__clock-value {
+    font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+    font-size: 1.5rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}
+
+.devhub-time__clock-caption {
+    color: var(--mud-palette-text-secondary);
+    font-size: 0.8125rem;
+}
+
+@media (max-width: 600px) {
+    .devhub-time__pickers {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ---------- catalogue explorers (MIME, HTTP status) ---------- */
+
+.devhub-catalog-filter {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.devhub-catalog-filter__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.devhub-catalog__list {
+    max-height: 560px;
+    overflow: auto;
+}
+
+.devhub-catalog__row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    width: 100%;
+    padding: 10px 12px;
+    border: none;
+    border-bottom: 1px solid var(--mud-palette-divider);
+    border-radius: 0;
+    background: none;
+    color: inherit;
+    cursor: pointer;
+    text-align: left;
+    font-family: inherit;
+    transition: background-color var(--devhub-ease);
+}
+
+.devhub-catalog__row:hover {
+    background-color: var(--mud-palette-action-default-hover);
+}
+
+.devhub-catalog__row--active {
+    background-color: var(--mud-palette-primary-hover);
+}
+
+.devhub-catalog__row-main {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.devhub-catalog__row-main code {
+    font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+    font-size: 0.8125rem;
+    word-break: break-all;
+}
+
+.devhub-catalog__row-note {
+    color: var(--mud-palette-text-secondary);
+    font-size: 0.75rem;
+}
+
+.devhub-catalog__row-side {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    flex: 0 0 auto;
+}
+
+.devhub-catalog__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.devhub-catalog__snippet {
+    margin: 0;
+    padding: 10px 12px;
+    overflow: auto;
+    border-radius: var(--devhub-radius-sm);
+    background-color: var(--mud-palette-background-gray);
+    font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+    font-size: 0.75rem;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+/* ---------- cron builder ---------- */
+
+.devhub-cron__expression input {
+    font-size: 1rem;
+    letter-spacing: .04em;
+}
+
+.devhub-cron__fields {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.devhub-cron__field {
+    padding: 2px 8px;
+    border-radius: 999px;
+    background-color: var(--mud-palette-action-default-hover);
+    color: var(--mud-palette-text-secondary);
+    font-size: 0.68rem;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+}
+
+.devhub-cron__part {
+    max-width: 180px;
+}
+
+.devhub-cron__template,
+.devhub-cron__run {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    width: 100%;
+}
+
+.devhub-cron__template code,
+.devhub-cron__run code {
+    font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+    font-size: 0.75rem;
+    white-space: nowrap;
+}
+
+/* ---------- data converter ---------- */
+
+.devhub-data {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    height: clamp(320px, 56vh, 720px);
+}
+
+.devhub-data__pane {
+    overflow: hidden;
+    min-width: 0;
+}
+
+.devhub-data__format {
+    max-width: 130px;
+}
+
+@media (max-width: 900px) {
+    .devhub-data {
+        grid-template-columns: 1fr;
+        height: auto;
+    }
+
+    .devhub-data__pane {
+        height: 45vh;
+    }
+}
+
 /* ---------- shared motion ---------- */
 
 @keyframes devhub-fade-in {

@@ -1,11 +1,145 @@
-﻿@attribute [Tool(ToolIds.MimeType,
+@attribute [Tool(ToolIds.MimeType,
               "MIME Type",
               ToolCategories.WebId,
-              "Search MIME types by extension or content type.",
+              "Look up media types by extension or by type, with the applications that open them.",
               Icons.Material.Filled.FilePresent,
               Order = 30,
-              Keywords = new[] { "content type", "extension", "media type" })]
+              Keywords = new[] { "content type", "extension", "media type", "file" })]
 
-@* Tool metadata is declared above; the registry discovers this component by reflection. *@
+@using DevhubWebApp.Models.Tools.Mime
+@inherits ToolComponentBase<MimeWorkspace>
 
-<ToolScaffold />
+@* Lookup and ranking live in IMimeLookupService; this component binds them to the UI. *@
+
+<CatalogFilterBar TCategory="MimeCategory"
+                  SearchTerm="@Workspace.Search"
+                  SearchTermChanged="OnSearchChangedAsync"
+                  Categories="@Mime.Categories"
+                  Selected="@Workspace.Category"
+                  SelectedChanged="OnCategoryChangedAsync"
+                  IconSelector="@GetCategoryIcon"
+                  Placeholder="Search by extension (png) or type (image/png)…"
+                  Class="mb-3" />
+
+<MudGrid Spacing="3">
+    <MudItem xs="12" lg="7">
+        <AppCard Title="Results" Icon="@Icons.Material.Filled.List" Subtitle="@($"{_results.Count} media type(s)")">
+            <ChildContent>
+                @if (_results.Count == 0)
+                {
+                    <EmptyState Icon="@Icons.Material.Outlined.SearchOff"
+                                Title="Nothing matches that search"
+                                Description="Try an extension without the dot, or clear the category filter."
+                                Dense="true" />
+                }
+                else
+                {
+                    <div class="devhub-catalog__list">
+                        @foreach (var entry in _results)
+                        {
+                            <button type="button"
+                                    class="devhub-catalog__row @(entry.MimeType == Workspace.SelectedMimeType ? "devhub-catalog__row--active" : null)"
+                                    @key="entry.MimeType"
+                                    @onclick="@(() => SelectAsync(entry))">
+                                <div class="devhub-catalog__row-main">
+                                    <code>@entry.MimeType</code>
+                                    <span class="devhub-catalog__row-note">@entry.Description</span>
+                                </div>
+                                <div class="devhub-catalog__row-side">
+                                    @foreach (var extension in entry.Extensions.Take(3))
+                                    {
+                                        <Badge Text="@($".{extension}")" />
+                                    }
+                                </div>
+                            </button>
+                        }
+                    </div>
+                }
+            </ChildContent>
+        </AppCard>
+    </MudItem>
+
+    <MudItem xs="12" lg="5">
+        @if (_selected is null)
+        {
+            <AppCard>
+                <EmptyState Icon="@Icons.Material.Outlined.FilePresent"
+                            Title="Pick a media type"
+                            Description="Select a result to see its extensions, category and the applications that open it."
+                            Dense="true" />
+            </AppCard>
+        }
+        else
+        {
+            <AppCard Title="@_selected.MimeType" Icon="@GetCategoryIcon(_selected.Category)">
+                <Actions>
+                    <IconButton Icon="@(IsFavorite ? Icons.Material.Filled.Star : Icons.Material.Outlined.StarBorder)"
+                                Tooltip="@(IsFavorite ? "Remove from favourites" : "Save to favourites")"
+                                Color="@(IsFavorite ? Color.Warning : Color.Default)"
+                                OnClick="ToggleFavoriteAsync" />
+                    <CopyButton Text="@_selected.MimeType" IconOnly="true" Label="Copy media type" />
+                </Actions>
+                <ChildContent>
+                    <MudText Typo="Typo.body2" Class="mud-text-secondary">@_selected.Description</MudText>
+
+                    <DividerTitle Title="Extensions" Icon="@Icons.Material.Filled.Extension" />
+                    <div class="devhub-catalog__chips">
+                        @foreach (var extension in _selected.Extensions)
+                        {
+                            <CopyButton Text="@($".{extension}")" Label="@($".{extension}")" Variant="Variant.Outlined" Notify="false" />
+                        }
+                    </div>
+
+                    <DividerTitle Title="Category" Icon="@Icons.Material.Filled.Category" />
+                    <Badge Text="@_selected.Category.ToString()" Icon="@GetCategoryIcon(_selected.Category)" Color="Color.Primary" />
+
+                    @if (_selected.Applications.Count > 0)
+                    {
+                        <DividerTitle Title="Opens with" Icon="@Icons.Material.Filled.Apps" />
+                        <div class="devhub-catalog__chips">
+                            @foreach (var application in _selected.Applications)
+                            {
+                                <Badge Text="@application" />
+                            }
+                        </div>
+                    }
+
+                    <DividerTitle Title="Snippets" Icon="@Icons.Material.Filled.Code" />
+                    <pre class="devhub-catalog__snippet">@HeaderSnippet</pre>
+                    <CopyButton Text="@HeaderSnippet" Label="Copy Content-Type header" Variant="Variant.Outlined" Class="mt-2" />
+                </ChildContent>
+            </AppCard>
+
+            @if (Workspace.Favorites.Count > 0 || Workspace.Recent.Count > 0)
+            {
+                <AppCard Title="Saved" Icon="@Icons.Material.Filled.Bookmarks" Class="mt-3">
+                    <ChildContent>
+                        @if (Workspace.Favorites.Count > 0)
+                        {
+                            <DividerTitle Title="Favourites" Icon="@Icons.Material.Filled.Star" />
+                            <div class="devhub-catalog__chips">
+                                @foreach (var mimeType in Workspace.Favorites)
+                                {
+                                    <MudButton Size="Size.Small" Variant="Variant.Outlined" @key="mimeType"
+                                               OnClick="@(() => SelectByTypeAsync(mimeType))">@mimeType</MudButton>
+                                }
+                            </div>
+                        }
+
+                        @if (Workspace.Recent.Count > 0)
+                        {
+                            <DividerTitle Title="Recent" Icon="@Icons.Material.Filled.History" />
+                            <div class="devhub-catalog__chips">
+                                @foreach (var mimeType in Workspace.Recent)
+                                {
+                                    <MudButton Size="Size.Small" Variant="Variant.Text" @key="mimeType"
+                                               OnClick="@(() => SelectByTypeAsync(mimeType))">@mimeType</MudButton>
+                                }
+                            </div>
+                        }
+                    </ChildContent>
+                </AppCard>
+            }
+        }
+    </MudItem>
+</MudGrid>

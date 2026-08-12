@@ -1,0 +1,124 @@
+@attribute [Tool(ToolIds.DataConverter,
+              "Data Converter",
+              ToolCategories.ConvertersId,
+              "Convert between JSON, YAML and XML, and format or validate any of them.",
+              Icons.Material.Filled.SyncAlt,
+              Order = 5,
+              Keywords = new[] { "json", "yaml", "xml", "convert", "format", "validate" })]
+
+@using DevhubWebApp.Models.Tools.Data
+@inherits ToolComponentBase<DataWorkspace>
+
+@* Conversion, formatting and validation live in IDataConversionService; this component binds them. *@
+
+<Toolbar Class="mb-3">
+    <ChildContent>
+        <MudSelect T="DataFormat" Value="@Workspace.From" ValueChanged="OnFromChangedAsync"
+                   Variant="Variant.Outlined" Margin="Margin.Dense" Dense="true"
+                   Label="From" Class="devhub-data__format">
+            @foreach (var format in Formats)
+            {
+                <MudSelectItem T="DataFormat" Value="@format">@format.ToString().ToUpperInvariant()</MudSelectItem>
+            }
+        </MudSelect>
+
+        <IconButton Icon="@Icons.Material.Filled.SwapHoriz" Tooltip="Swap directions" OnClick="SwapAsync" />
+
+        <MudSelect T="DataFormat" Value="@Workspace.To" ValueChanged="OnToChangedAsync"
+                   Variant="Variant.Outlined" Margin="Margin.Dense" Dense="true"
+                   Label="To" Class="devhub-data__format">
+            @foreach (var format in Formats)
+            {
+                <MudSelectItem T="DataFormat" Value="@format">@format.ToString().ToUpperInvariant()</MudSelectItem>
+            }
+        </MudSelect>
+
+        <Chip Text="Auto detect" Icon="@Icons.Material.Filled.AutoFixHigh" Color="Color.Secondary"
+              Selected="@Workspace.AutoDetect" OnClick="@(() => UpdateAsync(w => w.AutoDetect = !w.AutoDetect))" />
+        <Chip Text="Indent" Icon="@Icons.Material.Filled.FormatIndentIncrease" Color="Color.Secondary"
+              Selected="@Workspace.Indented" OnClick="@(() => UpdateAsync(w => w.Indented = !w.Indented))" />
+    </ChildContent>
+
+    <EndContent>
+        <IconButton Icon="@Icons.Material.Filled.ContentPaste" Tooltip="Paste" OnClick="PasteAsync" />
+        <CopyButton Text="@_output" IconOnly="true" Label="Copy result" Disabled="@(!HasOutput)" />
+        <IconButton Icon="@Icons.Material.Filled.Download" Tooltip="Download result (Ctrl+S)"
+                    Disabled="@(!HasOutput)" OnClick="DownloadAsync" />
+        <IconButton Icon="@Icons.Material.Filled.CleaningServices" Tooltip="Clear" Disabled="@IsEmpty" OnClick="ClearAsync" />
+    </EndContent>
+</Toolbar>
+
+<div class="devhub-data">
+    <AppCard Flush="true" Class="devhub-data__pane">
+        <Header>
+            <div class="devhub-card__heading">
+                <MudIcon Icon="@Icons.Material.Filled.Input" Size="Size.Small" Color="Color.Primary" />
+                <MudText Typo="Typo.subtitle2">@Workspace.From.ToString().ToUpperInvariant() source</MudText>
+                @if (_result.Error is not null)
+                {
+                    <Badge Text="@(_result.ErrorLine is null ? "invalid" : $"line {_result.ErrorLine}")"
+                           Icon="@Icons.Material.Filled.ErrorOutline" Color="Color.Error" />
+                }
+                else if (!IsEmpty)
+                {
+                    <Badge Text="valid" Icon="@Icons.Material.Filled.CheckCircle" Color="Color.Success" />
+                }
+            </div>
+        </Header>
+        <ChildContent>
+            <CodeEditor Value="@Workspace.Input"
+                        ValueChanged="OnInputChangedAsync"
+                        Language="@GetLanguage(Workspace.From)"
+                        WordWrap="true" />
+        </ChildContent>
+    </AppCard>
+
+    <AppCard Flush="true" Class="devhub-data__pane">
+        <Header>
+            <div class="devhub-card__heading">
+                <MudIcon Icon="@Icons.Material.Filled.Output" Size="Size.Small" Color="Color.Primary" />
+                <MudText Typo="Typo.subtitle2">@Workspace.To.ToString().ToUpperInvariant() result</MudText>
+            </div>
+        </Header>
+        <Actions>
+            <CopyButton Text="@_output" IconOnly="true" Disabled="@(!HasOutput)" />
+        </Actions>
+        <ChildContent>
+            @if (_result.Error is not null)
+            {
+                <div class="pa-4">
+                    <ErrorState Title="@($"That is not valid {Workspace.From.ToString().ToUpperInvariant()}")"
+                                Description="@ErrorDescription"
+                                Dense="true"
+                                RetryText="@null" />
+                </div>
+            }
+            else if (IsEmpty)
+            {
+                <div class="pa-4">
+                    <EmptyState Icon="@Icons.Material.Outlined.SyncAlt"
+                                Title="Nothing to convert yet"
+                                Description="Type, paste or drop a file on the left."
+                                Dense="true" />
+                </div>
+            }
+            else
+            {
+                <CodeEditor Value="@_output"
+                            Language="@GetLanguage(Workspace.To)"
+                            WordWrap="true"
+                            ReadOnly="true" />
+            }
+        </ChildContent>
+    </AppCard>
+</div>
+
+@if (IsEmpty)
+{
+    <FileDropZone Accept=".json,.yaml,.yml,.xml,.txt"
+                  Title="Drop a JSON, YAML or XML file"
+                  Hint="the source format is detected from the content"
+                  Dense="true"
+                  Class="mt-3"
+                  OnFileLoaded="OnFileLoadedAsync" />
+}

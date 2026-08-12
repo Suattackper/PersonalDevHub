@@ -1,0 +1,180 @@
+@attribute [Tool(ToolIds.Cron,
+              "Cron Builder",
+              ToolCategories.WebId,
+              "Build, validate and explain cron expressions, and preview when they will run.",
+              Icons.Material.Filled.Alarm,
+              Order = 40,
+              Keywords = new[] { "cron", "schedule", "quartz", "crontab", "job" },
+              Tags = new[] { "linux", "quartz" })]
+
+@using DevhubWebApp.Models.Tools.Cron
+@using DevhubWebApp.Constants
+@using DevhubWebApp.Utilities
+@inherits ToolComponentBase<CronWorkspace>
+
+@* Parsing, description and scheduling live in CronParser; this component binds them to the UI. *@
+
+<Toolbar Class="mb-3">
+    <ChildContent>
+        <Chip Text="Linux cron" Icon="@Icons.Material.Filled.Terminal" Color="Color.Primary"
+              Selected="@(Workspace.Dialect == CronDialect.Linux)"
+              OnClick="@(() => SetDialectAsync(CronDialect.Linux))" />
+        <Chip Text="Quartz" Icon="@Icons.Material.Filled.Schedule" Color="Color.Primary"
+              Selected="@(Workspace.Dialect == CronDialect.Quartz)"
+              OnClick="@(() => SetDialectAsync(CronDialect.Quartz))" />
+    </ChildContent>
+
+    <EndContent>
+        <IconButton Icon="@(IsFavorite ? Icons.Material.Filled.Star : Icons.Material.Outlined.StarBorder)"
+                    Tooltip="@(IsFavorite ? "Remove from favourites" : "Save to favourites")"
+                    Color="@(IsFavorite ? Color.Warning : Color.Default)"
+                    Disabled="@(!_parsed.IsValid)"
+                    OnClick="ToggleFavoriteAsync" />
+        <IconButton Icon="@Icons.Material.Filled.ContentPaste" Tooltip="Paste" OnClick="PasteAsync" />
+        <CopyButton Text="@Workspace.Expression" IconOnly="true" Label="Copy expression" />
+        <IconButton Icon="@Icons.Material.Filled.Download" Tooltip="Download schedule (Ctrl+S)"
+                    Disabled="@(!_parsed.IsValid)" OnClick="DownloadAsync" />
+    </EndContent>
+</Toolbar>
+
+<AppCard Class="mb-3">
+    <ChildContent>
+        <MudTextField T="string"
+                      Value="@Workspace.Expression"
+                      ValueChanged="OnExpressionChangedAsync"
+                      Immediate="true"
+                      DebounceInterval="AppConstants.DebounceMilliseconds"
+                      Variant="Variant.Outlined"
+                      Margin="Margin.Dense"
+                      Class="devhub-mono-field devhub-cron__expression"
+                      Label="@($"{(Workspace.Dialect == CronDialect.Quartz ? "Quartz" : "Linux")} expression")"
+                      Placeholder="@(Workspace.Dialect == CronDialect.Quartz ? "0 0 9 * * ?" : "0 9 * * 1-5")"
+                      Error="@(_parsed.Error is not null)"
+                      ErrorText="@_parsed.Error"
+                      aria-label="Cron expression" />
+
+        <div class="devhub-cron__fields mt-2">
+            @foreach (var field in FieldLabels)
+            {
+                <div class="devhub-cron__field" @key="field">
+                    <span>@field</span>
+                </div>
+            }
+        </div>
+
+        @if (_parsed.IsValid)
+        {
+            <MudAlert Severity="Severity.Success" Dense="true" Class="mt-3">@_description</MudAlert>
+        }
+    </ChildContent>
+</AppCard>
+
+<MudGrid Spacing="3">
+    <MudItem xs="12" md="7">
+        <AppCard Title="Builder" Icon="@Icons.Material.Filled.Tune" Subtitle="Each control rewrites one field">
+            <ChildContent>
+                @foreach (var part in Parts)
+                {
+                    <SettingItem Label="@part.Label" Description="@part.Hint" Last="@(part == Parts[^1])" @key="part.Label">
+                        <MudTextField T="string"
+                                      Value="@part.Value"
+                                      ValueChanged="@(value => SetFieldAsync(part.Index, value))"
+                                      Immediate="true"
+                                      DebounceInterval="AppConstants.DebounceMilliseconds"
+                                      Variant="Variant.Outlined"
+                                      Margin="Margin.Dense"
+                                      Class="devhub-mono-field devhub-cron__part" />
+                    </SettingItem>
+                }
+            </ChildContent>
+        </AppCard>
+
+        <AppCard Title="Templates" Icon="@Icons.Material.Filled.Bookmarks" Class="mt-3">
+            <ChildContent>
+                <MudList T="string" Dense="true">
+                    @foreach (var template in CronTemplates.For(Workspace.Dialect))
+                    {
+                        <MudListItem T="string" OnClick="@(() => ApplyTemplateAsync(template))" @key="template.Name">
+                            <div class="devhub-cron__template">
+                                <div>
+                                    <MudText Typo="Typo.body2">@template.Name</MudText>
+                                    <MudText Typo="Typo.caption" Class="mud-text-secondary">@template.Description</MudText>
+                                </div>
+                                <code>@template.Expression</code>
+                            </div>
+                        </MudListItem>
+                    }
+                </MudList>
+            </ChildContent>
+        </AppCard>
+    </MudItem>
+
+    <MudItem xs="12" md="5">
+        <AppCard Title="Next runs" Icon="@Icons.Material.Filled.EventRepeat"
+                 Subtitle="@(_occurrences.Count > 0 ? $"Next {_occurrences.Count}, in UTC" : null)">
+            <ChildContent>
+                @if (!_parsed.IsValid)
+                {
+                    <EmptyState Icon="@Icons.Material.Outlined.EventBusy"
+                                Title="No schedule to preview"
+                                Description="Fix the expression above to see when it will run."
+                                Dense="true" />
+                }
+                else if (_occurrences.Count == 0)
+                {
+                    <ErrorState Title="This schedule never runs"
+                                Description="The expression is syntactically valid but matches no date in the next five years — 30 February, for example."
+                                Dense="true"
+                                RetryText="@null" />
+                }
+                else
+                {
+                    <MudList T="string" Dense="true">
+                        @foreach (var occurrence in _occurrences)
+                        {
+                            <MudListItem T="string" Icon="@Icons.Material.Filled.ArrowRight" @key="occurrence">
+                                <div class="devhub-cron__run">
+                                    <code>@TimestampConverter.ToSortable(occurrence)</code>
+                                    <MudText Typo="Typo.caption" Class="mud-text-secondary">
+                                        @TimestampConverter.ToRelative(occurrence, TimestampConverter.Now)
+                                    </MudText>
+                                </div>
+                            </MudListItem>
+                        }
+                    </MudList>
+                }
+            </ChildContent>
+        </AppCard>
+
+        @if (Workspace.Favorites.Count > 0 || Workspace.Recent.Count > 0)
+        {
+            <AppCard Title="Saved" Icon="@Icons.Material.Filled.History" Class="mt-3">
+                <ChildContent>
+                    @if (Workspace.Favorites.Count > 0)
+                    {
+                        <DividerTitle Title="Favourites" Icon="@Icons.Material.Filled.Star" />
+                        <div class="devhub-catalog__chips">
+                            @foreach (var saved in Workspace.Favorites)
+                            {
+                                <MudButton Size="Size.Small" Variant="Variant.Outlined" @key="saved"
+                                           OnClick="@(() => UseExpressionAsync(saved))">@saved</MudButton>
+                            }
+                        </div>
+                    }
+
+                    @if (Workspace.Recent.Count > 0)
+                    {
+                        <DividerTitle Title="Recent" Icon="@Icons.Material.Filled.Schedule" />
+                        <div class="devhub-catalog__chips">
+                            @foreach (var saved in Workspace.Recent)
+                            {
+                                <MudButton Size="Size.Small" Variant="Variant.Text" @key="saved"
+                                           OnClick="@(() => UseExpressionAsync(saved))">@saved</MudButton>
+                            }
+                        </div>
+                    }
+                </ChildContent>
+            </AppCard>
+        }
+    </MudItem>
+</MudGrid>

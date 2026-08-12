@@ -1,0 +1,66 @@
+@typeparam TCategory where TCategory : struct, Enum
+
+@*
+    Search box plus a category chip row. Shared by every catalogue-style tool, so their filtering
+    behaves identically and neither has to re-implement the "All" chip.
+*@
+
+<div class="devhub-catalog-filter @Class">
+    <SearchBox Value="@SearchTerm" ValueChanged="OnSearchChanged" Placeholder="@Placeholder" />
+
+    <div class="devhub-catalog-filter__chips">
+        <Chip Text="@AllLabel"
+              Icon="@Icons.Material.Filled.SelectAll"
+              Color="Color.Primary"
+              Selected="@(Selected is null)"
+              OnClick="@(() => SelectedChanged.InvokeAsync(null))" />
+
+        @foreach (var category in Categories)
+        {
+            <Chip Text="@GetLabel(category)"
+                  Icon="@GetIcon(category)"
+                  Color="Color.Primary"
+                  Selected="@(Selected is not null && Selected.Value.Equals(category))"
+                  OnClick="@(() => SelectedChanged.InvokeAsync(category))"
+                  @key="category" />
+        }
+    </div>
+</div>
+
+@code {
+    /// <summary>Current search term.</summary>
+    [Parameter] public string SearchTerm { get; set; } = string.Empty;
+
+    /// <summary>Raised after the debounce interval when the term changes.</summary>
+    [Parameter] public EventCallback<string> SearchTermChanged { get; set; }
+
+    /// <summary>Categories offered as chips.</summary>
+    [Parameter, EditorRequired] public IReadOnlyList<TCategory> Categories { get; set; } = Array.Empty<TCategory>();
+
+    /// <summary>Selected category, or <c>null</c> for "all".</summary>
+    [Parameter] public TCategory? Selected { get; set; }
+
+    /// <summary>Raised when a chip is chosen.</summary>
+    [Parameter] public EventCallback<TCategory?> SelectedChanged { get; set; }
+
+    /// <summary>Renders a category's label. Defaults to its enum name.</summary>
+    [Parameter] public Func<TCategory, string>? LabelSelector { get; set; }
+
+    /// <summary>Renders a category's icon. Optional.</summary>
+    [Parameter] public Func<TCategory, string>? IconSelector { get; set; }
+
+    /// <summary>Placeholder of the search box.</summary>
+    [Parameter] public string Placeholder { get; set; } = "Search…";
+
+    /// <summary>Label of the chip that clears the category filter.</summary>
+    [Parameter] public string AllLabel { get; set; } = "All";
+
+    /// <summary>Extra CSS classes appended to the root element.</summary>
+    [Parameter] public string? Class { get; set; }
+
+    private Task OnSearchChanged(string value) => SearchTermChanged.InvokeAsync(value);
+
+    private string GetLabel(TCategory category) => LabelSelector?.Invoke(category) ?? category.ToString();
+
+    private string? GetIcon(TCategory category) => IconSelector?.Invoke(category);
+}

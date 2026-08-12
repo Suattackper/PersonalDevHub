@@ -1,11 +1,144 @@
-﻿@attribute [Tool(ToolIds.Timestamp,
+@attribute [Tool(ToolIds.Timestamp,
               "Timestamp",
               ToolCategories.ConvertersId,
-              "Convert between Unix timestamps and human-readable dates.",
+              "Convert between Unix timestamps, ISO 8601, RFC 1123 and any time zone.",
               Icons.Material.Filled.Schedule,
               Order = 10,
-              Keywords = new[] { "unix", "epoch", "datetime", "utc" })]
+              Keywords = new[] { "unix", "epoch", "datetime", "utc", "iso8601", "timezone" })]
 
-@* Tool metadata is declared above; the registry discovers this component by reflection. *@
+@using DevhubWebApp.Models.Tools.Time
+@using DevhubWebApp.Utilities
+@inherits ToolComponentBase<TimestampWorkspace>
 
-<ToolScaffold />
+@* Every conversion lives in TimestampConverter; this component binds it to the UI. *@
+
+<Toolbar Class="mb-3">
+    <ChildContent>
+        <MudButton StartIcon="@Icons.Material.Filled.Bolt" Variant="Variant.Filled" Color="Color.Primary"
+                   Size="Size.Small" OnClick="UseNowAsync">
+            Now (Ctrl+Enter)
+        </MudButton>
+
+        <Chip Text="Seconds" Color="Color.Primary" Selected="@(Workspace.Unit == TimestampUnit.Seconds)"
+              OnClick="@(() => UpdateAsync(w => w.Unit = TimestampUnit.Seconds))" />
+        <Chip Text="Milliseconds" Color="Color.Primary" Selected="@(Workspace.Unit == TimestampUnit.Milliseconds)"
+              OnClick="@(() => UpdateAsync(w => w.Unit = TimestampUnit.Milliseconds))" />
+        <Chip Text="Live clock" Icon="@Icons.Material.Filled.Timer" Color="Color.Secondary"
+              Selected="@Workspace.LiveClock" OnClick="ToggleClockAsync" />
+    </ChildContent>
+
+    <EndContent>
+        <IconButton Icon="@Icons.Material.Filled.ContentPaste" Tooltip="Paste" OnClick="PasteAsync" />
+        <IconButton Icon="@Icons.Material.Filled.Download" Tooltip="Download all formats (Ctrl+S)"
+                    Disabled="@(_instant is null)" OnClick="DownloadAsync" />
+        <IconButton Icon="@Icons.Material.Filled.CleaningServices" Tooltip="Clear" OnClick="ClearAsync" />
+    </EndContent>
+</Toolbar>
+
+<MudGrid Spacing="3">
+    <MudItem xs="12" lg="5">
+        <AppCard Title="Unix timestamp" Icon="@Icons.Material.Filled.Numbers"
+                 Subtitle="Seconds or milliseconds — the unit is detected automatically">
+            <ChildContent>
+                <MudTextField T="string"
+                              Value="@Workspace.Timestamp"
+                              ValueChanged="OnTimestampChangedAsync"
+                              Immediate="true"
+                              DebounceInterval="AppConstants.DebounceMilliseconds"
+                              Variant="Variant.Outlined"
+                              Margin="Margin.Dense"
+                              Class="devhub-mono-field"
+                              Placeholder="1732958100"
+                              Error="@(_error is not null && _lastEditWasTimestamp)"
+                              ErrorText="@_error"
+                              aria-label="Unix timestamp" />
+            </ChildContent>
+        </AppCard>
+
+        <AppCard Title="Date and time" Icon="@Icons.Material.Filled.CalendarMonth" Class="mt-3"
+                 Subtitle="ISO 8601, or pick from the calendar below">
+            <ChildContent>
+                <MudTextField T="string"
+                              Value="@Workspace.DateText"
+                              ValueChanged="OnDateChangedAsync"
+                              Immediate="true"
+                              DebounceInterval="AppConstants.DebounceMilliseconds"
+                              Variant="Variant.Outlined"
+                              Margin="Margin.Dense"
+                              Class="devhub-mono-field"
+                              Placeholder="2024-11-30T09:15:00Z"
+                              Error="@(_error is not null && !_lastEditWasTimestamp)"
+                              ErrorText="@_error"
+                              aria-label="Date and time" />
+
+                <div class="devhub-time__pickers mt-2">
+                    <MudDatePicker Date="@PickedDate" DateChanged="OnDatePickedAsync"
+                                   Variant="Variant.Outlined" Margin="Margin.Dense" Label="Date" />
+                    <MudTimePicker Time="@PickedTime" TimeChanged="OnTimePickedAsync"
+                                   Variant="Variant.Outlined" Margin="Margin.Dense" Label="Time" />
+                </div>
+
+                <MudSelect T="string" Value="@ZoneValue" ValueChanged="OnZoneChangedAsync"
+                           Variant="Variant.Outlined" Margin="Margin.Dense" Dense="true"
+                           Label="Time zone" Class="mt-2">
+                    @foreach (var zone in _zones)
+                    {
+                        <MudSelectItem T="string" Value="@zone">@zone</MudSelectItem>
+                    }
+                </MudSelect>
+            </ChildContent>
+        </AppCard>
+    </MudItem>
+
+    <MudItem xs="12" lg="7">
+        <AppCard Title="Now" Icon="@Icons.Material.Filled.Timer"
+                 Subtitle="@(Workspace.LiveClock ? "Ticking every second" : "Paused")">
+            <Actions>
+                <CopyButton Text="@_nowUnix" IconOnly="true" Notify="false" />
+            </Actions>
+            <ChildContent>
+                <div class="devhub-time__clock">
+                    <span class="devhub-time__clock-value">@_nowUnix</span>
+                    <span class="devhub-time__clock-caption">@_nowIso</span>
+                </div>
+            </ChildContent>
+        </AppCard>
+
+        <AppCard Title="Converted" Icon="@Icons.Material.Filled.SwapHoriz" Class="mt-3"
+                 Subtitle="@(_instant is null ? null : TimestampConverter.DescribeOffset(_instant.Value, Workspace.TimeZoneId))">
+            <ChildContent>
+                @if (_error is not null)
+                {
+                    <ErrorState Title="That value cannot be read" Description="@_error" Dense="true" RetryText="@null" />
+                }
+                else if (_instant is null)
+                {
+                    <EmptyState Icon="@Icons.Material.Outlined.Schedule"
+                                Title="Nothing to convert yet"
+                                Description="Enter a timestamp or a date, or press Now."
+                                ActionText="Use the current time"
+                                ActionIcon="@Icons.Material.Filled.Bolt"
+                                OnAction="UseNowAsync"
+                                Dense="true" />
+                }
+                else
+                {
+                    <MudSimpleTable Dense="true" Hover="true" Bordered="false" Striped="false" Class="devhub-url__parts">
+                        <tbody>
+                            @foreach (var row in Rows)
+                            {
+                                <tr @key="row.Label">
+                                    <td class="devhub-url__part-label">@row.Label</td>
+                                    <td class="devhub-url__part-value">@row.Value</td>
+                                    <td class="devhub-url__part-action">
+                                        <CopyButton Text="@row.Value" IconOnly="true" Notify="false" />
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </MudSimpleTable>
+                }
+            </ChildContent>
+        </AppCard>
+    </MudItem>
+</MudGrid>

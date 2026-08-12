@@ -27,5 +27,7 @@ public static class ToolIds
     public const string HtmlEscape = "html-escape";
     public const string UrlParser = "url-parser";
     public const string HttpStatus = "http-status";
+    public const string Cron = "cron";
+    public const string DataConverter = "data-converter";
     public const string MimeType = "mime-type";
 }

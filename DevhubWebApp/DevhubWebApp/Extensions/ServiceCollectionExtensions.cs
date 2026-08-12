@@ -40,5 +40,8 @@ public static class ServiceCollectionExtensions
             .AddSingleton<IMarkdownService, MarkdownService>()
             .AddSingleton<IHtmlExportService, HtmlExportService>()
             .AddSingleton<IQrCodeService, QrCodeService>()
+            .AddSingleton<IMimeLookupService, MimeLookupService>()
+            .AddSingleton<IHttpStatusService, HttpStatusService>()
+            .AddSingleton<IDataConversionService, DataConversionService>()
             .AddScoped<INotificationService, NotificationService>();
 }
