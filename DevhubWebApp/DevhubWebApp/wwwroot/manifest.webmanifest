@@ -1,9 +1,9 @@
 {
   "name": "DevHub — Developer Toolbox",
   "short_name": "DevHub",
-  "id": "/",
-  "start_url": "/",
-  "scope": "/",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#0d1117",
   "theme_color": "#0d1117",

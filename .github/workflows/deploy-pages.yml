@@ -1,0 +1,46 @@
+name: Deploy DevHub to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+      - name: Set repository base path before publishing
+        run: sed -i 's|<base href="/" />|<base href="/PersonalDevHub/" />|' DevhubWebApp/DevhubWebApp/wwwroot/index.html
+      - name: Publish Blazor WebAssembly
+        run: dotnet publish DevhubWebApp/DevhubWebApp/DevhubWebApp.csproj -c Release -o site
+      - name: Add GitHub Pages SPA fallback
+        run: |
+          cp site/wwwroot/index.html site/wwwroot/404.html
+          touch site/wwwroot/.nojekyll
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: site/wwwroot
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

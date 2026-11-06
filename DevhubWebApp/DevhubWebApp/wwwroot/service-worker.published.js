@@ -10,9 +10,8 @@ const cacheName = `${cacheNamePrefix}${self.assetsManifest.version}`;
 const offlineAssetsInclude = [/\.dll$/, /\.pdb$/, /\.wasm/, /\.html/, /\.js$/, /\.json$/, /\.css$/, /\.woff$/, /\.png$/, /\.jpe?g$/, /\.gif$/, /\.ico$/, /\.blat$/, /\.dat$/];
 const offlineAssetsExclude = [/^service-worker\.js$/];
 
-// The app is served from the site root; requests outside it must not be intercepted.
-const base = '/';
-const baseUrl = new URL(base, self.origin);
+// The registration scope follows the app whether hosted at / or under a repository path.
+const baseUrl = new URL(self.registration.scope);
 const manifestUrlList = self.assetsManifest.assets.map((asset) => new URL(asset.url, baseUrl).href);
 
 async function onInstall() {

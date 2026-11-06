@@ -45,6 +45,12 @@ Publish a production build (service worker + offline cache):
 dotnet publish DevhubWebApp/DevhubWebApp/DevhubWebApp.csproj -c Release
 ```
 
+The `Deploy DevHub to GitHub Pages` workflow publishes `main` to
+`https://suattackper.github.io/PersonalDevHub/`. In repository Settings → Pages,
+select **GitHub Actions** as the build and deployment source. The workflow sets
+the repository base path before publishing and includes a fallback for direct
+links to tool pages.
+
 Performance work must be measured in a **Release** build — Debug WebAssembly is several times
 slower and will send you chasing the wrong bottleneck.
 
