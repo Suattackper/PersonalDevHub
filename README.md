@@ -1,403 +1,156 @@
 # DevHub
 
-## Project and author
+**DevHub** là bộ công cụ dành cho lập trình viên, chạy trực tiếp trong trình duyệt. Đây là một dự án trong portfolio của **Nguyễn Trần Anh Tân**, Software Engineer, sinh năm **2003**. Commit đầu tiên của dự án được tạo ngày **07/08/2026**. Trang `/about` giới thiệu tác giả và các công nghệ được sử dụng.
 
-DevHub is a portfolio project by **Nguyễn Trần Anh Tân** (Software Engineer, born in
-2003). The earliest Git commit is dated **07/08/2026**; this update was made on
-**06/11/2026**. The app's `/about` page lists its actual framework and libraries.
+**Dùng thử:** [suattackper.github.io/PersonalDevHub](https://suattackper.github.io/PersonalDevHub/)
 
-The shared tool page now includes a usage guide. `/image-tools` accepts an image by browse,
-drag and drop, or clipboard paste; it can sample a pixel colour and remove a **connected,
-approximately uniform** background from a user-selected pixel. It supports before/after
-comparison, restore and transparent PNG download. This is a colour-based removal tool;
-complex photographic backgrounds are outside its current capability.
+Ứng dụng được viết bằng **.NET 8 Blazor WebAssembly** và **C# 12**, với giao diện **MudBlazor 8**. Ứng dụng không cần máy chủ API, cơ sở dữ liệu hay tài khoản đăng nhập. Dữ liệu được lưu trong `localStorage` của trình duyệt với tiền tố `devhub.`. Bản phát hành là PWA có thể cài đặt và dùng ngoại tuyến sau khi tài nguyên đã được lưu vào bộ nhớ đệm.
 
-English and Vietnamese navigation labels, tool names, common controls and selected pages
-are available. Localization of dynamic tool messages and remaining shared components is
-still in progress; see `docs/image-and-localization-plan.md` for the audit checklist.
+Tiếng Việt là ngôn ngữ mặc định; người dùng có thể chuyển sang tiếng Anh trong Cài đặt. Một số thông báo động vẫn cần rà soát; xem [kế hoạch đa ngôn ngữ](docs/image-and-localization-plan.md).
 
-An offline-first developer toolbox built as a **.NET 8 Blazor WebAssembly** application.
-It runs entirely in the browser: no backend, no API, no database, no authentication.
-All state lives in the browser's `localStorage` under the `devhub.` namespace.
+## Chức năng
 
-| | |
-|---|---|
-| **Stack** | .NET 8, Blazor WebAssembly, C# 12, MudBlazor 8 |
-| **Storage** | `localStorage` via a JS module, behind `IStorageService` |
-| **Delivery** | Installable PWA, offline cache via service worker |
-| **Theme** | Dark by default, light theme available, VS Code / GitHub inspired |
+- **Biên tập và so sánh:** định dạng và kiểm tra JSON; viết Markdown với xem trước và xuất HTML; so sánh văn bản theo dòng; định dạng SQL; mã hóa và giải mã HTML.
+- **Mã hóa và phân tích:** Base64 cho văn bản và tệp; mã hóa URL và phân tích URL; đọc JWT; tạo và kiểm tra mã băm MD5, SHA-1, SHA-256, SHA-384, SHA-512.
+- **Tạo dữ liệu:** UUID v4, mật khẩu, văn bản mẫu, mã QR và mã vạch.
+- **Chuyển đổi:** kiểu chữ, hệ cơ số, thời gian, JSON/YAML/XML và màu sắc.
+- **Tra cứu và kiểm tra:** Regex, loại MIME, mã trạng thái HTTP và biểu thức cron.
+- **Công cụ ảnh:** chọn tệp, kéo thả hoặc dán ảnh bằng `Ctrl+V`; lấy mã màu từ điểm ảnh; xóa vùng nền **liền kề có màu gần đồng nhất** từ điểm được chọn; so sánh trước/sau, khôi phục và tải PNG trong suốt. Công cụ chưa xử lý tốt nền ảnh chụp phức tạp.
+- **Trải nghiệm ứng dụng:** Dashboard, tìm kiếm, yêu thích, ghim, lịch sử, hướng dẫn sử dụng theo công cụ, cài đặt giao diện và ngôn ngữ.
 
-## Getting started
+### Một số lưu ý kỹ thuật
+
+- `JsonFormatter` dùng `Utf8JsonWriter` để giữ đúng escape, Unicode và độ chính xác số. Monaco được đóng gói cùng ứng dụng để dùng ngoại tuyến. Tài liệu JSON lớn hơn 512 KB tạm ngừng quét khóa trùng và dựng cây; trên 256 KB không tự lưu nội dung vào workspace để tránh vượt hạn mức `localStorage`.
+- Bản xem trước Markdown tắt HTML thô để nội dung được dán vào không chạy mã tùy ý. `DiffEngine` chuyển sang so sánh tuyến tính khi văn bản vượt 4.000 dòng và đánh dấu kết quả là xấp xỉ.
+- `JwtDecoder` **chỉ đọc token, không xác minh chữ ký**. MD5 được triển khai trong `Md5Digest` vì WebAssembly không hỗ trợ `System.Security.Cryptography.MD5`; MD5 và SHA-1 chỉ dành cho checksum hoặc tương thích hệ thống cũ.
+- `PasswordGenerator` dùng `RandomNumberGenerator`. Mật khẩu đã tạo không được lưu vào workspace hoặc lịch sử. `RegexTester` giới hạn mỗi lần chạy ở 2 giây để tránh biểu thức backtracking làm treo tab.
+- QR dùng renderer managed của QRCoder để chạy trong WebAssembly. `BarcodeEncoder` hỗ trợ Code 128, EAN-13, EAN-8, UPC-A và ITF. Hãy kiểm tra bằng máy quét thật trước khi in nhãn sản xuất.
+- `ColorConverter` đọc HEX, RGB, RGBA, HSL và chuyển đổi giữa HEX, RGB, HSL, HSV, CMYK. Độ tương phản được tính theo WCAG 2.
+- `CronParser` hỗ trợ cron Linux 5 trường và Quartz có giây, tùy chọn năm. Việc tìm lần chạy kế tiếp giới hạn trong 5 năm để tránh lặp vô hạn.
+
+### Hiệu năng JSON
+
+Kết quả đo trên máy phát triển với bản Release và dữ liệu thử gồm 20.000 đối tượng:
+
+| Kích thước tài liệu | Thời gian định dạng |
+|---|---:|
+| 30 KB | khoảng 0,19 giây |
+| 185 KB | khoảng 0,85 giây |
+| 1,27 MB, xuất ra 2,6 MB và 180.000 dòng | khoảng 6,2 giây; riêng `setValue` của Monaco chiếm khoảng 2,4 giây |
+
+Cây JSON chỉ tải nút con khi người dùng mở nhánh và giới hạn 100 mục mỗi container. `JsonFormatter.Inspect` gộp kiểm tra hợp lệ, khóa trùng và dựng dữ liệu cây trong một lần phân tích. Ứng dụng cũng chặn sự kiện thay đổi lặp lại khi đẩy dữ liệu vào Monaco.
+
+### Chi tiết các công cụ khác
+
+- `Base64Converter` nhận data URI, bảng chữ cái URL-safe, thiếu padding và xuống dòng. Loại tệp được nhận diện từ byte đặc trưng thay vì chỉ tin MIME được khai báo.
+- `UrlToolkit` phân biệt mã hóa một thành phần URL với mã hóa toàn bộ URL. Danh sách query có thể sửa và mọi thay đổi sẽ cập nhật lại URL.
+- `DataConversionService` dùng `JsonNode` làm biểu diễn trung gian cho JSON, YAML và XML. Thuộc tính XML thành khóa `@name`; phần tử lặp thành mảng.
+- `UuidGenerator` tạo UUID v4 hàng loạt, hỗ trợ năm cách hiển thị và xuất TXT/CSV/JSON. `LoremGenerator` có seed để tái tạo kết quả và luôn dùng `\\n` khi xuống dòng.
+- `CaseConverter` dùng chung một bộ tách từ để giữ đúng các cụm viết tắt. `NumberBaseConverter` nhận tiền tố `0x`, `0b`, `0o`, dấu và ký tự phân cách, đồng thời đọc văn bản theo Unicode code point.
+- `TimestampConverter` đọc Unix giây/mili giây, ISO 8601 và các định dạng phổ biến. Giá trị thiếu múi giờ được coi là UTC; ứng dụng có dữ liệu của 313 múi giờ.
+- `MimeCatalog` và `HttpStatusCatalog` là dữ liệu tra cứu. Tìm kiếm ưu tiên kết quả khớp chính xác; kiểm thử bảo đảm các mã HTTP liên quan đều tồn tại.
+- Khi cả hai trường ngày của cron bị giới hạn, lịch dùng hợp của chúng: `0 9 1 * MON` chạy vào ngày 1 và mọi thứ Hai. Lịch không thể xảy ra, ví dụ ngày 30 tháng 2, được báo lỗi sau khi tìm trong giới hạn năm năm.
+
+## Chạy trên máy
+
+Yêu cầu .NET 8 SDK.
 
 ```bash
 dotnet run --project DevhubWebApp/DevhubWebApp/DevhubWebApp.csproj
 ```
 
-Run the tests:
+Chạy kiểm thử:
 
 ```bash
 dotnet test DevhubWebApp/DevhubWebApp.sln
 ```
 
-Publish a production build (service worker + offline cache):
+Tạo bản phát hành có service worker và bộ nhớ đệm ngoại tuyến:
 
 ```bash
 dotnet publish DevhubWebApp/DevhubWebApp/DevhubWebApp.csproj -c Release
 ```
 
-The `Deploy DevHub to GitHub Pages` workflow publishes `main` to
-`https://suattackper.github.io/PersonalDevHub/`. In repository Settings → Pages,
-select **GitHub Actions** as the build and deployment source. The workflow sets
-the repository base path before publishing and includes a fallback for direct
-links to tool pages.
+Khi đo hiệu năng, hãy dùng bản **Release** vì Blazor WebAssembly ở chế độ Debug chậm hơn đáng kể.
 
-Performance work must be measured in a **Release** build — Debug WebAssembly is several times
-slower and will send you chasing the wrong bottleneck.
+## Triển khai
 
-## Project structure
+[Workflow GitHub Pages](.github/workflows/deploy-pages.yml) tự build và phát hành khi có commit mới trên `main`. Repository cần chọn **GitHub Actions** làm nguồn phát hành tại Settings → Pages. Workflow đặt base path `/PersonalDevHub/` trước khi publish và tạo `404.html` để mở trực tiếp các đường dẫn như `/about` hoặc `/tools/json`.
 
-```
+## Cấu trúc và kiến trúc
+
+```text
 DevhubWebApp/
 └── DevhubWebApp/
-    ├── Components/
-    │   ├── Navigation/     Sidebar, top bar — shell navigation
-    │   └── Shared/         Reusable UI primitives (states, headers, splash)
-    ├── Constants/          App constants, storage keys, tool ids, routes
-    ├── Extensions/         DI composition root and small helper extensions
-    ├── Helpers/            Presentation mapping helpers (labels, icons)
-    ├── Interfaces/         Service contracts — every dependency is injected by interface
-    ├── JSInterop/          Typed facades over browser APIs
-    ├── Layout/             MainLayout — the desktop-style application shell
-    ├── Models/             Records and settings POCOs
-    ├── Pages/              Routable pages; Pages/Tools hosts the tool modules
-    ├── Services/           Application logic (registry, preferences, history, theme)
-    ├── Storage/            IStorageService implementations
-    ├── Themes/             MudBlazor palette and typography
-    ├── Utilities/          Pure, dependency-free algorithms used by tools
-    └── wwwroot/js/         ES modules imported through JS interop
+    ├── Components/     Thành phần giao diện, điều hướng và các công cụ
+    ├── Constants/      Hằng số, route, danh mục công cụ và nội dung dịch
+    ├── Extensions/     Đăng ký DI và các hàm mở rộng
+    ├── Interfaces/     Hợp đồng của các dịch vụ
+    ├── JSInterop/      Lớp gọi API trình duyệt
+    ├── Layout/         Khung giao diện chính
+    ├── Models/         Mô hình dữ liệu và cài đặt
+    ├── Pages/          Các trang có route
+    ├── Services/       Logic ứng dụng, tùy chọn và lịch sử
+    ├── Storage/        Triển khai IStorageService
+    ├── Themes/         Màu sắc và kiểu chữ MudBlazor
+    ├── Utilities/      Thuật toán độc lập với giao diện
+    └── wwwroot/js/     Mô-đun JavaScript
 ```
 
-### Folder rules
+`Pages` điều phối trang; `Components` tạo giao diện có thể tái sử dụng; `Services` quản lý trạng thái và nghiệp vụ; `Utilities` chứa thuật toán độc lập; `JSInterop` đóng gói API trình duyệt. Các thành phần phụ thuộc vào interface được đăng ký trong `Extensions/ServiceCollectionExtensions.cs`.
 
-| Folder | Contains | Must not contain |
-|---|---|---|
-| `Pages` | Routing, layout composition, parameter binding | Business logic, formatting algorithms |
-| `Components` | Reusable, parameterised UI | Direct storage access |
-| `Services` | All application logic and state ownership | Razor markup |
-| `Utilities` | Pure static functions | Injected dependencies, JS interop |
-| `JSInterop` | `IJSRuntime` calls | Business rules |
-
-## Architecture
-
-```
-Pages / Components  ──▶  Interfaces  ──▶  Services  ──▶  IStorageService  ──▶  JS module  ──▶  localStorage
-                                             │
-                                             └──▶  IBrowserInteropService (clipboard, download, media query)
+```text
+Pages / Components → Interfaces → Services → IStorageService → JS module → localStorage
+                                   └────────→ IBrowserInteropService
 ```
 
-Rules that hold everywhere:
+`UserPreferenceService` quản lý cài đặt, yêu thích, ghim, công cụ gần đây và thống kê sử dụng. `HistoryService` quản lý lịch sử thao tác. Trạng thái được tải trong `App.razor` trước khi router hiển thị. Khóa lưu trữ, mã công cụ và route được tập trung trong `Constants/`.
 
-1. **No logic in code-behind.** Pages orchestrate; services decide. A page may call a service and
-   bind its result, nothing more.
-2. **Interface-first DI.** Components inject contracts (`IToolRegistry`, `IUserPreferenceService`, …),
-   never concrete types. Registration lives in `Extensions/ServiceCollectionExtensions.cs`.
-3. **One owner per piece of state.** `UserPreferenceService` owns settings/favorites/pins/recents,
-   `HistoryService` owns the activity log. They broadcast a `Changed` event; components subscribe and
-   unsubscribe in `Dispose`.
-4. **State is hydrated once**, in `App.razor`, before the router renders. Nothing downstream has to
-   handle a half-loaded application.
-5. **No magic strings.** Storage keys, tool ids and routes are constants (`Constants/`).
+Mỗi công cụ là một Razor component có `[Tool]`. `AttributeToolDiscovery` tìm công cụ lúc khởi động; `ToolRegistry` kiểm tra và sắp xếp; `IToolCatalog` kết hợp metadata với tùy chọn người dùng. Route `/tools/{ToolId}` dùng `DynamicComponent` để hiển thị công cụ. `ToolComponentBase<TWorkspace>` cung cấp workspace, undo/redo, debounce, phím tắt và ghi lịch sử.
 
-### Tool framework
+### Thêm công cụ mới
 
-Tools are **discovered, not registered**. A tool is a Razor component annotated with `[Tool]`;
-`AttributeToolDiscovery` scans the assembly at start-up and `ToolRegistry` validates and orders the
-result. Nothing in the shell branches on a tool id — no switch, no if-per-tool.
+1. Thêm ID vào `Constants/ToolIds.cs`.
+2. Tạo `Components/Tools/MyTool.razor` với `[Tool(...)]` và kế thừa `ToolComponentBase<TWorkspace>`.
+3. Đặt thuật toán trong `Utilities/` hoặc dịch vụ có trạng thái trong `Services/`; viết kiểm thử cho thuật toán.
+4. Ghi thao tác cần thiết bằng `RecordAsync(...)`.
 
-```
-[Tool] components ──▶ IToolDiscovery ──▶ IToolRegistry ──┐
-                                                         ├──▶ IToolCatalog ──▶ Sidebar / Search / Dashboard
-IUserPreferenceService (favorites, pins, usage) ─────────┘
-```
+Sidebar, tìm kiếm, Dashboard, yêu thích, ghim và lịch sử sẽ tự nhận công cụ mới từ danh mục.
 
-- **Metadata** (`ToolDescriptor`): id, name, category, description, keywords, icon, route, version,
-  order, tags, color, `IsExperimental`. Route is *derived* from the id, so it can never disagree.
-- **Personal state** (`IsFavorite`, `IsPinned`, usage counters) lives in preferences and is joined
-  onto metadata by `IToolCatalog` as a `ToolView`. One fact, one owner.
-- **Categories** are data too (`Constants/ToolCategories.cs`): label, icon, order and description
-  travel with the category, so rendering one never requires a switch statement.
-- **Routing** goes through the single `/tools/{ToolId}` host, which renders the discovered component
-  with `DynamicComponent` and cascades a `ToolContext` carrying the tool's metadata and a pre-bound
-  history writer — a tool never repeats its own id.
-- An unknown category id or a duplicate tool id throws at start-up rather than producing an
-  invisible or unreachable tool.
+### Dashboard và thành phần giao diện
 
-### Adding a tool module
+`Pages/Dashboard.razor` ghép các phần hiển thị. Mỗi phần trong `Components/Dashboard/` lấy dữ liệu từ `IDashboardService`, có trạng thái tải, trống, lỗi và thử lại riêng. Các khu vực Ghim, Yêu thích, Gần đây và Dùng nhiều cùng sử dụng `ToolSection` với nguồn dữ liệu khác nhau.
 
-1. Add its id to `Constants/ToolIds.cs`.
-2. Create `Components/Tools/MyTool.razor` with an `@attribute [Tool(...)]` declaration, inheriting
-   `ToolComponentBase<TWorkspace>` — that supplies the workspace, undo history, debouncing,
-   shortcut registration, copy/download helpers and history recording.
-3. Put the algorithm in `Utilities/` (pure) or a service in `Services/` (stateful) — never in the
-   component. Unit-test it.
-4. Record notable actions with `RecordAsync("Formatted", preview)`.
+Các thành phần giao diện dùng chung nằm trong `Components/Shared`; trang `/playground` hiển thị chúng để kiểm tra trực quan.
 
-That is the whole checklist. Sidebar, quick search, global search, categories, dashboard sections,
-favorites, pins, history and usage counters pick the tool up with no further edits.
-
-## Tools
-
-### JSON
-
-Formatting logic lives in `Utilities/JsonFormatter.cs` — pure, dependency-free and unit-tested;
-the component only binds it to the UI. Documents are rewritten through `Utf8JsonWriter`, so
-escaping, number precision and Unicode survive a round-trip. Errors are values, not exceptions:
-the parser's position is normalised to 1-based line/column, shown in the status bar and pushed to
-the editor as a marker.
-
-Editing is Monaco (`Components/Shared/CodeEditor.razor`, reusable by any future tool), vendored
-locally through the BlazorMonaco package so the PWA still works offline.
-
-**Measured performance** (Release build, 20 000-object fixture, this machine):
-
-| Document | Pretty |
+| Thành phần | Vai trò |
 |---|---|
-| 30 KB | ~0.19 s |
-| 185 KB | ~0.85 s |
-| 1.27 MB → 2.6 MB / 180 k lines | ~6.2 s (≈2.4 s of it is Monaco's own `setValue`) |
+| `AppCard`, `ToolCard`, `StatCard` | Khung nội dung, thẻ công cụ và chỉ số |
+| `EmptyState`, `ErrorState`, `StateMessage` | Trạng thái trống và lỗi |
+| `LoadingSkeleton`, `LoadingOverlay` | Trạng thái đang tải |
+| `PageHeader`, `SectionTitle`, `DividerTitle` | Tiêu đề trang và khu vực |
+| `Toolbar`, `SearchBox` | Thanh thao tác và tìm kiếm |
+| `CopyButton`, `DownloadButton`, `IconButton` | Sao chép, tải tệp và thao tác biểu tượng |
+| `FileDropZone`, `ConfirmDialog` | Nhận tệp và xác nhận thao tác |
+| `Badge`, `Chip`, `SettingItem` | Nhãn, thẻ tương tác và mục cài đặt |
 
-Getting there needed four fixes, each of which is a rule worth keeping:
+## Quy ước đóng góp
 
-1. The tree materialised every node up front — thousands of components. Children are now loaded
-   when a branch is expanded, and capped at 100 per container.
-2. Every operation re-parsed the document up to three times (validate, duplicates, tree).
-   `JsonFormatter.Inspect` does all three in one parse, and formatter output is not re-validated.
-3. Pushing a value into Monaco echoed back as a change event, marshalling megabytes to C# for a
-   value already in hand. The echo is now suppressed.
-4. Rewriting walked the document node by node even when no sorting or de-duplication was asked
-   for; that path now hands the whole document to the runtime in one pass.
+1. Tạo nhánh từ `main` và thực hiện thay đổi có phạm vi rõ ràng.
+2. Dùng namespace dạng file-scoped, ngoặc nhọn cho khối lệnh và hậu tố `Async` cho phương thức bất đồng bộ; không dùng `async void`.
+3. Giữ logic có thể kiểm thử ngoài Razor khi phù hợp. Thành phần có code-behind sử dụng cặp `.razor` và `.razor.cs`.
+4. Chạy `dotnet build` và kiểm thử trước khi commit. Cảnh báo build được coi là lỗi theo cấu hình dự án.
+5. Viết commit message ở thể mệnh lệnh, có tiền tố phạm vi, ví dụ `tools(json): add minify action`.
 
-Above 512 KB the duplicate scan and the tree pause (validation still runs) and the status bar says
-so; above 256 KB the document is not written to the auto-saved workspace, which would otherwise
-risk the origin's localStorage quota.
+## Tiến độ
 
-### Markdown
-
-`IMarkdownService` (Markdig) renders and analyses; `IHtmlExportService` builds the standalone HTML
-export. Raw HTML in the source is **disabled** in the pipeline — the preview renders text the user
-may have pasted from anywhere, and it must never be able to execute it. Toolbar actions are a pure
-lookup (`MarkdownSyntax`), applied to the Monaco selection, so they land in the editor's own undo
-stack.
-
-### Text Diff
-
-`DiffEngine` computes a line diff over the longest common subsequence (the model Git uses) and
-`DiffExporter` renders it as unified text or an HTML table. Monaco's diff view does the on-screen
-rendering; the engine supplies the statistics and the exports. Above 4 000 lines the LCS table
-would need tens of millions of cells, so the engine falls back to a linear comparison — it still
-reports every difference, and the UI badges the result as approximate.
-
-### Base64
-
-`Base64Converter` encodes, decodes and **sniffs content from magic bytes** rather than trusting a
-declared MIME type. It accepts what people actually paste: data URIs, the URL-safe alphabet,
-missing padding and embedded line breaks. Images preview inline; other binaries are offered as a
-download with the detected extension.
-
-### URL
-
-`UrlToolkit` separates the two escaping scopes that get confused in practice: component encoding
-(escapes `&`, `=`, `/` — for one query value) and whole-URL encoding (escapes only illegal
-characters). The parser feeds an editable query list, and every edit rebuilds the URL field, which
-stays the single source of truth.
-
-### JWT
-
-`JwtDecoder` reads a token; it never claims to verify one. Signature verification needs the
-issuer's key, which a client-side tool has no business holding — so the UI reports what the token
-*claims*, labels unsigned tokens (`alg: none`) as untrustworthy, and warns on expiry. It accepts a
-token pasted with its `Bearer ` prefix and reads `NumericDate` claims that issuers emit as strings.
-
-### Hash
-
-`HashCalculator` computes MD5, SHA-1, SHA-256, SHA-384 and SHA-512, detects an algorithm from a
-digest's length and verifies in constant time — a hash check is a security check, and
-timing-dependent string equality is exactly the pattern that leaks in one.
-
-**MD5 is implemented in `Md5Digest`** (RFC 1321, tested against the full published vector suite):
-`System.Security.Cryptography.MD5` is *unsupported on the browser runtime*, because WebAssembly
-delegates hashing to SubtleCrypto, which deliberately does not offer MD5. MD5 and SHA-1 are badged
-as legacy in the UI and exist for checksums and legacy interop only.
-
-### UUID, Password, Lorem Ipsum
-
-- `UuidGenerator` — version 4 batches, five textual layouts, TXT/CSV/JSON export.
-- `PasswordGenerator` — every choice from `RandomNumberGenerator`; `System.Random` would make
-  generated secrets guessable. Entropy is `length × log2(alphabet)`, and a *pronounceable* secret
-  reports the entropy of its syllable set, not of the full character space — it is weaker than it
-  looks and the meter says so. Passphrase entropy comes from word choices, not characters.
-  Generated secrets are never persisted or written to the activity log.
-- `LoremGenerator` — seeded and deterministic, so a passage can be reproduced in a test or a
-  screenshot. Line endings are always `\n`, never the host's.
-
-### Regex
-
-`RegexTester` bounds every run with a 2-second timeout. A hand-written pattern can backtrack
-catastrophically — `(a+)+$` against a long line will hang the tab — so the timeout is not a nicety,
-it is the difference between a tool and a denial of service on the user. A pinned test proves it.
-Pattern library and cheatsheet live in `Constants/RegexLibrary.cs` as data; every shipped template
-is tested to compile and match its own sample.
-
-### Case, Number base
-
-- `CaseConverter` routes every style through **one tokeniser**, which is why
-  `parseHTTPResponse` → `parse_http_response` and acronym runs stay intact.
-- `NumberBaseConverter` validates before converting, accepts prefixes (`0x`, `0b`, `0o`),
-  separators and signs, reports overflow instead of throwing, and reads text as runes so an emoji
-  is one code point rather than two UTF-16 halves.
-
-### QR and barcodes
-
-QR uses QRCoder's **managed** renderers only (`PngByteQRCode`, `SvgQRCode`); its bitmap renderers
-need System.Drawing, which the browser runtime does not have. `QrPayloadBuilder` owns the payload
-grammars — the Wi-Fi escaping rule in particular, where an unescaped `;` silently truncates the
-SSID a scanner reads.
-
-Barcodes are encoded **in-house** (`BarcodeEncoder`) for the same reason: the common .NET barcode
-packages depend on System.Drawing.
-
-> **Scope note.** Code 39, Codabar and UPC-E are *not* shipped. Their pattern tables could not be
-> verified against a published specification in this environment — a structural audit found 18 of
-> 44 Code 39 entries with the wrong number of wide elements — and a barcode that looks plausible
-> but does not scan is worse than one that is absent. Code 128, EAN-13, EAN-8, UPC-A and ITF are
-> implemented, with module counts and check digits pinned by tests. Before printing production
-> labels, verify output with a real scanner.
-
-### Colour
-
-`ColorConverter` parses every notation a developer pastes (`#rgb`, `#rrggbb`, `#rrggbbaa`, `rgb()`,
-`rgba()`, `hsl()`) and converts between HEX, RGB, HSL, HSV and CMYK. Contrast uses the WCAG 2
-relative-luminance formula, and `GetReadableTextColor` picks black or white **by measured contrast**
-rather than by a lightness threshold, which is what makes mid-tone backgrounds come out right.
-`PaletteGenerator` builds 50-900 scales (step 500 is the base colour, pinned by a test) and
-harmonies, exporting to CSS custom properties, SCSS variables plus a map, or JSON.
-
-### Timestamp, MIME, HTTP status
-
-- `TimestampConverter` reads Unix seconds or milliseconds (detected from magnitude), ISO 8601 and
-  common layouts, and treats a value without an offset as UTC so results never depend on the host.
-  The browser runtime ships full time-zone data — 313 zones are available and verified in the app.
-- `MimeCatalog` and `HttpStatusCatalog` are data; their tools are list rendering over a lookup
-  service. Search ranks exact hits first, so typing `png` or `404` shows that entry, not the first
-  substring match. A test asserts the HTTP catalogue has **no dangling related-code references** —
-  it caught five when it was first run.
-
-### Cron
-
-`CronParser` supports both dialects: five-field Linux cron and Quartz with seconds and an optional
-year. Parsing expands every field into its explicit value set, which is what makes description and
-scheduling simple. Two behaviours are worth knowing, and both are pinned by tests:
-
-- When **both** day fields are restricted, cron takes their **union** — `0 9 1 * MON` fires on the
-  1st *and* on every Monday. Getting this wrong is the classic cron bug.
-- The next-run search is bounded to five years, so an unsatisfiable schedule such as `0 9 30 2 *`
-  (30 February) terminates and reports "this schedule never runs" instead of hanging.
-
-### Data converter
-
-`DataConversionService` routes all six directions through one in-memory shape (`JsonNode`): three
-readers, three writers, no bespoke translators. XML attributes round-trip as `@name` properties and
-repeated elements as arrays. JSON keys that are illegal XML names are sanitised rather than throwing.
-
-## Dashboard
-
-`Pages/Dashboard.razor` is composition only — it holds no state, subscribes to nothing and blocks
-re-renders after the first one. Each section under `Components/Dashboard/` derives from
-`DashboardSectionBase`, which gives it:
-
-- its own load through `IDashboardService` (the single data source: no component computes a number),
-- its own skeleton, empty and error state, with retry,
-- its own subscription to `IDashboardService.Changed`.
-
-The consequence is the performance requirement: toggling a favorite re-renders the sections that
-show favorites, not the page. Pinned, Favorites, Recent and Most Used are the *same* `ToolSection`
-component with a different loader delegate, so the four-state layout exists exactly once.
-
-## Design system
-
-Every UI surface is composed from `Components/Shared`. Feature code must not re-implement any of
-these; if a variant is missing, extend the component instead of copying it. `/playground` renders
-all of them live.
-
-| Component | Purpose |
+| Nhóm | Trạng thái |
 |---|---|
-| `AppCard` | Base surface with header / body / footer slots |
-| `ToolCard` | Catalogue tile with favorite and pin affordances |
-| `StatCard` | Single metric tile |
-| `EmptyState` / `ErrorState` | Wrappers over the shared `StateMessage` primitive |
-| `LoadingSkeleton` | Text, card, list and block placeholders |
-| `LoadingOverlay` | Scoped or full-screen blocking progress |
-| `PageHeader` | H1, subtitle, meta badges, page actions |
-| `SectionTitle` / `DividerTitle` | Block heading and inline rule |
-| `Toolbar` | Action strip with automatic start/end split |
-| `SearchBox` | Debounced search input |
-| `CopyButton` / `DownloadButton` | Clipboard and file output with feedback |
-| `IconButton` | Icon action with a mandatory tooltip and ARIA label |
-| `FileDropZone` | Drag-and-drop or browse, text or binary |
-| `ConfirmDialog` | Reached through `IDialogService.ConfirmAsync` |
-| `Badge` / `Chip` | Static label and interactive tag |
-| `SettingItem` | Label + description + control row |
+| Nền tảng PWA, giao diện chung, khám phá công cụ và Dashboard | Đã triển khai |
+| JSON, Markdown, so sánh văn bản, Base64, URL, JWT, Hash | Đã triển khai |
+| UUID, Regex, mật khẩu, văn bản mẫu, kiểu chữ, hệ cơ số | Đã triển khai |
+| QR, mã vạch (5 chuẩn), màu sắc, thời gian, MIME, HTTP status, Cron | Đã triển khai |
+| Chuyển đổi JSON/YAML/XML, định dạng SQL, mã hóa HTML | Đã triển khai |
+| Settings, History, About và công cụ ảnh | Đã triển khai |
 
-Component rules: no business logic, no hardcoded colors (MudBlazor palette variables only), both
-themes supported by construction, XML documentation on every parameter.
-
-## Coding convention
-
-- File-scoped namespaces, `var` when the type is apparent, braces always.
-- One public type per file; components use `.razor` + `.razor.cs` code-behind once they hold logic.
-- Async methods end with `Async` and return `Task`/`ValueTask`; no `async void`.
-- `StateHasChanged` only in event-handler callbacks that Blazor cannot observe (service events).
-- Warnings are errors — `TreatWarningsAsErrors` is on, with rule exceptions documented in
-  `.editorconfig`.
-- Public members carry XML documentation; comments explain *why*, not *what*.
-
-## Contributing
-
-1. Branch from `main`.
-2. Implement **one module per change**: it must build with zero warnings and zero errors.
-3. Run `dotnet build` before committing; the analyzer gate is part of the build.
-4. Refactor before extending — if the architecture no longer fits the feature, fix the architecture
-   first.
-5. Commit messages: imperative mood, scope prefix, e.g. `tools(json): add minify action`.
-
-## Status
-
-| Module | State |
-|---|---|
-| 0 — Foundation (shell, DI, storage, theme, PWA) | done |
-| 1 — Design system (20 components + `/playground`) | done |
-| 2 — Tool framework (metadata, discovery, catalog) | done |
-| 3 — Dashboard (statistics, search, sections, history) | done |
-| 4 — JSON formatter (Monaco, tree, undo/redo, shortcuts) | done |
-| 6 — Markdown editor (live preview, toolbar, export) | done |
-| 7 — Text diff (Monaco diff, statistics, export) | done |
-| 8 — Base64 toolkit (text, files, previews) | done |
-| 9 — URL toolkit (encode/decode, parser, query editor) | done |
-| 10 — JWT decoder (three panels, expiry, validation) | done |
-| 11 — Hash generator (incl. managed MD5 for WASM) | done |
-| 12 — UUID generator | done |
-| 13 — Regex tester | done |
-| 14 — Password generator | done |
-| 15 — Lorem Ipsum generator | done |
-| 16 — Case converter | done |
-| 17 — Number base converter | done |
-| 18 — QR code generator | done |
-| 19 — Barcode generator (5 of 8 symbologies — see the scope note) | done |
-| 20 — Colour toolkit | done |
-| 21 — Timestamp converter | done |
-| 22 — MIME type explorer | done |
-| 23 — HTTP status explorer | done |
-| 24 — Cron expression builder | done |
-| 25 — JSON / YAML / XML converter | done |
-| SQL formatter, HTML escape | done |
-| Settings, History pages | done |
+Danh sách trên phản ánh các mô-đun đã triển khai. Phần đa ngôn ngữ và trải nghiệm chi tiết ở từng công cụ vẫn tiếp tục được rà soát.
