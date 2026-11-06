@@ -25,8 +25,8 @@
             <MudDivider Vertical="true" FlexItem="true" Class="mx-1" />
         }
 
-        <IconButton Icon="@Icons.Material.Filled.Undo" Tooltip="Undo (Ctrl+Z)" Disabled="@(!History.CanUndo)" OnClick="Undo" />
-        <IconButton Icon="@Icons.Material.Filled.Redo" Tooltip="Redo (Ctrl+Y)" Disabled="@(!History.CanRedo)" OnClick="Redo" />
+        <IconButton Icon="@Icons.Material.Filled.Undo" Tooltip="@L("Undo (Ctrl+Z)")" Disabled="@(!History.CanUndo)" OnClick="Undo" />
+        <IconButton Icon="@Icons.Material.Filled.Redo" Tooltip="@L("Redo (Ctrl+Y)")" Disabled="@(!History.CanRedo)" OnClick="Redo" />
     </ChildContent>
 
     <EndContent>
@@ -37,23 +37,23 @@
         <IconButton Icon="@(_isFullscreen ? Icons.Material.Filled.FullscreenExit : Icons.Material.Filled.Fullscreen)"
                     Tooltip="@(_isFullscreen ? "Exit fullscreen (Esc)" : "Fullscreen")"
                     OnClick="ToggleFullscreen" />
-        <IconButton Icon="@Icons.Material.Filled.ContentPaste" Tooltip="Paste from clipboard" OnClick="PasteAsync" />
+        <IconButton Icon="@Icons.Material.Filled.ContentPaste" Tooltip="@L("Paste from clipboard")" OnClick="PasteAsync" />
 
-        <MudMenu Icon="@Icons.Material.Filled.MoreVert" Size="Size.Small" AriaLabel="Document actions" Dense="true">
-            <MudMenuItem Icon="@Icons.Material.Filled.ContentCopy" OnClick="CopyMarkdownAsync">Copy Markdown</MudMenuItem>
-            <MudMenuItem Icon="@Icons.Material.Filled.Code" OnClick="CopyHtmlAsync">Copy HTML</MudMenuItem>
+        <MudMenu Icon="@Icons.Material.Filled.MoreVert" Size="Size.Small" AriaLabel="@L("Document actions")" Dense="true">
+            <MudMenuItem Icon="@Icons.Material.Filled.ContentCopy" OnClick="CopyMarkdownAsync">@L("Copy Markdown")</MudMenuItem>
+            <MudMenuItem Icon="@Icons.Material.Filled.Code" OnClick="CopyHtmlAsync">@L("Copy HTML")</MudMenuItem>
             <MudDivider />
-            <MudMenuItem Icon="@Icons.Material.Filled.Download" OnClick="DownloadMarkdownAsync">Download .md (Ctrl+S)</MudMenuItem>
-            <MudMenuItem Icon="@Icons.Material.Filled.Html" OnClick="ExportHtmlAsync">Export HTML</MudMenuItem>
+            <MudMenuItem Icon="@Icons.Material.Filled.Download" OnClick="DownloadMarkdownAsync">@L("Download .md (Ctrl+S)")</MudMenuItem>
+            <MudMenuItem Icon="@Icons.Material.Filled.Html" OnClick="ExportHtmlAsync">@L("Export HTML")</MudMenuItem>
             <MudDivider />
             <MudMenuItem Icon="@Icons.Material.Filled.WrapText" OnClick="ToggleWordWrapAsync">
-                @(Workspace.WordWrap ? "Disable word wrap" : "Enable word wrap")
+                @L(Workspace.WordWrap ? "Disable word wrap" : "Enable word wrap")
             </MudMenuItem>
             <MudMenuItem Icon="@Icons.Material.Filled.FormatListNumbered" OnClick="ToggleLineNumbersAsync">
-                @(Workspace.ShowLineNumbers ? "Hide line numbers" : "Show line numbers")
+                @L(Workspace.ShowLineNumbers ? "Hide line numbers" : "Show line numbers")
             </MudMenuItem>
             <MudDivider />
-            <MudMenuItem Icon="@Icons.Material.Filled.CleaningServices" OnClick="ClearAsync">Clear document</MudMenuItem>
+            <MudMenuItem Icon="@Icons.Material.Filled.CleaningServices" OnClick="ClearAsync">@L("Clear document")</MudMenuItem>
         </MudMenu>
     </EndContent>
 </Toolbar>
@@ -78,8 +78,8 @@
             else if (IsEmpty)
             {
                 <EmptyState Icon="@Icons.Material.Outlined.Article"
-                            Title="Nothing to preview yet"
-                            Description="Start typing, paste Markdown, or drop a .md file below."
+                            Title="@L("Nothing to preview yet")"
+                            Description="@L("Start typing, paste Markdown, or drop a .md file below.")"
                             Dense="true" />
             }
             else
@@ -101,7 +101,7 @@
     @if (Workspace.RecentFiles.Count > 0)
     {
         <div class="devhub-markdown__recent">
-            <MudText Typo="Typo.caption" Class="mud-text-secondary">Recent files:</MudText>
+            <MudText Typo="Typo.caption" Class="mud-text-secondary">@L("Recent files:")</MudText>
             @foreach (var file in Workspace.RecentFiles)
             {
                 <Badge Icon="@Icons.Material.Filled.InsertDriveFile" Text="@file" />
@@ -113,8 +113,8 @@
 @if (IsEmpty)
 {
     <FileDropZone Accept=".md,.markdown,.txt,text/markdown"
-                  Title="Drop a Markdown file here"
-                  Hint="or click to browse — .md, .markdown, .txt"
+                  Title="@L("Drop a Markdown file here")"
+                  Hint="@L("or click to browse — .md, .markdown, .txt")"
                   Dense="true"
                   Class="mt-3"
                   OnFileLoaded="OnFileLoadedAsync" />

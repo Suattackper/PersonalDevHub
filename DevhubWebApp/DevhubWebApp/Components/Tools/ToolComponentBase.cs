@@ -36,11 +36,15 @@ public abstract class ToolComponentBase<TWorkspace> : ComponentBase, IAsyncDispo
     [Inject] protected IBrowserInteropService Interop { get; set; } = default!;
 
     [Inject] protected INotificationService Notifications { get; set; } = default!;
+    [Inject] protected IUserPreferenceService Preferences { get; set; } = default!;
 
     [Inject] protected IKeyboardShortcutService Shortcuts { get; set; } = default!;
 
     /// <summary>Id of the tool, used for workspace storage. Must match the <c>[Tool]</c> id.</summary>
     protected abstract string ToolId { get; }
+
+    /// <summary>Returns the selected translation for a visible control label.</summary>
+    protected string L(string text) => UiText.Get(Preferences.Settings.Language, text);
 
     /// <summary>Keyboard combos this tool handles, e.g. <c>ctrl+enter</c>. Empty by default.</summary>
     protected virtual IReadOnlyList<string> ShortcutCombos => Array.Empty<string>();

@@ -23,16 +23,16 @@
     </ChildContent>
 
     <EndContent>
-        <IconButton Icon="@Icons.Material.Filled.ContentPaste" Tooltip="Paste" OnClick="PasteAsync" />
-        <IconButton Icon="@Icons.Material.Filled.Download" Tooltip="Download all conversions (Ctrl+S)"
+        <IconButton Icon="@Icons.Material.Filled.ContentPaste" Tooltip="@L("Paste")" OnClick="PasteAsync" />
+        <IconButton Icon="@Icons.Material.Filled.Download" Tooltip="@L("Download all conversions (Ctrl+S)")"
                     Disabled="@IsEmpty" OnClick="DownloadAsync" />
-        <IconButton Icon="@Icons.Material.Filled.CleaningServices" Tooltip="Clear" Disabled="@IsEmpty" OnClick="ClearAsync" />
+        <IconButton Icon="@Icons.Material.Filled.CleaningServices" Tooltip="@L("Clear")" Disabled="@IsEmpty" OnClick="ClearAsync" />
     </EndContent>
 </Toolbar>
 
 <MudGrid Spacing="3">
     <MudItem xs="12" lg="5">
-        <AppCard Title="Input" Icon="@Icons.Material.Filled.Input" Subtitle="@InputSubtitle">
+        <AppCard Title="@L("Input")" Icon="@Icons.Material.Filled.Input" Subtitle="@InputSubtitle">
             <ChildContent>
                 <MudTextField T="string"
                               Value="@Workspace.Input"
@@ -41,7 +41,7 @@
                               DebounceInterval="AppConstants.DebounceMilliseconds"
                               Variant="Variant.Outlined"
                               Lines="14"
-                              Placeholder="Type or paste text — every style updates as you type…"
+                              Placeholder="@L("Type or paste text — every style updates as you type…")"
                               aria-label="Text to convert" />
             </ChildContent>
         </AppCard>
@@ -52,8 +52,8 @@
         {
             <AppCard>
                 <EmptyState Icon="@Icons.Material.Outlined.TextFields"
-                            Title="Nothing to convert yet"
-                            Description="Type on the left and every naming style appears here at once."
+                            Title="@L("Nothing to convert yet")"
+                            Description="@L("Type on the left and every naming style appears here at once.")"
                             Dense="true" />
             </AppCard>
         }
@@ -65,7 +65,7 @@
                     <AppCard @key="style" Class="devhub-case__card">
                         <Header>
                             <div class="devhub-card__heading">
-                                <MudText Typo="Typo.subtitle2">@CaseConverter.GetName(style)</MudText>
+                                <MudText Typo="Typo.subtitle2">@L(CaseConverter.GetName(style))</MudText>
                             </div>
                         </Header>
                         <Actions>

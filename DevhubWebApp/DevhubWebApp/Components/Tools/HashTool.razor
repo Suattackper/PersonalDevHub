@@ -24,16 +24,16 @@
     </ChildContent>
 
     <EndContent>
-        <IconButton Icon="@Icons.Material.Filled.ContentPaste" Tooltip="Paste text" OnClick="PasteAsync" />
-        <IconButton Icon="@Icons.Material.Filled.Download" Tooltip="Download all digests (Ctrl+S)"
+        <IconButton Icon="@Icons.Material.Filled.ContentPaste" Tooltip="@L("Paste text")" OnClick="PasteAsync" />
+        <IconButton Icon="@Icons.Material.Filled.Download" Tooltip="@L("Download all digests (Ctrl+S)")"
                     Disabled="@(!HasResults)" OnClick="DownloadAsync" />
-        <IconButton Icon="@Icons.Material.Filled.CleaningServices" Tooltip="Clear" Disabled="@IsEmpty" OnClick="ClearAsync" />
+        <IconButton Icon="@Icons.Material.Filled.CleaningServices" Tooltip="@L("Clear")" Disabled="@IsEmpty" OnClick="ClearAsync" />
     </EndContent>
 </Toolbar>
 
 <MudGrid Spacing="3">
     <MudItem xs="12" lg="5">
-        <AppCard Title="Input" Icon="@Icons.Material.Filled.Input" Subtitle="@InputSubtitle">
+        <AppCard Title="@L("Input")" Icon="@Icons.Material.Filled.Input" Subtitle="@InputSubtitle">
             <ChildContent>
                 <MudTextField T="string"
                               Value="@Workspace.Text"
@@ -43,7 +43,7 @@
                               Variant="Variant.Outlined"
                               Lines="6"
                               Disabled="@(_file is not null)"
-                              Placeholder="Type or paste text to hash…"
+                              Placeholder="@L("Type or paste text to hash…")"
                               aria-label="Text to hash" />
 
                 @if (_file is not null)
@@ -56,14 +56,14 @@
                                 @($"{Base64Converter.FormatSize(_file.Size)} · {_file.ContentType.OrDefault("unknown type")}")
                             </MudText>
                         </div>
-                        <IconButton Icon="@Icons.Material.Filled.Close" Tooltip="Remove file" OnClick="RemoveFileAsync" />
+                        <IconButton Icon="@Icons.Material.Filled.Close" Tooltip="@L("Remove file")" OnClick="RemoveFileAsync" />
                     </div>
                 }
                 else
                 {
                     <FileDropZone Accept="*/*"
-                                  Title="Drop a file to hash"
-                                  Hint="any file — up to 25 MB"
+                                  Title="@L("Drop a file to hash")"
+                                  Hint="@L("any file — up to 25 MB")"
                                   Dense="true"
                                   ReadAsBytes="true"
                                   MaxFileSize="26214400"
@@ -73,8 +73,8 @@
             </ChildContent>
         </AppCard>
 
-        <AppCard Title="Verify" Icon="@Icons.Material.Filled.Fingerprint" Class="mt-3"
-                 Subtitle="Paste an expected digest — the algorithm is detected from its length">
+        <AppCard Title="@L("Verify")" Icon="@Icons.Material.Filled.Fingerprint" Class="mt-3"
+                 Subtitle="@L("Paste an expected digest — the algorithm is detected from its length")">
             <ChildContent>
                 <MudTextField T="string"
                               Value="@Workspace.ExpectedHash"
@@ -84,7 +84,7 @@
                               Variant="Variant.Outlined"
                               Margin="Margin.Dense"
                               Class="devhub-mono-field"
-                              Placeholder="e.g. ba7816bf8f01cfea…"
+                              Placeholder="@L("e.g. ba7816bf8f01cfea…")"
                               aria-label="Expected digest" />
 
                 @if (_verification.Error is not null)
@@ -112,8 +112,8 @@
         {
             <AppCard>
                 <EmptyState Icon="@Icons.Material.Outlined.Tag"
-                            Title="Nothing hashed yet"
-                            Description="Type text or drop a file on the left to see every digest at once."
+                            Title="@L("Nothing hashed yet")"
+                            Description="@L("Type text or drop a file on the left to see every digest at once.")"
                             Dense="true" />
             </AppCard>
         }

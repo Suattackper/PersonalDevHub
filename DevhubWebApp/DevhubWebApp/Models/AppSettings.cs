@@ -25,7 +25,7 @@ public sealed class AppSettings
 {
     public AppThemeMode Theme { get; set; } = AppThemeMode.Dark;
 
-    public AppLanguage Language { get; set; } = AppLanguage.English;
+    public AppLanguage Language { get; set; } = AppLanguage.Vietnamese;
 
     /// <summary>Tool opened by the "go to default tool" shortcut. Empty means the dashboard.</summary>
     public string DefaultToolId { get; set; } = string.Empty;

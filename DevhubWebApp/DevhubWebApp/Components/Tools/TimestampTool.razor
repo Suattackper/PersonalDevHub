@@ -28,17 +28,17 @@
     </ChildContent>
 
     <EndContent>
-        <IconButton Icon="@Icons.Material.Filled.ContentPaste" Tooltip="Paste" OnClick="PasteAsync" />
-        <IconButton Icon="@Icons.Material.Filled.Download" Tooltip="Download all formats (Ctrl+S)"
+        <IconButton Icon="@Icons.Material.Filled.ContentPaste" Tooltip="@L("Paste")" OnClick="PasteAsync" />
+        <IconButton Icon="@Icons.Material.Filled.Download" Tooltip="@L("Download all formats (Ctrl+S)")"
                     Disabled="@(_instant is null)" OnClick="DownloadAsync" />
-        <IconButton Icon="@Icons.Material.Filled.CleaningServices" Tooltip="Clear" OnClick="ClearAsync" />
+        <IconButton Icon="@Icons.Material.Filled.CleaningServices" Tooltip="@L("Clear")" OnClick="ClearAsync" />
     </EndContent>
 </Toolbar>
 
 <MudGrid Spacing="3">
     <MudItem xs="12" lg="5">
-        <AppCard Title="Unix timestamp" Icon="@Icons.Material.Filled.Numbers"
-                 Subtitle="Seconds or milliseconds — the unit is detected automatically">
+        <AppCard Title="@L("Unix timestamp")" Icon="@Icons.Material.Filled.Numbers"
+                 Subtitle="@L("Seconds or milliseconds — the unit is detected automatically")">
             <ChildContent>
                 <MudTextField T="string"
                               Value="@Workspace.Timestamp"
@@ -48,15 +48,15 @@
                               Variant="Variant.Outlined"
                               Margin="Margin.Dense"
                               Class="devhub-mono-field"
-                              Placeholder="1732958100"
+                              Placeholder="@L("1732958100")"
                               Error="@(_error is not null && _lastEditWasTimestamp)"
                               ErrorText="@_error"
                               aria-label="Unix timestamp" />
             </ChildContent>
         </AppCard>
 
-        <AppCard Title="Date and time" Icon="@Icons.Material.Filled.CalendarMonth" Class="mt-3"
-                 Subtitle="ISO 8601, or pick from the calendar below">
+        <AppCard Title="@L("Date and time")" Icon="@Icons.Material.Filled.CalendarMonth" Class="mt-3"
+                 Subtitle="@L("ISO 8601, or pick from the calendar below")">
             <ChildContent>
                 <MudTextField T="string"
                               Value="@Workspace.DateText"
@@ -66,21 +66,21 @@
                               Variant="Variant.Outlined"
                               Margin="Margin.Dense"
                               Class="devhub-mono-field"
-                              Placeholder="2024-11-30T09:15:00Z"
+                              Placeholder="@L("2024-11-30T09:15:00Z")"
                               Error="@(_error is not null && !_lastEditWasTimestamp)"
                               ErrorText="@_error"
                               aria-label="Date and time" />
 
                 <div class="devhub-time__pickers mt-2">
                     <MudDatePicker Date="@PickedDate" DateChanged="OnDatePickedAsync"
-                                   Variant="Variant.Outlined" Margin="Margin.Dense" Label="Date" />
+                                   Variant="Variant.Outlined" Margin="Margin.Dense" Label="@L("Date")" />
                     <MudTimePicker Time="@PickedTime" TimeChanged="OnTimePickedAsync"
-                                   Variant="Variant.Outlined" Margin="Margin.Dense" Label="Time" />
+                                   Variant="Variant.Outlined" Margin="Margin.Dense" Label="@L("Time")" />
                 </div>
 
                 <MudSelect T="string" Value="@ZoneValue" ValueChanged="OnZoneChangedAsync"
                            Variant="Variant.Outlined" Margin="Margin.Dense" Dense="true"
-                           Label="Time zone" Class="mt-2">
+                           Label="@L("Time zone")" Class="mt-2">
                     @foreach (var zone in _zones)
                     {
                         <MudSelectItem T="string" Value="@zone">@zone</MudSelectItem>
@@ -91,7 +91,7 @@
     </MudItem>
 
     <MudItem xs="12" lg="7">
-        <AppCard Title="Now" Icon="@Icons.Material.Filled.Timer"
+        <AppCard Title="@L("Now")" Icon="@Icons.Material.Filled.Timer"
                  Subtitle="@(Workspace.LiveClock ? "Ticking every second" : "Paused")">
             <Actions>
                 <CopyButton Text="@_nowUnix" IconOnly="true" Notify="false" />
@@ -104,19 +104,19 @@
             </ChildContent>
         </AppCard>
 
-        <AppCard Title="Converted" Icon="@Icons.Material.Filled.SwapHoriz" Class="mt-3"
+        <AppCard Title="@L("Converted")" Icon="@Icons.Material.Filled.SwapHoriz" Class="mt-3"
                  Subtitle="@(_instant is null ? null : TimestampConverter.DescribeOffset(_instant.Value, Workspace.TimeZoneId))">
             <ChildContent>
                 @if (_error is not null)
                 {
-                    <ErrorState Title="That value cannot be read" Description="@_error" Dense="true" RetryText="@null" />
+                    <ErrorState Title="@L("That value cannot be read")" Description="@_error" Dense="true" RetryText="@null" />
                 }
                 else if (_instant is null)
                 {
                     <EmptyState Icon="@Icons.Material.Outlined.Schedule"
-                                Title="Nothing to convert yet"
-                                Description="Enter a timestamp or a date, or press Now."
-                                ActionText="Use the current time"
+                                Title="@L("Nothing to convert yet")"
+                                Description="@L("Enter a timestamp or a date, or press Now.")"
+                                ActionText="@L("Use the current time")"
                                 ActionIcon="@Icons.Material.Filled.Bolt"
                                 OnAction="UseNowAsync"
                                 Dense="true" />

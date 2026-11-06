@@ -11,6 +11,12 @@
   "categories": [ "developer", "productivity", "utilities" ],
   "icons": [
     {
+      "src": "devhub-logo.svg",
+      "type": "image/svg+xml",
+      "sizes": "any",
+      "purpose": "any"
+    },
+    {
       "src": "icon-192.png",
       "type": "image/png",
       "sizes": "192x192",

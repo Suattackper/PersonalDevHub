@@ -1,4 +1,5 @@
 using DevhubWebApp.Interfaces;
+using DevhubWebApp.Models;
 using DevhubWebApp.Models.Tools;
 using Microsoft.AspNetCore.Components;
 
@@ -49,7 +50,7 @@ public static class ToolExtensions
     /// Short usage label for cards and lists, e.g. "12 runs · 3h ago". Returns an empty string for
     /// tools that have never been opened, so callers can bind it directly.
     /// </summary>
-    public static string ToUsageLabel(this ToolView view)
+    public static string ToUsageLabel(this ToolView view, AppLanguage language = AppLanguage.Vietnamese)
     {
         ArgumentNullException.ThrowIfNull(view);
 
@@ -58,7 +59,9 @@ public static class ToolExtensions
             return string.Empty;
         }
 
-        var runs = view.UsageCount == 1 ? "1 run" : $"{view.UsageCount} runs";
-        return view.LastUsedUtc is null ? runs : $"{runs} · {view.LastUsedUtc.Value.ToRelativeLabel()}";
+        var runs = language == AppLanguage.Vietnamese
+            ? $"{view.UsageCount} lượt dùng"
+            : view.UsageCount == 1 ? "1 run" : $"{view.UsageCount} runs";
+        return view.LastUsedUtc is null ? runs : $"{runs} · {view.LastUsedUtc.Value.ToRelativeLabel(language)}";
     }
 }

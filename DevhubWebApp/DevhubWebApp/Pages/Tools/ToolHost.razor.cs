@@ -11,6 +11,9 @@ namespace DevhubWebApp.Pages.Tools;
 /// </summary>
 public partial class ToolHost : IDisposable
 {
+    private bool _showGuide;
+
+    private void ToggleGuide() => _showGuide = !_showGuide;
     private ToolView? _view;
     private ToolContext? _context;
 
@@ -29,6 +32,10 @@ public partial class ToolHost : IDisposable
     protected override async Task OnParametersSetAsync()
     {
         var isNewTool = _view?.Id != ToolId;
+        if (isNewTool)
+        {
+            _showGuide = false;
+        }
         _view = Catalog.Find(ToolId);
 
         if (_view is null)

@@ -29,16 +29,16 @@
     </ChildContent>
 
     <EndContent>
-        <IconButton Icon="@Icons.Material.Filled.ContentPaste" Tooltip="Paste from clipboard" OnClick="PasteAsync" />
-        <IconButton Icon="@Icons.Material.Filled.SwapVert" Tooltip="Use result as input" Disabled="@IsEmpty" OnClick="SwapAsync" />
+        <IconButton Icon="@Icons.Material.Filled.ContentPaste" Tooltip="@L("Paste from clipboard")" OnClick="PasteAsync" />
+        <IconButton Icon="@Icons.Material.Filled.SwapVert" Tooltip="@L("Use result as input")" Disabled="@IsEmpty" OnClick="SwapAsync" />
         <CopyButton Text="@_output" IconOnly="true" />
-        <IconButton Icon="@Icons.Material.Filled.Download" Tooltip="Download result (Ctrl+S)" Disabled="@IsEmpty" OnClick="DownloadResultAsync" />
+        <IconButton Icon="@Icons.Material.Filled.Download" Tooltip="@L("Download result (Ctrl+S)")" Disabled="@IsEmpty" OnClick="DownloadResultAsync" />
     </EndContent>
 </Toolbar>
 
 <MudGrid Spacing="3">
     <MudItem xs="12" md="6">
-        <AppCard Title="Input" Icon="@Icons.Material.Filled.Input">
+        <AppCard Title="@L("Input")" Icon="@Icons.Material.Filled.Input">
             <MudTextField T="string"
                           Value="@Workspace.Input"
                           ValueChanged="OnInputChangedAsync"
@@ -47,18 +47,18 @@
                           Variant="Variant.Outlined"
                           Lines="8"
                           Class="devhub-mono-field"
-                          Placeholder="@(Workspace.IsEncoding ? "Text or URL to encode…" : "Percent-encoded text to decode…")"
+                          Placeholder="@L(Workspace.IsEncoding ? "Text or URL to encode…" : "Percent-encoded text to decode…")"
                           aria-label="Input" />
         </AppCard>
     </MudItem>
 
     <MudItem xs="12" md="6">
-        <AppCard Title="Result" Icon="@Icons.Material.Filled.Output" Subtitle="@ScopeDescription">
+        <AppCard Title="@L("Result")" Icon="@Icons.Material.Filled.Output" Subtitle="@ScopeDescription">
             @if (IsEmpty)
             {
                 <EmptyState Icon="@Icons.Material.Outlined.Link"
-                            Title="Nothing to convert yet"
-                            Description="Type or paste a value on the left."
+                            Title="@L("Nothing to convert yet")"
+                            Description="@L("Type or paste a value on the left.")"
                             Dense="true" />
             }
             else

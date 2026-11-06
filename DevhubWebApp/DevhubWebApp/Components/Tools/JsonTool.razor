@@ -20,14 +20,14 @@
                    Size="Size.Small"
                    Disabled="@IsEmpty"
                    OnClick="PrettyAsync">
-            Pretty
+            @L("Pretty")
         </MudButton>
         <MudButton StartIcon="@Icons.Material.Filled.Compress"
                    Variant="Variant.Outlined"
                    Size="Size.Small"
                    Disabled="@IsEmpty"
                    OnClick="MinifyAsync">
-            Minify
+            @L("Minify")
         </MudButton>
 
         <MudDivider Vertical="true" FlexItem="true" Class="mx-1" />
@@ -57,31 +57,31 @@
         <MudMenu Icon="@Icons.Material.Filled.Tune" Size="Size.Small" AriaLabel="Editor options" Dense="true">
             <MudMenuItem OnClick="ToggleWordWrapAsync">
                 <MudIcon Icon="@(_workspace.WordWrap ? Icons.Material.Filled.Check : Icons.Material.Filled.WrapText)" Size="Size.Small" Class="mr-2" />
-                Word wrap
+                @L("Word wrap")
             </MudMenuItem>
             <MudMenuItem OnClick="ToggleLineNumbersAsync">
                 <MudIcon Icon="@(_workspace.ShowLineNumbers ? Icons.Material.Filled.Check : Icons.Material.Filled.FormatListNumbered)" Size="Size.Small" Class="mr-2" />
-                Line numbers
+                @L("Line numbers")
             </MudMenuItem>
             <MudMenuItem OnClick="ToggleFormatOnPasteAsync">
                 <MudIcon Icon="@(_workspace.FormatOnPaste ? Icons.Material.Filled.Check : Icons.Material.Filled.ContentPaste)" Size="Size.Small" Class="mr-2" />
-                Format on paste
+                @L("Format on paste")
             </MudMenuItem>
             <MudMenuItem OnClick="ToggleTreeAsync">
                 <MudIcon Icon="@(_workspace.ShowTree ? Icons.Material.Filled.Check : Icons.Material.Filled.AccountTree)" Size="Size.Small" Class="mr-2" />
-                Tree view
+                @L("Tree view")
             </MudMenuItem>
             <MudDivider />
             <MudMenuItem OnClick="ClearAsync">
                 <MudIcon Icon="@Icons.Material.Filled.CleaningServices" Size="Size.Small" Class="mr-2" />
-                Clear
+                @L("Clear")
             </MudMenuItem>
         </MudMenu>
     </EndContent>
 </Toolbar>
 
 <div class="devhub-json @(_workspace.ShowTree ? "devhub-json--split" : null)">
-    <LoadingOverlay Visible="_isBusy" Message="Rewriting document…" FullScreen="true" />
+    <LoadingOverlay Visible="_isBusy" Message="@L("Rewriting document…")" FullScreen="true" />
     <AppCard Flush="true" Class="devhub-json__editor">
         <CodeEditor @ref="_editor"
                     Value="@_content"
@@ -143,14 +143,14 @@
             <div class="devhub-json__error-row">
                 <span><strong>@_error.Location</strong> — @_error.Message</span>
                 <MudButton Size="Size.Small" Variant="Variant.Text" Color="Color.Inherit" OnClick="GoToErrorAsync">
-                    Go to error
+                    @L("Go to error")
                 </MudButton>
             </div>
         </MudAlert>
     }
     else if (!IsEmpty)
     {
-        <MudAlert Severity="Severity.Success" Dense="true">Valid JSON · @_statusLabel</MudAlert>
+        <MudAlert Severity="Severity.Success" Dense="true">@L("Valid JSON") · @_statusLabel</MudAlert>
     }
     else
     {

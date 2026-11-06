@@ -1,12 +1,13 @@
 @inherits DashboardSectionBase
+@inject IUserPreferenceService UiPreferences
 
 @* Latest recorded actions. Tool name and icon are resolved through the service, so a renamed tool
    updates here without touching stored history. *@
 
 <section class="devhub-dashboard-section">
-    <SectionTitle Title="Recent history" Icon="@Icons.Material.Filled.ManageSearch">
+    <SectionTitle Title="@UiText.Get(UiPreferences.Settings.Language, "Recent history")" Icon="@Icons.Material.Filled.ManageSearch">
         <Actions>
-            <MudButton Size="Size.Small" Variant="Variant.Text" Href="@AppRoutes.History">See all</MudButton>
+            <MudButton Size="Size.Small" Variant="Variant.Text" Href="@AppRoutes.History">@UiText.Get(UiPreferences.Settings.Language, "See all")</MudButton>
         </Actions>
     </SectionTitle>
 
@@ -17,7 +18,7 @@
         }
         else if (ErrorMessage is not null)
         {
-            <ErrorState Title="Could not load history"
+            <ErrorState Title="@UiText.Get(UiPreferences.Settings.Language, "Could not load history")"
                         Detail="@ErrorMessage"
                         Dense="true"
                         OnRetry="ReloadAsync" />
@@ -25,8 +26,8 @@
         else if (_entries.Count == 0)
         {
             <EmptyState Icon="@Icons.Material.Outlined.ManageSearch"
-                        Title="No activity recorded"
-                        Description="Actions you run inside a tool are logged here, on this device only."
+                        Title="@UiText.Get(UiPreferences.Settings.Language, "No activity recorded")"
+                        Description="@UiText.Get(UiPreferences.Settings.Language, "Actions you run inside a tool are logged here, on this device only.")"
                         Dense="true" />
         }
         else
@@ -43,7 +44,7 @@
                         <div class="devhub-history-list__row">
                             <span>@($"{entry.Action} · {tool?.Name ?? entry.ToolId}")</span>
                             <MudText Typo="Typo.caption" Class="mud-text-secondary">
-                                @entry.TimestampUtc.ToRelativeLabel()
+                                @entry.TimestampUtc.ToRelativeLabel(UiPreferences.Settings.Language)
                             </MudText>
                         </div>
                     </MudListItem>

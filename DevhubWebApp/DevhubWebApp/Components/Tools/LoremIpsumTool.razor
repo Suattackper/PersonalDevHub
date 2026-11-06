@@ -37,27 +37,27 @@
                   Selected="@(Workspace.Format == format)" OnClick="@(() => UpdateAsync(w => w.Format = format))" />
         }
         <CopyButton Text="@_output" IconOnly="true" Disabled="@string.IsNullOrEmpty(_output)" />
-        <IconButton Icon="@Icons.Material.Filled.Download" Tooltip="Download (Ctrl+S)"
+        <IconButton Icon="@Icons.Material.Filled.Download" Tooltip="@L("Download (Ctrl+S)")"
                     Disabled="@string.IsNullOrEmpty(_output)" OnClick="DownloadAsync" />
     </EndContent>
 </Toolbar>
 
 <MudGrid Spacing="3">
     <MudItem xs="12" md="4">
-        <AppCard Title="Options" Icon="@Icons.Material.Filled.Tune">
+        <AppCard Title="@L("Options")" Icon="@Icons.Material.Filled.Tune">
             <ChildContent>
                 <SettingItem Label="@($"{UnitLabel} to generate")" Description="@($"{Workspace.Count} {UnitLabel.ToLowerInvariant()}")">
                     <MudSlider T="int" Value="@Workspace.Count" ValueChanged="@(value => UpdateAsync(w => w.Count = value))"
                                Min="1" Max="@MaxForUnit" Step="1" Color="Color.Primary" Class="devhub-password__slider" />
                 </SettingItem>
 
-                <SettingItem Label="Classic opening" Description="Start with “Lorem ipsum dolor sit amet…”.">
+                <SettingItem Label="@L("Classic opening")" Description="@L("Start with “Lorem ipsum dolor sit amet…”.")">
                     <MudSwitch T="bool" Value="@Workspace.StartWithLoremIpsum"
                                ValueChanged="@(value => UpdateAsync(w => w.StartWithLoremIpsum = value))" Color="Color.Primary" />
                 </SettingItem>
 
-                <SettingItem Label="Fixed seed"
-                             Description="Reproduces the same passage every time — useful in tests and screenshots."
+                <SettingItem Label="@L("Fixed seed")"
+                             Description="@L("Reproduces the same passage every time — useful in tests and screenshots.")"
                              Last="true">
                     <div class="devhub-lorem__seed">
                         <MudSwitch T="bool" Value="@(Workspace.Seed is not null)" ValueChanged="OnSeedToggledAsync" Color="Color.Primary" />
@@ -74,14 +74,14 @@
     </MudItem>
 
     <MudItem xs="12" md="8">
-        <AppCard Title="Preview" Icon="@Icons.Material.Filled.Preview" Subtitle="@StatusLabel">
+        <AppCard Title="@L("Preview")" Icon="@Icons.Material.Filled.Preview" Subtitle="@StatusLabel">
             <ChildContent>
                 @if (string.IsNullOrEmpty(_output))
                 {
                     <EmptyState Icon="@Icons.Material.Outlined.Notes"
-                                Title="Nothing generated yet"
-                                Description="Choose how much placeholder text you need and generate it."
-                                ActionText="Generate"
+                                Title="@L("Nothing generated yet")"
+                                Description="@L("Choose how much placeholder text you need and generate it.")"
+                                ActionText="@L("Generate")"
                                 ActionIcon="@Icons.Material.Filled.Autorenew"
                                 OnAction="GenerateAsync"
                                 Dense="true" />

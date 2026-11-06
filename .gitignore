@@ -15,3 +15,6 @@ publish/
 .idea/
 *.swp
 .DS_Store
+
+## Local Codex browser/test workspace
+.codex-tmp/

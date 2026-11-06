@@ -4,26 +4,28 @@
 
 <nav class="devhub-sidebar" aria-label="Tool navigation">
     <div class="devhub-sidebar__filter">
-        <SearchBox Value="@_filter" ValueChanged="OnFilterChanged" Placeholder="Filter tools" />
+        <SearchBox Value="@_filter" ValueChanged="OnFilterChanged" Placeholder="@UiText.Get(Preferences.Settings.Language, "Filter tools")" />
     </div>
 
     <MudNavMenu Class="devhub-sidebar__menu" Rounded="true" Margin="Margin.Dense" Color="Color.Primary">
         <MudNavLink Href="@AppRoutes.Dashboard" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.SpaceDashboard">
-            Dashboard
+            @UiText.Get(Preferences.Settings.Language, "Dashboard")
         </MudNavLink>
         <MudNavLink Href="@AppRoutes.History" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.History">
-            History
+            @UiText.Get(Preferences.Settings.Language, "History")
         </MudNavLink>
         <MudNavLink Href="@AppRoutes.Settings" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Settings">
-            Settings
+            @UiText.Get(Preferences.Settings.Language, "Settings")
         </MudNavLink>
+        <MudNavLink Href="@AppRoutes.ImageTools" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Image">@UiText.Get(Preferences.Settings.Language, "Image tools")</MudNavLink>
+        <MudNavLink Href="@AppRoutes.About" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Info">@UiText.Get(Preferences.Settings.Language, "About")</MudNavLink>
 
         @if (_pinned.Count > 0)
         {
-            <div class="devhub-sidebar__group-label">Pinned</div>
+            <div class="devhub-sidebar__group-label">@UiText.Get(Preferences.Settings.Language, "Pinned")</div>
             @foreach (var view in _pinned)
             {
-                <MudNavLink Href="@view.Route" Match="NavLinkMatch.Prefix" Icon="@view.Tool.Icon">@view.Name</MudNavLink>
+                <MudNavLink Href="@view.Route" Match="NavLinkMatch.Prefix" Icon="@view.Tool.Icon">@UiText.Get(Preferences.Settings.Language, view.Name)</MudNavLink>
             }
         }
 
@@ -34,13 +36,13 @@
 
         @foreach (var group in _groups)
         {
-            <MudNavGroup Title="@group.Category.Label"
+            <MudNavGroup Title="@UiText.Get(Preferences.Settings.Language, group.Category.Label)"
                          Icon="@group.Category.Icon"
                          Expanded="@IsGroupExpanded(group)">
                 @foreach (var view in group.Tools)
                 {
                     <MudNavLink Href="@view.Route" Match="NavLinkMatch.Prefix" Icon="@view.Tool.Icon">
-                        @view.Name
+                        @UiText.Get(Preferences.Settings.Language, view.Name)
                     </MudNavLink>
                 }
             </MudNavGroup>

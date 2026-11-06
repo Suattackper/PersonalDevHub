@@ -10,7 +10,7 @@
                    OnClick="OnToggleSidebar" />
 
     <MudLink Href="@AppRoutes.Dashboard" Underline="Underline.None" Class="devhub-topbar__brand">
-        <MudIcon Icon="@Icons.Material.Filled.Terminal" Color="Color.Primary" Size="Size.Small" />
+        <img src="devhub-logo.svg" alt="" width="28" height="28" />
         <MudText Typo="Typo.subtitle1" Class="ml-2">@AppConstants.AppName</MudText>
     </MudLink>
 
@@ -18,9 +18,9 @@
         <MudAutocomplete T="ToolView"
                          Value="null"
                          SearchFunc="SearchToolsAsync"
-                         ToStringFunc="@(view => view?.Name ?? string.Empty)"
+                         ToStringFunc="@(view => view is null ? string.Empty : UiText.Get(Preferences.Settings.Language, view.Name))"
                          ValueChanged="OnToolSelected"
-                         Placeholder="Search tools…"
+                         Placeholder="@UiText.Get(Preferences.Settings.Language, "Search tools…")"
                          Variant="Variant.Outlined"
                          Margin="Margin.Dense"
                          Dense="true"
@@ -33,8 +33,8 @@
                 <div class="devhub-topbar__result">
                     <MudIcon Icon="@view.Tool.Icon" Size="Size.Small" Color="@view.Tool.Color" />
                     <div>
-                        <MudText Typo="Typo.body2">@view.Name</MudText>
-                        <MudText Typo="Typo.caption" Class="mud-text-secondary">@view.Tool.Description</MudText>
+                        <MudText Typo="Typo.body2">@UiText.Get(Preferences.Settings.Language, view.Name)</MudText>
+                        <MudText Typo="Typo.caption" Class="mud-text-secondary">@UiText.Get(Preferences.Settings.Language, view.Tool.Description)</MudText>
                     </div>
                 </div>
             </ItemTemplate>
@@ -50,7 +50,7 @@
                        OnClick="ToggleThemeAsync" />
     </MudTooltip>
 
-    <MudTooltip Text="Settings">
+    <MudTooltip Text="@UiText.Get(Preferences.Settings.Language, "Settings")">
         <MudIconButton Icon="@Icons.Material.Filled.Settings"
                        Color="Color.Inherit"
                        aria-label="Settings"

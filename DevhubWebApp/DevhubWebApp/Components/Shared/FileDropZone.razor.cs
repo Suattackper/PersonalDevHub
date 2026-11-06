@@ -45,6 +45,7 @@ public partial class FileDropZone
     [Parameter] public string? Class { get; set; }
 
     [Inject] private INotificationService Notifications { get; set; } = default!;
+    [Inject] private IUserPreferenceService Preferences { get; set; } = default!;
 
     private string CssClass => new CssBuilder("devhub-dropzone")
         .AddClass("devhub-dropzone--active", _isDragging)

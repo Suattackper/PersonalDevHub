@@ -43,21 +43,33 @@ public sealed class UserPreferenceService : IUserPreferenceService
             return;
         }
 
-        Settings = await _storage.GetAsync(StorageKeys.Settings, new AppSettings());
+        Settings = Normalize(await _storage.GetAsync(StorageKeys.Settings, new AppSettings()));
         Replace(_favorites, await _storage.GetAsync(StorageKeys.Favorites, new List<string>()));
         Replace(_pinned, await _storage.GetAsync(StorageKeys.Pinned, new List<string>()));
 
         _recent.Clear();
-        _recent.AddRange(await _storage.GetAsync(StorageKeys.Recent, new List<string>()));
+        _recent.AddRange((await _storage.GetAsync(StorageKeys.Recent, new List<string>()))
+            .Where(id => !string.IsNullOrWhiteSpace(id))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .Take(AppConstants.RecentToolCapacity));
 
         _usage.Clear();
         foreach (var usage in await _storage.GetAsync(StorageKeys.UsageStats, new List<ToolUsage>()))
         {
-            _usage[usage.ToolId] = usage;
+            if (!string.IsNullOrWhiteSpace(usage.ToolId) && usage.OpenCount > 0)
+            {
+                _usage[usage.ToolId] = usage;
+            }
         }
 
         _initialized = true;
         NotifyChanged();
+    }
+
+    public async Task ReloadAsync()
+    {
+        _initialized = false;
+        await InitializeAsync();
     }
 
     public async Task SaveSettingsAsync(AppSettings settings)
@@ -125,8 +137,26 @@ public sealed class UserPreferenceService : IUserPreferenceService
         target.Clear();
         foreach (var value in values)
         {
-            target.Add(value);
+            if (!string.IsNullOrWhiteSpace(value))
+            {
+                target.Add(value);
+            }
         }
+    }
+
+    private static AppSettings Normalize(AppSettings settings)
+    {
+        if (!Enum.IsDefined(settings.Theme))
+        {
+            settings.Theme = AppThemeMode.Dark;
+        }
+        if (!Enum.IsDefined(settings.Language))
+        {
+            settings.Language = AppLanguage.Vietnamese;
+        }
+        settings.DefaultToolId = settings.DefaultToolId?.Trim() ?? string.Empty;
+        settings.SchemaVersion = AppConstants.AppVersion;
+        return settings;
     }
 
     private void NotifyChanged() => Changed?.Invoke();

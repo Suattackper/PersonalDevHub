@@ -6,6 +6,34 @@
               Order = 20,
               Keywords = new[] { "query", "database", "format" })]
 
-@* Tool metadata is declared above; the registry discovers this component by reflection. *@
+@using DevhubWebApp.Models.Tools.Sql
+@inherits ToolComponentBase<SqlWorkspace>
 
-<ToolScaffold />
+<Toolbar Class="mb-3">
+    <ChildContent>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.AutoFixHigh"
+                   Disabled="@IsEmpty" OnClick="FormatAsync">@L("Format SQL")</MudButton>
+        <MudSwitch T="bool" Value="@Workspace.UppercaseKeywords" ValueChanged="SetKeywordCaseAsync"
+                   Color="Color.Secondary" Label="@L("Uppercase keywords")" />
+    </ChildContent>
+    <EndContent>
+        <CopyButton Text="@_output" Disabled="@string.IsNullOrEmpty(_output)" />
+        <IconButton Icon="@Icons.Material.Filled.CleaningServices" Tooltip="@L("Clear")" Disabled="@IsEmpty" OnClick="ClearAsync" />
+    </EndContent>
+</Toolbar>
+
+@if (!string.IsNullOrEmpty(_error))
+{
+    <MudAlert Severity="Severity.Error" Variant="Variant.Outlined" Class="mb-3">@_error</MudAlert>
+}
+
+<MudGrid Spacing="3">
+    <MudItem xs="12" lg="6"><AppCard Title="@L("SQL input")" Icon="@Icons.Material.Filled.Input"><ChildContent>
+        <MudTextField T="string" Value="@Workspace.Input" ValueChanged="OnInputChangedAsync" Immediate="true"
+                      Variant="Variant.Outlined" Lines="18" Placeholder="@L("SELECT * FROM users WHERE active = 1;")" aria-label="SQL input" />
+    </ChildContent></AppCard></MudItem>
+    <MudItem xs="12" lg="6"><AppCard Title="@L("Formatted SQL")" Icon="@Icons.Material.Filled.Output"><ChildContent>
+        <MudTextField T="string" Value="@_output" ReadOnly="true" Variant="Variant.Outlined" Lines="18"
+                      Placeholder="@L("Formatted SQL appears here")" aria-label="Formatted SQL" />
+    </ChildContent></AppCard></MudItem>
+</MudGrid>

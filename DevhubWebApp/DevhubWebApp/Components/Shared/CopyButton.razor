@@ -2,6 +2,7 @@
     Copy-to-clipboard control with success feedback. Every tool uses this instead of calling the
     clipboard interop directly, so the confirmation behaviour is identical everywhere.
 *@
+@inject IUserPreferenceService UiPreferences
 
 @if (IconOnly)
 {
@@ -22,6 +23,6 @@ else
                Disabled="@IsDisabled"
                OnClick="CopyAsync"
                Class="@Class">
-        @CurrentLabel
+        @UiText.Get(UiPreferences.Settings.Language, CurrentLabel)
     </MudButton>
 }

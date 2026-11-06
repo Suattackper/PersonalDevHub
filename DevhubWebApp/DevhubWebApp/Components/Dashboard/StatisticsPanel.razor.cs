@@ -1,6 +1,7 @@
 using System.Globalization;
 using DevhubWebApp.Constants;
 using DevhubWebApp.Extensions;
+using DevhubWebApp.Models;
 using DevhubWebApp.Models.Dashboard;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
@@ -23,13 +24,15 @@ public partial class StatisticsPanel : DashboardSectionBase
         _tiles = BuildTiles(statistics);
     }
 
-    private static IReadOnlyList<StatTile> BuildTiles(DashboardStatistics statistics) =>
+    private IReadOnlyList<StatTile> BuildTiles(DashboardStatistics statistics) =>
     [
         new()
         {
             Label = "Tools",
             Value = Format(statistics.ToolCount),
-            Hint = $"in {statistics.CategoryCount} categories",
+            Hint = UiPreferences.Settings.Language == AppLanguage.Vietnamese
+                ? $"trong {statistics.CategoryCount} danh mục"
+                : $"in {statistics.CategoryCount} categories",
             Icon = Icons.Material.Filled.Widgets,
             Color = Color.Primary
         },
@@ -37,7 +40,9 @@ public partial class StatisticsPanel : DashboardSectionBase
         {
             Label = "Usage",
             Value = Format(statistics.UsageCount),
-            Hint = $"across {statistics.ToolsUsed} tools",
+            Hint = UiPreferences.Settings.Language == AppLanguage.Vietnamese
+                ? $"trên {statistics.ToolsUsed} công cụ"
+                : $"across {statistics.ToolsUsed} tools",
             Icon = Icons.Material.Filled.Insights,
             Color = Color.Tertiary
         },
@@ -61,7 +66,7 @@ public partial class StatisticsPanel : DashboardSectionBase
         {
             Label = "Recent",
             Value = Format(statistics.RecentCount),
-            Hint = statistics.LastActivityUtc?.ToRelativeLabel() ?? "no activity yet",
+            Hint = statistics.LastActivityUtc?.ToRelativeLabel(UiPreferences.Settings.Language) ?? "no activity yet",
             Icon = Icons.Material.Filled.Schedule,
             Color = Color.Secondary
         },

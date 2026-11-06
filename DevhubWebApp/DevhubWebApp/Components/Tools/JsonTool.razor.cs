@@ -58,10 +58,12 @@ public partial class JsonTool : IAsyncDisposable
     [Inject] private IBrowserInteropService Interop { get; set; } = default!;
 
     [Inject] private INotificationService Notifications { get; set; } = default!;
+    [Inject] private IUserPreferenceService Preferences { get; set; } = default!;
 
     [Inject] private IKeyboardShortcutService Shortcuts { get; set; } = default!;
 
     private bool IsEmpty => string.IsNullOrWhiteSpace(_content);
+    private string L(string text) => UiText.Get(Preferences.Settings.Language, text);
 
     private string TreePlaceholderTitle => (IsEmpty, _isStructureAnalysisPaused, _error) switch
     {
@@ -226,14 +228,20 @@ public partial class JsonTool : IAsyncDisposable
 
         var lines = _content.AsSpan().Count('\n') + 1;
         var size = _content.Length;
-        var label = $"{lines.ToString("N0", CultureInfo.InvariantCulture)} lines · {size.ToString("N0", CultureInfo.InvariantCulture)} characters";
+        var label = Preferences.Settings.Language == AppLanguage.Vietnamese
+            ? $"{lines.ToString("N0", CultureInfo.InvariantCulture)} dòng · {size.ToString("N0", CultureInfo.InvariantCulture)} ký tự"
+            : $"{lines.ToString("N0", CultureInfo.InvariantCulture)} lines · {size.ToString("N0", CultureInfo.InvariantCulture)} characters";
 
         if (_isStructureAnalysisPaused)
         {
-            return $"{label} · structure analysis paused above {StructureAnalysisLimit / 1000} KB";
+            return Preferences.Settings.Language == AppLanguage.Vietnamese
+                ? $"{label} · tạm dừng phân tích cấu trúc trên {StructureAnalysisLimit / 1000} KB"
+                : $"{label} · structure analysis paused above {StructureAnalysisLimit / 1000} KB";
         }
 
-        return _duplicateCount > 0 ? $"{label} · {_duplicateCount} duplicate keys" : label;
+        return _duplicateCount > 0
+            ? Preferences.Settings.Language == AppLanguage.Vietnamese ? $"{label} · {_duplicateCount} khóa trùng" : $"{label} · {_duplicateCount} duplicate keys"
+            : label;
     }
 
     private Task PrettyAsync() => ApplyAsync(JsonFormatter.Pretty, "Formatted");

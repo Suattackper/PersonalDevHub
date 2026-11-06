@@ -1,6 +1,7 @@
 @*
     Small status label. Non-interactive by design — use Chip when the user can act on it.
 *@
+@inject IUserPreferenceService UiPreferences
 
 <span class="@CssClass" style="@Style">
     @if (!string.IsNullOrWhiteSpace(Icon))
@@ -13,7 +14,7 @@
     }
     else
     {
-        @Text
+        @UiText.Get(UiPreferences.Settings.Language, Text ?? string.Empty)
     }
 </span>
 

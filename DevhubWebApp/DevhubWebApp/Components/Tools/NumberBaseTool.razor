@@ -27,16 +27,16 @@
     </ChildContent>
 
     <EndContent>
-        <IconButton Icon="@Icons.Material.Filled.ContentPaste" Tooltip="Paste" OnClick="PasteAsync" />
-        <IconButton Icon="@Icons.Material.Filled.Download" Tooltip="Download conversions (Ctrl+S)"
+        <IconButton Icon="@Icons.Material.Filled.ContentPaste" Tooltip="@L("Paste")" OnClick="PasteAsync" />
+        <IconButton Icon="@Icons.Material.Filled.Download" Tooltip="@L("Download conversions (Ctrl+S)")"
                     Disabled="@(!_parse.IsSuccess)" OnClick="DownloadAsync" />
-        <IconButton Icon="@Icons.Material.Filled.CleaningServices" Tooltip="Clear" OnClick="ClearAsync" />
+        <IconButton Icon="@Icons.Material.Filled.CleaningServices" Tooltip="@L("Clear")" OnClick="ClearAsync" />
     </EndContent>
 </Toolbar>
 
 <MudGrid Spacing="3">
     <MudItem xs="12" lg="5">
-        <AppCard Title="Value" Icon="@Icons.Material.Filled.Pin"
+        <AppCard Title="@L("Value")" Icon="@Icons.Material.Filled.Pin"
                  Subtitle="@($"Interpreted as {NumberBaseConverter.GetName(Workspace.SourceBase).ToLowerInvariant()}")">
             <ChildContent>
                 <MudTextField T="string"
@@ -54,8 +54,8 @@
             </ChildContent>
         </AppCard>
 
-        <AppCard Title="Text to code points" Icon="@Icons.Material.Filled.Abc" Class="mt-3"
-                 Subtitle="Unicode scalars of any text — emoji included">
+        <AppCard Title="@L("Text to code points")" Icon="@Icons.Material.Filled.Abc" Class="mt-3"
+                 Subtitle="@L("Unicode scalars of any text — emoji included")">
             <Actions>
                 <CopyButton Text="@_codePoints" IconOnly="true" Disabled="@string.IsNullOrEmpty(_codePoints)" />
             </Actions>
@@ -67,7 +67,7 @@
                               DebounceInterval="AppConstants.DebounceMilliseconds"
                               Variant="Variant.Outlined"
                               Margin="Margin.Dense"
-                              Placeholder="Type text to see its code points…"
+                              Placeholder="@L("Type text to see its code points…")"
                               aria-label="Text" />
 
                 @if (!string.IsNullOrEmpty(_codePoints))
@@ -79,18 +79,18 @@
     </MudItem>
 
     <MudItem xs="12" lg="7">
-        <AppCard Title="Conversions" Icon="@Icons.Material.Filled.SwapHoriz">
+        <AppCard Title="@L("Conversions")" Icon="@Icons.Material.Filled.SwapHoriz">
             <ChildContent>
                 @if (!_parse.HasValue)
                 {
                     <EmptyState Icon="@Icons.Material.Outlined.Calculate"
-                                Title="Nothing to convert yet"
-                                Description="Enter a value on the left; every base updates as you type."
+                                Title="@L("Nothing to convert yet")"
+                                Description="@L("Enter a value on the left; every base updates as you type.")"
                                 Dense="true" />
                 }
                 else if (!_parse.IsSuccess)
                 {
-                    <ErrorState Title="That value cannot be parsed"
+                    <ErrorState Title="@L("That value cannot be parsed")"
                                 Description="@_parse.Error"
                                 Dense="true"
                                 RetryText="@null" />
@@ -102,7 +102,7 @@
                             @foreach (var numberBase in NumberBaseConverter.All)
                             {
                                 <tr @key="numberBase">
-                                    <td class="devhub-url__part-label">@NumberBaseConverter.GetName(numberBase)</td>
+                                    <td class="devhub-url__part-label">@L(NumberBaseConverter.GetName(numberBase))</td>
                                     <td class="devhub-url__part-value">@Render(numberBase)</td>
                                     <td class="devhub-url__part-action">
                                         <CopyButton Text="@Render(numberBase)" IconOnly="true" Notify="false" />
@@ -111,7 +111,7 @@
                             }
 
                             <tr>
-                                <td class="devhub-url__part-label">Character</td>
+                                <td class="devhub-url__part-label">@L("Character")</td>
                                 <td class="devhub-url__part-value">@CharacterLabel</td>
                                 <td class="devhub-url__part-action">
                                     <CopyButton Text="@NumberBaseConverter.ToCharacter(_parse.Value)" IconOnly="true" Notify="false"
@@ -119,7 +119,7 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td class="devhub-url__part-label">Code point</td>
+                                <td class="devhub-url__part-label">@L("Code point")</td>
                                 <td class="devhub-url__part-value">@CodePointLabel</td>
                                 <td class="devhub-url__part-action"></td>
                             </tr>

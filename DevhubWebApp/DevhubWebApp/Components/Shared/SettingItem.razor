@@ -2,6 +2,7 @@
     One row in a settings list: label, description and the control on the right. Keeps every
     preference row aligned regardless of which control it hosts.
 *@
+@inject IUserPreferenceService UiPreferences
 
 <div class="@CssClass">
     <div class="devhub-setting__text">
@@ -10,7 +11,7 @@
             {
                 <MudIcon Icon="@Icon" Size="Size.Small" Color="@IconColor" />
             }
-            <MudText Typo="Typo.subtitle2">@Label</MudText>
+            <MudText Typo="Typo.subtitle2">@UiText.Get(UiPreferences.Settings.Language, Label)</MudText>
             @if (!string.IsNullOrWhiteSpace(BadgeText))
             {
                 <Badge Text="@BadgeText" Color="@BadgeColor" />
@@ -18,7 +19,7 @@
         </div>
         @if (!string.IsNullOrWhiteSpace(Description))
         {
-            <MudText Typo="Typo.caption" Class="mud-text-secondary">@Description</MudText>
+            <MudText Typo="Typo.caption" Class="mud-text-secondary">@UiText.Get(UiPreferences.Settings.Language, Description ?? string.Empty)</MudText>
         }
     </div>
 

@@ -2,9 +2,10 @@
     Interactive tag: selectable, optionally removable. Use for filters, keywords and multi-select
     lists. Static labels belong in Badge instead.
 *@
+@inject IUserPreferenceService UiPreferences
 
 <MudChip T="string"
-         Text="@Text"
+         Text="@UiText.Get(UiPreferences.Settings.Language, Text ?? string.Empty)"
          Icon="@Icon"
          Color="@Color"
          Size="@Size"
@@ -19,7 +20,7 @@
     }
     else
     {
-        @Text
+        @UiText.Get(UiPreferences.Settings.Language, Text ?? string.Empty)
     }
 </MudChip>
 

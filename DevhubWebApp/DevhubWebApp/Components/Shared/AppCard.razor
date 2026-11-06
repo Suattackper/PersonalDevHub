@@ -2,6 +2,7 @@
     Generic surface container. Every panel, widget and grouped block in DevHub is built from this
     component so borders, radius, padding and hover behaviour stay identical across the app.
 *@
+@inject IUserPreferenceService UiPreferences
 
 <MudPaper Elevation="0"
           Class="@CssClass"
@@ -23,10 +24,10 @@
                         <MudIcon Icon="@Icon" Size="Size.Small" Color="Color.Primary" />
                     }
                     <div>
-                        <MudText Typo="Typo.subtitle1">@Title</MudText>
+                        <MudText Typo="Typo.subtitle1">@UiText.Get(UiPreferences.Settings.Language, Title ?? string.Empty)</MudText>
                         @if (!string.IsNullOrWhiteSpace(Subtitle))
                         {
-                            <MudText Typo="Typo.caption" Class="mud-text-secondary">@Subtitle</MudText>
+                            <MudText Typo="Typo.caption" Class="mud-text-secondary">@UiText.Get(UiPreferences.Settings.Language, Subtitle)</MudText>
                         }
                     </div>
                 </div>

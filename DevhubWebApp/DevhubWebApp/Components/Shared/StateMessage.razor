@@ -2,17 +2,18 @@
     Centred icon + title + description + optional action. This is the shared primitive behind
     EmptyState and ErrorState; prefer those wrappers in feature code so intent stays explicit.
 *@
+@inject IUserPreferenceService UiPreferences
 
 <div class="@CssClass">
     <div class="devhub-state__badge devhub-state__badge--@(Accent.ToDescriptionString())">
         <MudIcon Icon="@Icon" Size="Size.Large" />
     </div>
 
-    <MudText Typo="Typo.h6" Class="mt-4">@Title</MudText>
+    <MudText Typo="Typo.h6" Class="mt-4">@UiText.Get(UiPreferences.Settings.Language, Title)</MudText>
 
     @if (!string.IsNullOrWhiteSpace(Description))
     {
-        <MudText Typo="Typo.body2" Class="mud-text-secondary mt-1 devhub-state__description">@Description</MudText>
+        <MudText Typo="Typo.body2" Class="mud-text-secondary mt-1 devhub-state__description">@UiText.Get(UiPreferences.Settings.Language, Description)</MudText>
     }
 
     @if (!string.IsNullOrWhiteSpace(ActionText))
@@ -23,7 +24,7 @@
                    StartIcon="@ActionIcon"
                    Href="@ActionHref"
                    OnClick="OnAction">
-            @ActionText
+            @UiText.Get(UiPreferences.Settings.Language, ActionText)
         </MudButton>
     }
 

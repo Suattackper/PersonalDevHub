@@ -1,13 +1,51 @@
 @page "/history"
 
-<PageTitle>History · @AppConstants.AppName</PageTitle>
+<PageTitle>@UiText.Get(Preferences.Settings.Language, "History") · @AppConstants.AppName</PageTitle>
 
-<PageHeader Title="History"
-            Subtitle="Everything you ran, stored locally on this device."
+<PageHeader Title="@UiText.Get(Preferences.Settings.Language, "History")"
+            Subtitle="@(Preferences.Settings.Language == AppLanguage.Vietnamese ? "Mọi thao tác được lưu trên thiết bị này." : "Everything you ran, stored locally on this device.")"
             Icon="@Icons.Material.Filled.History" />
 
-<EmptyState Icon="@Icons.Material.Outlined.History"
-            Title="No activity recorded yet"
-            Description="Tool actions appear here once the tool modules start recording them."
-            ActionText="Back to dashboard"
-            ActionHref="@AppRoutes.Dashboard" />
+<Toolbar Class="mb-3">
+    <ChildContent>
+        <SearchBox Value="@_search" ValueChanged="OnSearchChanged" Placeholder="@(Preferences.Settings.Language == AppLanguage.Vietnamese ? "Tìm lịch sử…" : "Search history…")" />
+    </ChildContent>
+    <EndContent>
+        <MudButton Color="Color.Error" Variant="Variant.Text" StartIcon="@Icons.Material.Filled.DeleteSweep"
+                   Disabled="@(_entries.Count == 0)" OnClick="ClearAllAsync">@(Preferences.Settings.Language == AppLanguage.Vietnamese ? "Xóa tất cả" : "Clear all")</MudButton>
+    </EndContent>
+</Toolbar>
+
+@if (_entries.Count == 0)
+{
+    <EmptyState Icon="@Icons.Material.Outlined.History" Title="@(Preferences.Settings.Language == AppLanguage.Vietnamese ? "Chưa có hoạt động" : "No activity recorded yet")"
+                Description="@(Preferences.Settings.Language == AppLanguage.Vietnamese ? "Các thao tác trong công cụ được lưu tại đây trên thiết bị này." : "Actions performed in tools appear here and stay on this device.")"
+                ActionText="@(Preferences.Settings.Language == AppLanguage.Vietnamese ? "Về trang chủ" : "Back to dashboard")" ActionHref="@AppRoutes.Dashboard" />
+}
+else if (FilteredEntries.Count == 0)
+{
+    <EmptyState Icon="@Icons.Material.Outlined.SearchOff" Title="@(Preferences.Settings.Language == AppLanguage.Vietnamese ? "Không tìm thấy lịch sử" : "No matching history")"
+                Description="@(Preferences.Settings.Language == AppLanguage.Vietnamese ? "Thử tên công cụ hoặc thao tác khác." : "Try another tool name, action or preview.")" />
+}
+else
+{
+    <AppCard Flush="true">
+        <MudList T="string" Class="devhub-history-list">
+            @foreach (var entry in FilteredEntries)
+            {
+                var tool = Catalog.Find(entry.ToolId);
+                <MudListItem T="string" @key="entry.Id" Icon="@(tool?.Tool.Icon ?? Icons.Material.Filled.Bolt)" SecondaryText="@entry.Preview">
+                    <div class="devhub-history-list__row">
+                        <div><MudText Typo="Typo.subtitle2">@entry.Action · @(tool?.Name ?? entry.ToolId)</MudText>
+                            <MudText Typo="Typo.caption" Class="mud-text-secondary">@entry.TimestampUtc.ToLocalTime().ToString("g")</MudText></div>
+                        <div class="d-flex gap-1">
+                            <IconButton Icon="@Icons.Material.Filled.Restore" Tooltip="@(Preferences.Settings.Language == AppLanguage.Vietnamese ? "Khôi phục dữ liệu" : "Restore workspace")"
+                                        Disabled="@string.IsNullOrEmpty(entry.WorkspaceJson)" OnClick="@(() => Restore(entry))" />
+                            <IconButton Icon="@Icons.Material.Filled.DeleteOutline" Tooltip="@(Preferences.Settings.Language == AppLanguage.Vietnamese ? "Xóa mục" : "Delete entry")" Color="Color.Error" OnClick="@(() => RemoveAsync(entry.Id))" />
+                        </div>
+                    </div>
+                </MudListItem>
+            }
+        </MudList>
+    </AppCard>
+}

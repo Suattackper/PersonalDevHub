@@ -19,7 +19,11 @@ public partial class TopBar : IDisposable
 
     [Inject] private NavigationManager Navigation { get; set; } = default!;
 
-    protected override void OnInitialized() => ThemeProvider.Changed += OnThemeChanged;
+    protected override void OnInitialized()
+    {
+        ThemeProvider.Changed += OnThemeChanged;
+        Preferences.Changed += OnThemeChanged;
+    }
 
     private Task<IEnumerable<ToolView>> SearchToolsAsync(string? term, CancellationToken cancellationToken)
         => Task.FromResult<IEnumerable<ToolView>>(Catalog.Search(term));
@@ -43,5 +47,9 @@ public partial class TopBar : IDisposable
 
     private void OnThemeChanged() => StateHasChanged();
 
-    public void Dispose() => ThemeProvider.Changed -= OnThemeChanged;
+    public void Dispose()
+    {
+        ThemeProvider.Changed -= OnThemeChanged;
+        Preferences.Changed -= OnThemeChanged;
+    }
 }

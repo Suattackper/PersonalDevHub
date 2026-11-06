@@ -22,35 +22,36 @@
                       Variant="Variant.Outlined"
                       Margin="Margin.Dense"
                       Class="devhub-mono-field devhub-color__input"
-                      Placeholder="#4f9cf9, rgb(79,156,249), hsl(210,93%,64%)"
+                      Placeholder="@L("#4f9cf9, rgb(79,156,249), hsl(210,93%,64%)")"
                       Error="@(_color is null)"
-                      ErrorText="Not a recognised colour"
-                      aria-label="Colour" />
+                      ErrorText="@L("Not a recognised colour")"
+                      aria-label="@L("Colour")" />
 
         <MudColorPicker Value="@PickerColor"
                         ValueChanged="OnPickerChangedAsync"
                         Variant="Variant.Outlined"
                         Margin="Margin.Dense"
                         Class="devhub-color__picker"
-                        Label="Pick" />
+                        Label="@L("Pick")" />
     </ChildContent>
 
     <EndContent>
-        <IconButton Icon="@Icons.Material.Filled.ContentPaste" Tooltip="Paste" OnClick="PasteAsync" />
+        <MudButton Href="@AppRoutes.ImageTools" StartIcon="@Icons.Material.Filled.Image" Variant="Variant.Outlined" Size="Size.Small">@L("Pick from image")</MudButton>
+        <IconButton Icon="@Icons.Material.Filled.ContentPaste" Tooltip="@L("Paste")" OnClick="PasteAsync" />
         <IconButton Icon="@(IsFavorite ? Icons.Material.Filled.Favorite : Icons.Material.Filled.FavoriteBorder)"
                     Tooltip="@(IsFavorite ? "Remove from favourites" : "Save to favourites")"
                     Color="@(IsFavorite ? Color.Error : Color.Default)"
                     Disabled="@(_color is null)"
                     OnClick="ToggleFavoriteAsync" />
-        <IconButton Icon="@Icons.Material.Filled.Casino" Tooltip="Random colour" OnClick="RandomAsync" />
+        <IconButton Icon="@Icons.Material.Filled.Casino" Tooltip="@L("Random colour")" OnClick="RandomAsync" />
     </EndContent>
 </Toolbar>
 
 @if (_color is null)
 {
     <AppCard>
-        <ErrorState Title="That is not a colour DevHub recognises"
-                    Description="Try #rrggbb, #rgb, rgb(), rgba() or hsl()."
+        <ErrorState Title="@L("That is not a colour DevHub recognises")"
+                    Description="@L("Try #rrggbb, #rgb, rgb(), rgba() or hsl().")"
                     Dense="true"
                     RetryText="@null" />
     </AppCard>
@@ -59,7 +60,7 @@ else
 {
     <MudGrid Spacing="3">
         <MudItem xs="12" md="5">
-            <AppCard Title="Preview" Icon="@Icons.Material.Filled.Colorize">
+            <AppCard Title="@L("Preview")" Icon="@Icons.Material.Filled.Colorize">
                 <ChildContent>
                     <div class="devhub-color__preview" style="@PreviewStyle">
                         <span>@ColorConverter.ToHex(_color)</span>
@@ -82,7 +83,7 @@ else
                 </ChildContent>
             </AppCard>
 
-            <AppCard Title="Contrast" Icon="@Icons.Material.Filled.Contrast" Class="mt-3"
+            <AppCard Title="@L("Contrast")" Icon="@Icons.Material.Filled.Contrast" Class="mt-3"
                      Subtitle="@($"{_contrast.Ratio}:1 against the background below")">
                 <ChildContent>
                     <MudTextField T="string"
@@ -93,12 +94,12 @@ else
                                   Variant="Variant.Outlined"
                                   Margin="Margin.Dense"
                                   Class="devhub-mono-field"
-                                  Label="Background"
-                                  aria-label="Contrast background" />
+                                  Label="@L("Background")"
+                                  aria-label="@L("Contrast background")" />
 
                     <div class="devhub-color__contrast mt-2" style="@ContrastStyle">
-                        <span class="devhub-color__contrast-large">Large text sample</span>
-                        <span class="devhub-color__contrast-small">Body text sample at 14 px</span>
+                        <span class="devhub-color__contrast-large">@L("Large text sample")</span>
+                        <span class="devhub-color__contrast-small">@L("Body text sample at 14 px")</span>
                     </div>
 
                     <div class="devhub-color__badges mt-3">
@@ -117,7 +118,7 @@ else
                                         <MudIcon Icon="@(check.Passes ? Icons.Material.Filled.CheckCircle : Icons.Material.Filled.Cancel)"
                                                  Color="@(check.Passes ? Color.Success : Color.Error)"
                                                  Size="Size.Small" />
-                                        <span class="ml-2">@(check.Passes ? "Passes" : "Fails")</span>
+                                        <span class="ml-2">@L(check.Passes ? "Passes" : "Fails")</span>
                                     </td>
                                 </tr>
                             }
@@ -128,13 +129,13 @@ else
         </MudItem>
 
         <MudItem xs="12" md="7">
-            <AppCard Title="Palette" Icon="@Icons.Material.Filled.Gradient"
+            <AppCard Title="@L("Palette")" Icon="@Icons.Material.Filled.Gradient"
                      Subtitle="@PaletteGenerator.GetName(Workspace.Palette)">
                 <Actions>
-                    <MudMenu Icon="@Icons.Material.Filled.Download" Size="Size.Small" AriaLabel="Export palette" Dense="true">
-                        <MudMenuItem OnClick="@(() => ExportAsync(ExportFormat.Css))">Export CSS</MudMenuItem>
-                        <MudMenuItem OnClick="@(() => ExportAsync(ExportFormat.Scss))">Export SCSS</MudMenuItem>
-                        <MudMenuItem OnClick="@(() => ExportAsync(ExportFormat.Json))">Export JSON</MudMenuItem>
+                    <MudMenu Icon="@Icons.Material.Filled.Download" Size="Size.Small" AriaLabel="@L("Export palette")" Dense="true">
+                        <MudMenuItem OnClick="@(() => ExportAsync(ExportFormat.Css))">@L("Export CSS")</MudMenuItem>
+                        <MudMenuItem OnClick="@(() => ExportAsync(ExportFormat.Scss))">@L("Export SCSS")</MudMenuItem>
+                        <MudMenuItem OnClick="@(() => ExportAsync(ExportFormat.Json))">@L("Export JSON")</MudMenuItem>
                     </MudMenu>
                 </Actions>
                 <ChildContent>
@@ -155,7 +156,7 @@ else
                                   DebounceInterval="AppConstants.DebounceMilliseconds"
                                   Variant="Variant.Outlined"
                                   Margin="Margin.Dense"
-                                  Label="Variable name"
+                                  Label="@L("Variable name")"
                                   Class="mt-3" />
 
                     <div class="devhub-color__swatches mt-3">
@@ -175,21 +176,21 @@ else
                 </ChildContent>
             </AppCard>
 
-            <AppCard Title="Saved" Icon="@Icons.Material.Filled.Bookmarks" Class="mt-3"
+            <AppCard Title="@L("Saved")" Icon="@Icons.Material.Filled.Bookmarks" Class="mt-3"
                      Subtitle="@($"{Workspace.Favorites.Count} favourite(s), {Workspace.History.Count} recent")">
                 <ChildContent>
                     @if (Workspace.Favorites.Count == 0 && Workspace.History.Count == 0)
                     {
                         <EmptyState Icon="@Icons.Material.Outlined.Bookmarks"
-                                    Title="Nothing saved yet"
-                                    Description="Colours you use are remembered here, and the heart keeps one permanently."
+                                    Title="@L("Nothing saved yet")"
+                                    Description="@L("Colours you use are remembered here, and the heart keeps one permanently.")"
                                     Dense="true" />
                     }
                     else
                     {
                         @if (Workspace.Favorites.Count > 0)
                         {
-                            <DividerTitle Title="Favourites" Icon="@Icons.Material.Filled.Favorite" />
+                            <DividerTitle Title="@L("Favourites")" Icon="@Icons.Material.Filled.Favorite" />
                             <div class="devhub-color__chips">
                                 @foreach (var hex in Workspace.Favorites)
                                 {
@@ -201,7 +202,7 @@ else
 
                         @if (Workspace.History.Count > 0)
                         {
-                            <DividerTitle Title="Recent" Icon="@Icons.Material.Filled.History" />
+                            <DividerTitle Title="@L("Recent")" Icon="@Icons.Material.Filled.History" />
                             <div class="devhub-color__chips">
                                 @foreach (var hex in Workspace.History)
                                 {

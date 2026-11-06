@@ -131,10 +131,10 @@ public partial class JwtTool : ToolComponentBase<JwtWorkspace>
         }
     }
 
-    private static string Format(DateTimeOffset? value)
+    private string Format(DateTimeOffset? value)
         => value is null
             ? "—"
-            : $"{value.Value.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture)} ({value.Value.ToRelativeLabel()})";
+            : $"{value.Value.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture)} ({value.Value.ToRelativeLabel(Preferences.Settings.Language)})";
 
     /// <summary>Renders a remaining lifetime in the largest unit that still reads naturally.</summary>
     private static string Humanise(TimeSpan value) => value switch

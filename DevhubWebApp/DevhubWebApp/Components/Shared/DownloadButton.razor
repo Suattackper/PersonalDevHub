@@ -2,6 +2,7 @@
     Saves tool output to a file. Text and binary payloads share one control so file naming and
     failure handling never diverge between tools.
 *@
+@inject IUserPreferenceService UiPreferences
 
 @if (IconOnly)
 {
@@ -21,6 +22,6 @@ else
                Disabled="@IsDisabled"
                OnClick="DownloadAsync"
                Class="@Class">
-        @Label
+        @UiText.Get(UiPreferences.Settings.Language, Label)
     </MudButton>
 }

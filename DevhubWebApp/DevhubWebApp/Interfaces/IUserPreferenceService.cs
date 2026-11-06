@@ -25,6 +25,9 @@ public interface IUserPreferenceService
     /// <summary>Hydrates in-memory state from storage. Called once during application start.</summary>
     Task InitializeAsync();
 
+    /// <summary>Reloads all preferences from storage after an import or reset.</summary>
+    Task ReloadAsync();
+
     Task SaveSettingsAsync(AppSettings settings);
 
     Task ResetSettingsAsync();

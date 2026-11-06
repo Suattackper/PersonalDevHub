@@ -52,7 +52,16 @@ export function exportNamespace() {
 
 export function importNamespace(json) {
     const payload = JSON.parse(json);
-    Object.entries(payload)
-        .filter(([key]) => key.startsWith(NAMESPACE))
-        .forEach(([key, value]) => localStorage.setItem(key, value));
+    if (!payload || Array.isArray(payload) || typeof payload !== 'object') {
+        throw new Error('Backup must be a JSON object.');
+    }
+
+    const entries = Object.entries(payload);
+    if (entries.some(([key, value]) => !key.startsWith(NAMESPACE) || typeof value !== 'string')) {
+        throw new Error('Backup contains an invalid key or value.');
+    }
+
+    // Validation happens before mutation so a bad document can never leave a partial restore.
+    clearNamespace();
+    entries.forEach(([key, value]) => localStorage.setItem(key, value));
 }

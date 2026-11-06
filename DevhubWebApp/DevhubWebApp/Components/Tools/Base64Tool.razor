@@ -38,9 +38,9 @@
     </ChildContent>
 
     <EndContent>
-        <IconButton Icon="@Icons.Material.Filled.ContentPaste" Tooltip="Paste from clipboard" OnClick="PasteAsync" />
-        <IconButton Icon="@Icons.Material.Filled.SwapVert" Tooltip="Use result as input" Disabled="@(!HasTextOutput)" OnClick="SwapAsync" />
-        <IconButton Icon="@Icons.Material.Filled.CleaningServices" Tooltip="Clear" Disabled="@IsEmpty" OnClick="ClearAsync" />
+        <IconButton Icon="@Icons.Material.Filled.ContentPaste" Tooltip="@L("Paste from clipboard")" OnClick="PasteAsync" />
+        <IconButton Icon="@Icons.Material.Filled.SwapVert" Tooltip="@L("Use result as input")" Disabled="@(!HasTextOutput)" OnClick="SwapAsync" />
+        <IconButton Icon="@Icons.Material.Filled.CleaningServices" Tooltip="@L("Clear")" Disabled="@IsEmpty" OnClick="ClearAsync" />
     </EndContent>
 </Toolbar>
 
@@ -70,8 +70,8 @@
                 }
 
                 <FileDropZone Accept="*/*"
-                              Title="Drop any file here"
-                              Hint="text, image, PDF or binary — up to 5 MB"
+                              Title="@L("Drop any file here")"
+                              Hint="@L("text, image, PDF or binary — up to 5 MB")"
                               Dense="true"
                               ReadAsBytes="true"
                               MaxFileSize="5242880"
@@ -82,18 +82,18 @@
     </MudItem>
 
     <MudItem xs="12" md="6">
-        <AppCard Title="Result" Icon="@Icons.Material.Filled.Output">
+        <AppCard Title="@L("Result")" Icon="@Icons.Material.Filled.Output">
             <Actions>
                 <CopyButton Text="@_result.Output" IconOnly="true" Disabled="@(!HasTextOutput)" />
                 <IconButton Icon="@Icons.Material.Filled.Download"
-                            Tooltip="Download result"
+                            Tooltip="@L("Download result")"
                             Disabled="@(!HasAnyOutput)"
                             OnClick="DownloadAsync" />
             </Actions>
             <ChildContent>
                 @if (_result.Error is not null)
                 {
-                    <ErrorState Title="Could not decode this input"
+                    <ErrorState Title="@L("Could not decode this input")"
                                 Description="@_result.Error"
                                 Dense="true"
                                 RetryText="@null" />
@@ -101,8 +101,8 @@
                 else if (IsEmpty)
                 {
                     <EmptyState Icon="@Icons.Material.Outlined.Transform"
-                                Title="Nothing to convert yet"
-                                Description="Type, paste or drop a file on the left."
+                                Title="@L("Nothing to convert yet")"
+                                Description="@L("Type, paste or drop a file on the left.")"
                                 Dense="true" />
                 }
                 else
@@ -134,8 +134,8 @@
                     else
                     {
                         <EmptyState Icon="@Icons.Material.Outlined.DataArray"
-                                    Title="Binary payload"
-                                    Description="This content is not text; download it to inspect it in a dedicated application."
+                                    Title="@L("Binary payload")"
+                                    Description="@L("This content is not text; download it to inspect it in a dedicated application.")"
                                     Dense="true" />
                     }
                 }

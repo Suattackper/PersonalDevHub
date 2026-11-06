@@ -2,12 +2,52 @@
 
 <PageTitle>Settings · @AppConstants.AppName</PageTitle>
 
-<PageHeader Title="Settings"
-            Subtitle="Theme, language, defaults and local data."
+<PageHeader Title="@UiText.Get(_settings.Language, "Settings")"
+            Subtitle="@UiText.Get(_settings.Language, "Theme, language, defaults and local data.")"
             Icon="@Icons.Material.Filled.Settings" />
 
-<EmptyState Icon="@Icons.Material.Outlined.Tune"
-            Title="Settings module arrives later"
-            Description="Theme switching already works from the top bar and is persisted. The full settings surface (language, default tool, export/import, reset) is its own module."
-            ActionText="Back to dashboard"
-            ActionHref="@AppRoutes.Dashboard" />
+<MudGrid Spacing="3">
+    <MudItem xs="12" lg="7">
+        <AppCard Title="@UiText.Get(_settings.Language, "Preferences")" Icon="@Icons.Material.Filled.Tune" Flush="true">
+            <ChildContent>
+                <SettingItem Label="@UiText.Get(_settings.Language, "Theme")" Description="@UiText.Get(_settings.Language, "Choose the colour scheme used across DevHub.")" Icon="@Icons.Material.Filled.Palette">
+                    <MudSelect T="AppThemeMode" Value="@_settings.Theme" ValueChanged="SetThemeAsync" Dense="true" Variant="Variant.Outlined" aria-label="Theme">
+                        <MudSelectItem Value="AppThemeMode.Dark">@UiText.Get(_settings.Language, "Dark")</MudSelectItem>
+                        <MudSelectItem Value="AppThemeMode.Light">@UiText.Get(_settings.Language, "Light")</MudSelectItem>
+                        <MudSelectItem Value="AppThemeMode.System">@UiText.Get(_settings.Language, "System")</MudSelectItem>
+                    </MudSelect>
+                </SettingItem>
+                <SettingItem Label="@UiText.Get(_settings.Language, "Language")" Description="@UiText.Get(_settings.Language, "Language preference saved for localized content.")" Icon="@Icons.Material.Filled.Language">
+                    <MudSelect T="AppLanguage" Value="@_settings.Language" ValueChanged="SetLanguageAsync" Dense="true" Variant="Variant.Outlined" aria-label="Language">
+                        <MudSelectItem Value="AppLanguage.English">English</MudSelectItem>
+                        <MudSelectItem Value="AppLanguage.Vietnamese">Tiếng Việt</MudSelectItem>
+                    </MudSelect>
+                </SettingItem>
+                <SettingItem Label="@UiText.Get(_settings.Language, "Default tool")" Description="@UiText.Get(_settings.Language, "Tool selected as your default destination.")" Icon="@Icons.Material.Filled.HomeRepairService">
+                    <MudSelect T="string" Value="@_settings.DefaultToolId" ValueChanged="SetDefaultToolAsync" Dense="true" Variant="Variant.Outlined" aria-label="Default tool">
+                        <MudSelectItem Value="@string.Empty">@UiText.Get(_settings.Language, "Dashboard")</MudSelectItem>
+                        @foreach (var tool in Catalog.All()) { <MudSelectItem Value="@tool.Id">@UiText.Get(_settings.Language, tool.Name)</MudSelectItem> }
+                    </MudSelect>
+                </SettingItem>
+                <SettingItem Label="@UiText.Get(_settings.Language, "Auto-save workspaces")" Description="@UiText.Get(_settings.Language, "Restore tool inputs when you return.")" Icon="@Icons.Material.Filled.Save">
+                    <MudSwitch T="bool" Value="@_settings.AutoSaveWorkspace" ValueChanged="SetAutoSaveAsync" Color="Color.Primary" aria-label="Auto-save workspaces" />
+                </SettingItem>
+                <SettingItem Label="@UiText.Get(_settings.Language, "Activity history")" Description="@UiText.Get(_settings.Language, "Record tool actions locally on this device.")" Icon="@Icons.Material.Filled.History" Last="true">
+                    <MudSwitch T="bool" Value="@_settings.TrackHistory" ValueChanged="SetTrackHistoryAsync" Color="Color.Primary" aria-label="Activity history" />
+                </SettingItem>
+            </ChildContent>
+        </AppCard>
+    </MudItem>
+    <MudItem xs="12" lg="5">
+        <AppCard Title="@UiText.Get(_settings.Language, "Local data")" Icon="@Icons.Material.Filled.Storage">
+            <ChildContent>
+                <MudText Typo="Typo.body2" Class="mud-text-secondary mb-4">@UiText.Get(_settings.Language, "Export a backup, import one, or reset all DevHub data stored in this browser.")</MudText>
+                <div class="d-flex flex-column gap-3">
+                    <MudButton Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.Download" OnClick="ExportAsync">@UiText.Get(_settings.Language, "Export backup")</MudButton>
+                    <FileDropZone Dense="true" Title="@UiText.Get(_settings.Language, "Import DevHub backup")" Hint="@UiText.Get(_settings.Language, "JSON files only")" Accept=".json,application/json" MaxFileSize="1048576" OnFileLoaded="ImportAsync" />
+                    <MudButton Variant="Variant.Outlined" Color="Color.Error" StartIcon="@Icons.Material.Filled.DeleteForever" OnClick="ResetAllAsync">@UiText.Get(_settings.Language, "Reset all local data")</MudButton>
+                </div>
+            </ChildContent>
+        </AppCard>
+    </MudItem>
+</MudGrid>

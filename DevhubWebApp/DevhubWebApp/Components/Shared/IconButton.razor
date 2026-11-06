@@ -2,8 +2,9 @@
     Icon button with a mandatory tooltip and accessible label. Wrapping MudIconButton here means
     no icon action in DevHub can ship without a hover hint or a screen-reader name.
 *@
+@inject IUserPreferenceService UiPreferences
 
-<MudTooltip Text="@Tooltip" Placement="@TooltipPlacement" Arrow="true" Delay="400">
+<MudTooltip Text="@UiText.Get(UiPreferences.Settings.Language, Tooltip)" Placement="@TooltipPlacement" Arrow="true" Delay="400">
     <MudIconButton Icon="@Icon"
                    Color="@Color"
                    Size="@Size"
@@ -12,7 +13,7 @@
                    Href="@Href"
                    Target="@Target"
                    OnClick="OnClick"
-                   aria-label="@Tooltip"
+                   aria-label="@UiText.Get(UiPreferences.Settings.Language, Tooltip)"
                    Class="@($"devhub-icon-button {Class}")" />
 </MudTooltip>
 

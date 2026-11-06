@@ -20,7 +20,7 @@
                    Color="Color.Primary"
                    Size="Size.Small"
                    OnClick="GenerateAsync">
-            Generate (Ctrl+Enter)
+            @L("Generate (Ctrl+Enter)")
         </MudButton>
 
         <MudNumericField T="int"
@@ -31,7 +31,7 @@
                          Variant="Variant.Outlined"
                          Margin="Margin.Dense"
                          Class="devhub-uuid__quantity"
-                         Label="Quantity" />
+                         Label="@L("Quantity")" />
 
         <MudSelect T="UuidFormat"
                    Value="@Workspace.Format"
@@ -40,10 +40,10 @@
                    Margin="Margin.Dense"
                    Dense="true"
                    Class="devhub-uuid__format"
-                   Label="Format">
+                   Label="@L("Format")">
             @foreach (var format in Formats)
             {
-                <MudSelectItem T="UuidFormat" Value="@format">@UuidGenerator.GetName(format)</MudSelectItem>
+                <MudSelectItem T="UuidFormat" Value="@format">@L(UuidGenerator.GetName(format))</MudSelectItem>
             }
         </MudSelect>
 
@@ -55,27 +55,27 @@
         <IconButton Icon="@(Workspace.TableView ? Icons.Material.Filled.GridView : Icons.Material.Filled.TableRows)"
                     Tooltip="@(Workspace.TableView ? "Card view" : "Table view")"
                     OnClick="@(() => UpdateAsync(w => w.TableView = !w.TableView))" />
-        <CopyButton Text="@_joined" IconOnly="true" Label="Copy all" Disabled="@(!HasResults)" />
+        <CopyButton Text="@_joined" IconOnly="true" Label="@L("Copy all")" Disabled="@(!HasResults)" />
 
-        <MudMenu Icon="@Icons.Material.Filled.Download" Size="Size.Small" AriaLabel="Download" Dense="true" Disabled="@(!HasResults)">
-            <MudMenuItem Icon="@Icons.Material.Filled.Description" OnClick="@(() => DownloadAsync(ExportKind.Text))">Download .txt</MudMenuItem>
-            <MudMenuItem Icon="@Icons.Material.Filled.TableChart" OnClick="@(() => DownloadAsync(ExportKind.Csv))">Download .csv</MudMenuItem>
-            <MudMenuItem Icon="@Icons.Material.Filled.DataObject" OnClick="@(() => DownloadAsync(ExportKind.Json))">Download .json</MudMenuItem>
+        <MudMenu Icon="@Icons.Material.Filled.Download" Size="Size.Small" AriaLabel="@L("Download")" Dense="true" Disabled="@(!HasResults)">
+            <MudMenuItem Icon="@Icons.Material.Filled.Description" OnClick="@(() => DownloadAsync(ExportKind.Text))">@L("Download .txt")</MudMenuItem>
+            <MudMenuItem Icon="@Icons.Material.Filled.TableChart" OnClick="@(() => DownloadAsync(ExportKind.Csv))">@L("Download .csv")</MudMenuItem>
+            <MudMenuItem Icon="@Icons.Material.Filled.DataObject" OnClick="@(() => DownloadAsync(ExportKind.Json))">@L("Download .json")</MudMenuItem>
         </MudMenu>
     </EndContent>
 </Toolbar>
 
 <MudGrid Spacing="3">
     <MudItem xs="12" lg="8">
-        <AppCard Title="Generated" Icon="@Icons.Material.Filled.Fingerprint"
+        <AppCard Title="@L("Generated")" Icon="@Icons.Material.Filled.Fingerprint"
                  Subtitle="@(HasResults ? $"{_identifiers.Count} identifier(s)" : null)">
             <ChildContent>
                 @if (!HasResults)
                 {
                     <EmptyState Icon="@Icons.Material.Outlined.Fingerprint"
-                                Title="No identifiers yet"
-                                Description="Choose a quantity and format, then generate a batch."
-                                ActionText="Generate"
+                                Title="@L("No identifiers yet")"
+                                Description="@L("Choose a quantity and format, then generate a batch.")"
+                                ActionText="@L("Generate")"
                                 ActionIcon="@Icons.Material.Filled.AutoAwesome"
                                 OnAction="GenerateAsync"
                                 Dense="true" />
@@ -115,14 +115,14 @@
     </MudItem>
 
     <MudItem xs="12" lg="4">
-        <AppCard Title="History" Icon="@Icons.Material.Filled.History"
+        <AppCard Title="@L("History")" Icon="@Icons.Material.Filled.History"
                  Subtitle="@($"{Workspace.History.Count} kept on this device")">
             <Actions>
-                <IconButton Icon="@Icons.Material.Filled.DeleteSweep" Tooltip="Clear history"
+                <IconButton Icon="@Icons.Material.Filled.DeleteSweep" Tooltip="@L("Clear history")"
                             Disabled="@(Workspace.History.Count == 0)" OnClick="ClearHistoryAsync" />
             </Actions>
             <ChildContent>
-                <SearchBox @bind-Value="_historySearch" Placeholder="Search history…" />
+                <SearchBox @bind-Value="_historySearch" Placeholder="@L("Search history…")" />
 
                 @if (FilteredHistory.Count == 0)
                 {

@@ -28,9 +28,9 @@
     <EndContent>
         <Chip Text="Replace" Icon="@Icons.Material.Filled.FindReplace" Color="Color.Primary"
               Selected="@Workspace.ReplaceMode" OnClick="ToggleReplaceAsync" />
-        <IconButton Icon="@Icons.Material.Filled.Undo" Tooltip="Undo pattern" Disabled="@(!History.CanUndo)" OnClick="UndoAsync" />
-        <IconButton Icon="@Icons.Material.Filled.Redo" Tooltip="Redo pattern" Disabled="@(!History.CanRedo)" OnClick="RedoAsync" />
-        <IconButton Icon="@Icons.Material.Filled.Download" Tooltip="Export matches (Ctrl+S)"
+        <IconButton Icon="@Icons.Material.Filled.Undo" Tooltip="@L("Undo pattern")" Disabled="@(!History.CanUndo)" OnClick="UndoAsync" />
+        <IconButton Icon="@Icons.Material.Filled.Redo" Tooltip="@L("Redo pattern")" Disabled="@(!History.CanRedo)" OnClick="RedoAsync" />
+        <IconButton Icon="@Icons.Material.Filled.Download" Tooltip="@L("Export matches (Ctrl+S)")"
                     Disabled="@(_result.MatchCount == 0)" OnClick="ExportAsync" />
     </EndContent>
 </Toolbar>
@@ -46,7 +46,7 @@
                               DebounceInterval="AppConstants.DebounceMilliseconds"
                               Variant="Variant.Outlined"
                               Margin="Margin.Dense"
-                              Label="Pattern"
+                              Label="@L("Pattern")"
                               Placeholder="\d{4}-\d{2}-\d{2}"
                               Adornment="Adornment.Start"
                               AdornmentIcon="@Icons.Material.Filled.Rule"
@@ -62,7 +62,7 @@
                                   DebounceInterval="AppConstants.DebounceMilliseconds"
                                   Variant="Variant.Outlined"
                                   Margin="Margin.Dense"
-                                  Label="Replacement"
+                                  Label="@L("Replacement")"
                                   Placeholder="$1 or ${name}"
                                   Class="devhub-mono-field mt-2"
                                   aria-label="Replacement" />
@@ -91,9 +91,9 @@
 
         <MudGrid Spacing="3">
             <MudItem xs="12" md="@(Workspace.ReplaceMode ? 6 : 12)">
-                <AppCard Title="Test text" Icon="@Icons.Material.Filled.Subject" Flush="true">
+                <AppCard Title="@L("Test text")" Icon="@Icons.Material.Filled.Subject" Flush="true">
                     <Actions>
-                        <IconButton Icon="@Icons.Material.Filled.ContentPaste" Tooltip="Paste test text" OnClick="PasteAsync" />
+                        <IconButton Icon="@Icons.Material.Filled.ContentPaste" Tooltip="@L("Paste test text")" OnClick="PasteAsync" />
                     </Actions>
                     <ChildContent>
                         <CodeEditor Value="@Workspace.TestText"
@@ -108,7 +108,7 @@
             @if (Workspace.ReplaceMode)
             {
                 <MudItem xs="12" md="6">
-                    <AppCard Title="Replace preview" Icon="@Icons.Material.Filled.Preview" Flush="true">
+                    <AppCard Title="@L("Replace preview")" Icon="@Icons.Material.Filled.Preview" Flush="true">
                         <Actions>
                             <CopyButton Text="@_replacePreview" IconOnly="true" />
                         </Actions>
@@ -124,21 +124,21 @@
             }
         </MudGrid>
 
-        <AppCard Title="Matches" Icon="@Icons.Material.Filled.FormatListNumbered" Class="mt-3"
+        <AppCard Title="@L("Matches")" Icon="@Icons.Material.Filled.FormatListNumbered" Class="mt-3"
                  Subtitle="@(_result.MatchCount > 0 ? "Click a match to copy it" : null)">
             <ChildContent>
                 @if (string.IsNullOrEmpty(Workspace.Pattern))
                 {
                     <EmptyState Icon="@Icons.Material.Outlined.Rule"
-                                Title="No pattern yet"
-                                Description="Enter a pattern above, or start from one of the common patterns."
+                                Title="@L("No pattern yet")"
+                                Description="@L("Enter a pattern above, or start from one of the common patterns.")"
                                 Dense="true" />
                 }
                 else if (_result.MatchCount == 0 && _result.IsSuccess)
                 {
                     <EmptyState Icon="@Icons.Material.Outlined.SearchOff"
-                                Title="No matches"
-                                Description="The pattern is valid but nothing in the test text matches it."
+                                Title="@L("No matches")"
+                                Description="@L("The pattern is valid but nothing in the test text matches it.")"
                                 Dense="true" />
                 }
                 else if (_result.IsSuccess)
@@ -151,7 +151,7 @@
                                     <Badge Text="@($"#{index + 1}")" Color="Color.Primary" />
                                     <code>@match.Value</code>
                                     <MudText Typo="Typo.caption" Class="mud-text-secondary">
-                                        @($"at {match.Index}, length {match.Length}")
+                                        @(Preferences.Settings.Language == DevhubWebApp.Models.AppLanguage.Vietnamese ? $"tại vị trí {match.Index}, độ dài {match.Length}" : $"at {match.Index}, length {match.Length}")
                                     </MudText>
                                     <CopyButton Text="@match.Value" IconOnly="true" Notify="false" />
                                 </div>
@@ -177,7 +177,7 @@
     </MudItem>
 
     <MudItem xs="12" lg="4">
-        <AppCard Title="Common patterns" Icon="@Icons.Material.Filled.Bookmarks">
+        <AppCard Title="@L("Common patterns")" Icon="@Icons.Material.Filled.Bookmarks">
             <ChildContent>
                 <MudList T="string" Dense="true">
                     @foreach (var template in RegexLibrary.Templates)
@@ -191,7 +191,7 @@
             </ChildContent>
         </AppCard>
 
-        <AppCard Title="Cheatsheet" Icon="@Icons.Material.Filled.MenuBook" Class="mt-3">
+        <AppCard Title="@L("Cheatsheet")" Icon="@Icons.Material.Filled.MenuBook" Class="mt-3">
             <ChildContent>
                 <MudExpansionPanels Elevation="0" MultiExpansion="true">
                     @foreach (var group in RegexLibrary.Cheatsheet.GroupBy(entry => entry.Category))

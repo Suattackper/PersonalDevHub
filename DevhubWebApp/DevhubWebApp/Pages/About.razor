@@ -1,0 +1,36 @@
+@page "/about"
+@inject IUserPreferenceService Preferences
+
+<PageTitle>About · DevHub</PageTitle>
+<PageHeader Title="@UiText.Get(Preferences.Settings.Language, "About DevHub")" Subtitle="@(Vietnamese ? "Bộ công cụ lập trình và dự án portfolio." : "A developer toolbox and portfolio project.")" Icon="@Icons.Material.Filled.Info" />
+
+<MudGrid Spacing="3">
+    <MudItem xs="12" md="7">
+        <AppCard Title="@UiText.Get(Preferences.Settings.Language, "The project")" Icon="@Icons.Material.Filled.Code">
+            <ChildContent>
+                <MudText>@(Vietnamese ? "DevHub tập hợp các công cụ lập trình thường dùng vào một ứng dụng trình duyệt. Các công cụ chính chạy trên thiết bị và bản PWA đã xuất bản hỗ trợ dùng ngoại tuyến." : "DevHub brings everyday developer utilities into one browser app. Its core tools run locally and the published PWA supports offline use.")</MudText>
+                <MudText Class="mt-3">@(Vietnamese ? "Bắt đầu dự án" : "Project started"): 07/08/2026 · @(Vietnamese ? "Cập nhật" : "Current update"): 06/11/2026</MudText>
+            </ChildContent>
+        </AppCard>
+    </MudItem>
+    <MudItem xs="12" md="5">
+        <AppCard Title="@UiText.Get(Preferences.Settings.Language, "Author")" Icon="@Icons.Material.Filled.Person">
+            <ChildContent>
+                <MudText Typo="Typo.h6">Nguyễn Trần Anh Tân</MudText>
+                <MudText>Software Engineer · @(Vietnamese ? "Sinh năm" : "Born in") 2003</MudText>
+                <MudText Class="mt-3">@(Vietnamese ? "DevHub là một trong các dự án thuộc portfolio kỹ thuật phần mềm của tôi." : "DevHub is one of the projects in my software engineering portfolio.")</MudText>
+            </ChildContent>
+        </AppCard>
+    </MudItem>
+    <MudItem xs="12">
+        <AppCard Title="@UiText.Get(Preferences.Settings.Language, "Technology")" Icon="@Icons.Material.Filled.Memory">
+            <ChildContent>
+                <MudText>.NET 8 · C# · Blazor WebAssembly · MudBlazor · BlazorMonaco · Markdig · QRCoder · YamlDotNet · JavaScript · localStorage · PWA service worker</MudText>
+            </ChildContent>
+        </AppCard>
+    </MudItem>
+</MudGrid>
+
+@code {
+    private bool Vietnamese => Preferences.Settings.Language == AppLanguage.Vietnamese;
+}

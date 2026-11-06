@@ -1,6 +1,7 @@
 using DevhubWebApp.Constants;
 using DevhubWebApp.Interfaces;
 using DevhubWebApp.Models;
+using System.Text.Json;
 
 namespace DevhubWebApp.Services;
 
@@ -36,9 +37,20 @@ public sealed class HistoryService : IHistoryService
         }
 
         _entries.Clear();
-        _entries.AddRange(await _storage.GetAsync(StorageKeys.History, new List<HistoryEntry>()));
+        _entries.AddRange((await _storage.GetAsync(StorageKeys.History, new List<HistoryEntry>()))
+            .Where(entry => !string.IsNullOrWhiteSpace(entry.Id) &&
+                            !string.IsNullOrWhiteSpace(entry.ToolId) &&
+                            !string.IsNullOrWhiteSpace(entry.Action))
+            .OrderByDescending(entry => entry.TimestampUtc)
+            .Take(AppConstants.HistoryCapacity));
         _initialized = true;
         Changed?.Invoke();
+    }
+
+    public async Task ReloadAsync()
+    {
+        _initialized = false;
+        await InitializeAsync();
     }
 
     public async Task RecordAsync(string toolId, string action, string? preview = null)
@@ -48,11 +60,13 @@ public sealed class HistoryService : IHistoryService
             return;
         }
 
+        var workspace = await _storage.GetOrDefaultAsync<JsonElement>(StorageKeys.Workspace(toolId));
         _entries.Insert(0, new HistoryEntry
         {
             ToolId = toolId,
             Action = action,
-            Preview = Truncate(preview)
+            Preview = Truncate(preview),
+            WorkspaceJson = workspace.ValueKind == JsonValueKind.Undefined ? null : workspace.GetRawText()
         });
 
         if (_entries.Count > AppConstants.HistoryCapacity)
@@ -75,6 +89,19 @@ public sealed class HistoryService : IHistoryService
         {
             await PersistAsync();
         }
+    }
+
+    public async Task<bool> RestoreAsync(string entryId)
+    {
+        var entry = _entries.FirstOrDefault(item => item.Id == entryId);
+        if (entry?.WorkspaceJson is null)
+        {
+            return false;
+        }
+
+        using var document = JsonDocument.Parse(entry.WorkspaceJson);
+        await _storage.SetAsync(StorageKeys.Workspace(entry.ToolId), document.RootElement.Clone());
+        return true;
     }
 
     private async Task PersistAsync()

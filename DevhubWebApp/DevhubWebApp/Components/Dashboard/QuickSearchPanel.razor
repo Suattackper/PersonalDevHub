@@ -1,17 +1,18 @@
 @inherits DashboardSectionBase
+@inject IUserPreferenceService UiPreferences
 
 @* Quick search over the whole catalogue. Results are rendered only while a term is present, so the
    dashboard stays calm when the box is empty. *@
 
 <AppCard Class="devhub-quicksearch mb-4">
-    <SearchBox @bind-Value="SearchTerm" Placeholder="@Placeholder" />
+    <SearchBox @bind-Value="SearchTerm" Placeholder="@UiText.Get(UiPreferences.Settings.Language, Placeholder)" />
 
     @if (!string.IsNullOrWhiteSpace(SearchTerm))
     {
         <div class="mt-3">
             @if (ErrorMessage is not null)
             {
-                <ErrorState Title="Search failed"
+                <ErrorState Title="@UiText.Get(UiPreferences.Settings.Language, "Search failed")"
                             Detail="@ErrorMessage"
                             Dense="true"
                             OnRetry="ReloadAsync" />
@@ -19,8 +20,8 @@
             else if (_results.Count == 0)
             {
                 <EmptyState Icon="@Icons.Material.Outlined.SearchOff"
-                            Title="@($"Nothing matches “{SearchTerm}”")"
-                            Description="Search covers names, descriptions, keywords, tags and categories."
+                            Title="@(UiPreferences.Settings.Language == AppLanguage.Vietnamese ? $"Không tìm thấy “{SearchTerm}”" : $"Nothing matches “{SearchTerm}”")"
+                            Description="@UiText.Get(UiPreferences.Settings.Language, "Search covers names, descriptions, keywords, tags and categories.")"
                             Dense="true" />
             }
             else

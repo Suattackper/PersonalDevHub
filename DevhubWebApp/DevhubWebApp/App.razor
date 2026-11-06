@@ -3,6 +3,7 @@
 @inject IUserPreferenceService Preferences
 @inject IHistoryService History
 @inject IThemeProvider ThemeProvider
+@inject IJSRuntime JS
 
 <MudThemeProvider Theme="ThemeProvider.Theme" IsDarkMode="ThemeProvider.IsDarkMode" />
 <MudPopoverProvider />
@@ -19,9 +20,9 @@
         <NotFound>
             <LayoutView Layout="@typeof(MainLayout)">
                 <EmptyState Icon="@Icons.Material.Outlined.TravelExplore"
-                            Title="Page not found"
-                            Description="The route you requested does not exist in DevHub."
-                            ActionText="Back to dashboard"
+                            Title="@UiText.Get(Preferences.Settings.Language, "Page not found")"
+                            Description="@UiText.Get(Preferences.Settings.Language, "The route you requested does not exist in DevHub.")"
+                            ActionText="@UiText.Get(Preferences.Settings.Language, "Back to dashboard")"
                             ActionHref="@AppRoutes.Dashboard" />
             </LayoutView>
         </NotFound>
@@ -46,10 +47,20 @@ else
         await ThemeProvider.ApplyAsync(Preferences.Settings.Theme);
 
         ThemeProvider.Changed += OnThemeChanged;
+        Preferences.Changed += OnThemeChanged;
         _isReady = true;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await JS.InvokeVoidAsync("devhubSetLanguage", Preferences.Settings.Language == AppLanguage.Vietnamese ? "vi" : "en");
     }
 
     private void OnThemeChanged() => StateHasChanged();
 
-    public void Dispose() => ThemeProvider.Changed -= OnThemeChanged;
+    public void Dispose()
+    {
+        ThemeProvider.Changed -= OnThemeChanged;
+        Preferences.Changed -= OnThemeChanged;
+    }
 }

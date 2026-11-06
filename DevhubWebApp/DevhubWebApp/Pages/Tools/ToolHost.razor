@@ -17,11 +17,11 @@
 }
 else
 {
-    <PageTitle>@_view.Name · @AppConstants.AppName</PageTitle>
+    <PageTitle>@UiText.Get(Preferences.Settings.Language, _view.Name) · @AppConstants.AppName</PageTitle>
 
-    <PageHeader Title="@_view.Name" Subtitle="@_view.Tool.Description" Icon="@_view.Tool.Icon" IconColor="@_view.Tool.Color">
+    <PageHeader Title="@UiText.Get(Preferences.Settings.Language, _view.Name)" Subtitle="@UiText.Get(Preferences.Settings.Language, _view.Tool.Description)" Icon="@_view.Tool.Icon" IconColor="@_view.Tool.Color">
         <MetaContent>
-            <Badge Text="@_view.Tool.Category.Label" Icon="@_view.Tool.Category.Icon" />
+            <Badge Text="@UiText.Get(Preferences.Settings.Language, _view.Tool.Category.Label)" Icon="@_view.Tool.Category.Icon" />
             <Badge Text="@($"v{_view.Tool.Version}")" />
             @if (_view.Tool.IsExperimental)
             {
@@ -33,16 +33,33 @@ else
             }
         </MetaContent>
         <Actions>
+            <MudButton StartIcon="@Icons.Material.Filled.HelpOutline" Variant="Variant.Outlined" OnClick="ToggleGuide">@UiText.Get(Preferences.Settings.Language, "Guide")</MudButton>
             <IconButton Icon="@(_view.IsFavorite ? Icons.Material.Filled.Star : Icons.Material.Outlined.StarBorder)"
-                        Tooltip="@(_view.IsFavorite ? "Remove from favorites" : "Add to favorites")"
+                        Tooltip="@UiText.Get(Preferences.Settings.Language, _view.IsFavorite ? "Remove from favorites" : "Add to favorites")"
                         Color="@(_view.IsFavorite ? Color.Warning : Color.Default)"
                         OnClick="ToggleFavoriteAsync" />
             <IconButton Icon="@(_view.IsPinned ? Icons.Material.Filled.PushPin : Icons.Material.Outlined.PushPin)"
-                        Tooltip="@(_view.IsPinned ? "Unpin from sidebar" : "Pin to sidebar")"
+                        Tooltip="@UiText.Get(Preferences.Settings.Language, _view.IsPinned ? "Unpin from sidebar" : "Pin to sidebar")"
                         Color="@(_view.IsPinned ? Color.Primary : Color.Default)"
                         OnClick="TogglePinAsync" />
         </Actions>
     </PageHeader>
+
+    @if (_showGuide)
+    {
+        var guide = ToolGuideDetails.For(_view.Id, Preferences.Settings.Language);
+        <MudAlert Severity="Severity.Info" Class="mb-4" CloseIcon="@Icons.Material.Filled.Close" ShowCloseIcon="true" CloseIconClicked="ToggleGuide">
+            <strong>@(Preferences.Settings.Language == AppLanguage.Vietnamese ? "Cách sử dụng" : "How to use") @UiText.Get(Preferences.Settings.Language, _view.Name)</strong>
+            <ol class="mt-2 mb-2">
+                @foreach (var step in guide.Steps)
+                {
+                    <li>@step</li>
+                }
+            </ol>
+            <div><strong>@(Preferences.Settings.Language == AppLanguage.Vietnamese ? "Ví dụ" : "Example"):</strong> @guide.Example</div>
+            <div class="mt-2"><strong>@(Preferences.Settings.Language == AppLanguage.Vietnamese ? "Lưu ý" : "Note"):</strong> @guide.Note</div>
+        </MudAlert>
+    }
 
     <CascadingValue Value="_context" IsFixed="false">
         <DynamicComponent Type="_view.Tool.ComponentType" />

@@ -1,4 +1,5 @@
 using System.Globalization;
+using DevhubWebApp.Models;
 
 namespace DevhubWebApp.Extensions;
 
@@ -17,6 +18,24 @@ public static class DateTimeExtensions
             { TotalHours: < 24 } => $"{(int)delta.TotalHours}h ago",
             { TotalDays: < 30 } => $"{(int)delta.TotalDays}d ago",
             _ => value.ToLocalTime().ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)
+        };
+    }
+
+    public static string ToRelativeLabel(this DateTimeOffset value, AppLanguage language)
+    {
+        if (language != AppLanguage.Vietnamese)
+        {
+            return value.ToRelativeLabel();
+        }
+
+        var delta = DateTimeOffset.UtcNow - value;
+        return delta switch
+        {
+            { TotalSeconds: < 60 } => "vừa xong",
+            { TotalMinutes: < 60 } => $"{(int)delta.TotalMinutes} phút trước",
+            { TotalHours: < 24 } => $"{(int)delta.TotalHours} giờ trước",
+            { TotalDays: < 30 } => $"{(int)delta.TotalDays} ngày trước",
+            _ => value.ToLocalTime().ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)
         };
     }
 }

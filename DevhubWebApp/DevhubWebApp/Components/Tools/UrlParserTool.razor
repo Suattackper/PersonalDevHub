@@ -21,8 +21,8 @@
                   DebounceInterval="AppConstants.DebounceMilliseconds"
                   Variant="Variant.Outlined"
                   Margin="Margin.Dense"
-                  Label="URL"
-                  Placeholder="https://example.com/path?page=2#section"
+                  Label="@L("URL")"
+                  Placeholder="@L("https://example.com/path?page=2#section")"
                   Adornment="Adornment.Start"
                   AdornmentIcon="@Icons.Material.Filled.Link"
                   Class="devhub-mono-field"
@@ -31,11 +31,11 @@
 
     <Footer>
         <div class="devhub-url__actions">
-            <IconButton Icon="@Icons.Material.Filled.ContentPaste" Tooltip="Paste from clipboard" OnClick="PasteAsync" />
-            <CopyButton Text="@Workspace.Url" IconOnly="true" Label="Copy URL" />
-            <IconButton Icon="@Icons.Material.Filled.Download" Tooltip="Download parts as JSON (Ctrl+S)"
+            <IconButton Icon="@Icons.Material.Filled.ContentPaste" Tooltip="@L("Paste from clipboard")" OnClick="PasteAsync" />
+            <CopyButton Text="@Workspace.Url" IconOnly="true" Label="@L("Copy URL")" />
+            <IconButton Icon="@Icons.Material.Filled.Download" Tooltip="@L("Download parts as JSON (Ctrl+S)")"
                         Disabled="@(!_parts.IsValid)" OnClick="DownloadPartsAsync" />
-            <IconButton Icon="@Icons.Material.Filled.CleaningServices" Tooltip="Clear" OnClick="ClearAsync" />
+            <IconButton Icon="@Icons.Material.Filled.CleaningServices" Tooltip="@L("Clear")" OnClick="ClearAsync" />
         </div>
     </Footer>
 </AppCard>
@@ -44,15 +44,15 @@
 {
     <AppCard>
         <EmptyState Icon="@Icons.Material.Outlined.AccountTree"
-                    Title="Nothing to parse yet"
-                    Description="Paste a URL above to see its parts and edit its query string."
+                    Title="@L("Nothing to parse yet")"
+                    Description="@L("Paste a URL above to see its parts and edit its query string.")"
                     Dense="true" />
     </AppCard>
 }
 else if (!_parts.IsValid)
 {
     <AppCard>
-        <ErrorState Title="That is not an absolute URL"
+        <ErrorState Title="@L("That is not an absolute URL")"
                     Description="@_parts.Error"
                     Dense="true"
                     RetryText="@null" />
@@ -62,7 +62,7 @@ else
 {
     <MudGrid Spacing="3">
         <MudItem xs="12" lg="5">
-            <AppCard Title="Parts" Icon="@Icons.Material.Filled.Segment">
+            <AppCard Title="@L("Parts")" Icon="@Icons.Material.Filled.Segment">
                 <MudSimpleTable Dense="true" Hover="true" Bordered="false" Striped="false" Class="devhub-url__parts">
                     <tbody>
                         @foreach (var part in Parts)
@@ -81,20 +81,20 @@ else
         </MudItem>
 
         <MudItem xs="12" lg="7">
-            <AppCard Title="Query parameters" Icon="@Icons.Material.Filled.Tune"
+            <AppCard Title="@L("Query parameters")" Icon="@Icons.Material.Filled.Tune"
                      Subtitle="@($"{_parameters.Count} parameter(s) — edits rebuild the URL above")">
                 <Actions>
-                    <IconButton Icon="@Icons.Material.Filled.SortByAlpha" Tooltip="Sort by name"
+                    <IconButton Icon="@Icons.Material.Filled.SortByAlpha" Tooltip="@L("Sort by name")"
                                 Disabled="@(_parameters.Count < 2)" OnClick="SortAsync" />
-                    <IconButton Icon="@Icons.Material.Filled.Add" Tooltip="Add parameter" OnClick="AddAsync" />
+                    <IconButton Icon="@Icons.Material.Filled.Add" Tooltip="@L("Add parameter")" OnClick="AddAsync" />
                 </Actions>
                 <ChildContent>
                     @if (_parameters.Count == 0)
                     {
                         <EmptyState Icon="@Icons.Material.Outlined.Tune"
-                                    Title="No query parameters"
-                                    Description="Add one to start building a query string."
-                                    ActionText="Add parameter"
+                                    Title="@L("No query parameters")"
+                                    Description="@L("Add one to start building a query string.")"
+                                    ActionText="@L("Add parameter")"
                                     ActionIcon="@Icons.Material.Filled.Add"
                                     OnAction="AddAsync"
                                     Dense="true" />
@@ -111,7 +111,7 @@ else
                                               DebounceInterval="AppConstants.DebounceMilliseconds"
                                               Variant="Variant.Outlined"
                                               Margin="Margin.Dense"
-                                              Label="Name" />
+                                              Label="@L("Name")" />
                                 <MudTextField T="string"
                                               Value="@parameter.Value"
                                               ValueChanged="@(value => UpdateParameterAsync(index, parameter.Name, value))"
@@ -119,10 +119,10 @@ else
                                               DebounceInterval="AppConstants.DebounceMilliseconds"
                                               Variant="Variant.Outlined"
                                               Margin="Margin.Dense"
-                                              Label="Value" />
-                                <IconButton Icon="@Icons.Material.Filled.ContentCopy" Tooltip="Duplicate"
+                                              Label="@L("Value")" />
+                                <IconButton Icon="@Icons.Material.Filled.ContentCopy" Tooltip="@L("Duplicate")"
                                             OnClick="@(() => DuplicateAsync(index))" />
-                                <IconButton Icon="@Icons.Material.Filled.Delete" Tooltip="Remove" Color="Color.Error"
+                                <IconButton Icon="@Icons.Material.Filled.Delete" Tooltip="@L("Remove")" Color="Color.Error"
                                             OnClick="@(() => RemoveAsync(index))" />
                             </div>
                         }

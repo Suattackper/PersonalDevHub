@@ -24,7 +24,7 @@ public partial class LoremIpsumTool : ToolComponentBase<LoremWorkspace>
 
     protected override IReadOnlyList<string> ShortcutCombos => [ShortcutGenerate, ShortcutDownload];
 
-    private string UnitLabel => Workspace.Unit.ToString();
+    private string UnitLabel => L(Workspace.Unit.ToString());
 
     /// <summary>Sensible upper bounds per unit: 500 words is useful, 500 paragraphs is not.</summary>
     private int MaxForUnit => Workspace.Unit switch
@@ -44,7 +44,7 @@ public partial class LoremIpsumTool : ToolComponentBase<LoremWorkspace>
             }
 
             var (words, characters) = LoremGenerator.Measure(_output);
-            return $"{words.ToString("N0", CultureInfo.InvariantCulture)} words · {characters.ToString("N0", CultureInfo.InvariantCulture)} characters";
+            return $"{words.ToString("N0", CultureInfo.InvariantCulture)} {L("words")} · {characters.ToString("N0", CultureInfo.InvariantCulture)} {L("characters")}";
         }
     }
 

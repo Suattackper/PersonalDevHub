@@ -24,16 +24,16 @@
     </ChildContent>
 
     <EndContent>
-        <IconButton Icon="@Icons.Material.Filled.ContentPaste" Tooltip="Paste" OnClick="PasteAsync" />
-        <CopyButton Text="@_svg" IconOnly="true" Label="Copy SVG" Disabled="@(!HasSymbol)" />
-        <IconButton Icon="@Icons.Material.Filled.Download" Tooltip="Download SVG (Ctrl+S)"
+        <IconButton Icon="@Icons.Material.Filled.ContentPaste" Tooltip="@L("Paste")" OnClick="PasteAsync" />
+        <CopyButton Text="@_svg" IconOnly="true" Label="@L("Copy SVG")" Disabled="@(!HasSymbol)" />
+        <IconButton Icon="@Icons.Material.Filled.Download" Tooltip="@L("Download SVG (Ctrl+S)")"
                     Disabled="@(!HasSymbol)" OnClick="DownloadSvgAsync" />
     </EndContent>
 </Toolbar>
 
 <MudGrid Spacing="3">
     <MudItem xs="12" lg="5">
-        <AppCard Title="Data" Icon="@Icons.Material.Filled.Input"
+        <AppCard Title="@L("Data")" Icon="@Icons.Material.Filled.Input"
                  Subtitle="@BarcodeEncoder.GetRequirement(Workspace.Symbology)">
             <ChildContent>
                 <MudTextField T="string"
@@ -51,24 +51,24 @@
             </ChildContent>
         </AppCard>
 
-        <AppCard Title="Appearance" Icon="@Icons.Material.Filled.Straighten" Class="mt-3">
+        <AppCard Title="@L("Appearance")" Icon="@Icons.Material.Filled.Straighten" Class="mt-3">
             <ChildContent>
-                <SettingItem Label="Module width" Description="@($"{Workspace.ModuleWidth} px per module")">
+                <SettingItem Label="@L("Module width")" Description="@($"{Workspace.ModuleWidth} px per module")">
                     <MudSlider T="int" Value="@Workspace.ModuleWidth" ValueChanged="@(v => Update(w => w.ModuleWidth = v))"
                                Min="1" Max="8" Color="Color.Primary" Class="devhub-password__slider" />
                 </SettingItem>
-                <SettingItem Label="Height" Description="@($"{Workspace.Height} px")">
+                <SettingItem Label="@L("Height")" Description="@($"{Workspace.Height} px")">
                     <MudSlider T="int" Value="@Workspace.Height" ValueChanged="@(v => Update(w => w.Height = v))"
                                Min="30" Max="200" Color="Color.Primary" Class="devhub-password__slider" />
                 </SettingItem>
-                <SettingItem Label="Quiet zone" Description="@($"{Workspace.Margin} px margin")">
+                <SettingItem Label="@L("Quiet zone")" Description="@($"{Workspace.Margin} px margin")">
                     <MudSlider T="int" Value="@Workspace.Margin" ValueChanged="@(v => Update(w => w.Margin = v))"
                                Min="0" Max="40" Color="Color.Primary" Class="devhub-password__slider" />
                 </SettingItem>
-                <SettingItem Label="Human-readable text" Description="Print the value beneath the bars.">
+                <SettingItem Label="@L("Human-readable text")" Description="@L("Print the value beneath the bars.")">
                     <MudSwitch T="bool" Value="@Workspace.ShowText" ValueChanged="@(v => Update(w => w.ShowText = v))" Color="Color.Primary" />
                 </SettingItem>
-                <SettingItem Label="Font size" Description="@($"{Workspace.FontSize} px")" Last="true">
+                <SettingItem Label="@L("Font size")" Description="@($"{Workspace.FontSize} px")" Last="true">
                     <MudSlider T="int" Value="@Workspace.FontSize" ValueChanged="@(v => Update(w => w.FontSize = v))"
                                Min="8" Max="28" Color="Color.Primary" Class="devhub-password__slider" />
                 </SettingItem>
@@ -77,12 +77,12 @@
     </MudItem>
 
     <MudItem xs="12" lg="7">
-        <AppCard Title="Preview" Icon="@Icons.Material.Filled.Preview"
+        <AppCard Title="@L("Preview")" Icon="@Icons.Material.Filled.Preview"
                  Subtitle="@(HasSymbol ? $"{_symbol.Modules.Count} modules" : null)">
             <ChildContent>
                 @if (_symbol.Error is not null)
                 {
-                    <ErrorState Title="That value cannot be encoded"
+                    <ErrorState Title="@L("That value cannot be encoded")"
                                 Description="@_symbol.Error"
                                 Dense="true"
                                 RetryText="@null" />
@@ -90,8 +90,8 @@
                 else if (!HasSymbol)
                 {
                     <EmptyState Icon="@Icons.Material.Outlined.ViewWeek"
-                                Title="Nothing to encode yet"
-                                Description="Enter a value on the left; the barcode updates as you type."
+                                Title="@L("Nothing to encode yet")"
+                                Description="@L("Enter a value on the left; the barcode updates as you type.")"
                                 Dense="true" />
                 }
                 else

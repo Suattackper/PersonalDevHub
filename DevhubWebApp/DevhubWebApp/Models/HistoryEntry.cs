@@ -17,4 +17,7 @@ public sealed record HistoryEntry
     public string Preview { get; init; } = string.Empty;
 
     public DateTimeOffset TimestampUtc { get; init; } = DateTimeOffset.UtcNow;
+
+    /// <summary>Serialized tool workspace captured at action time, used by the restore action.</summary>
+    public string? WorkspaceJson { get; init; }
 }

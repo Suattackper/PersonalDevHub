@@ -6,6 +6,29 @@
               Order = 50,
               Keywords = new[] { "entity", "escape", "unescape" })]
 
-@* Tool metadata is declared above; the registry discovers this component by reflection. *@
+@using DevhubWebApp.Models.Tools.Html
+@inherits ToolComponentBase<HtmlEscapeWorkspace>
 
-<ToolScaffold />
+<Toolbar Class="mb-3">
+    <ChildContent>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Lock"
+                   Disabled="@IsEmpty" OnClick="EscapeAsync">@L("Escape")</MudButton>
+        <MudButton Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.LockOpen"
+                   Disabled="@IsEmpty" OnClick="UnescapeAsync">@L("Unescape")</MudButton>
+    </ChildContent>
+    <EndContent>
+        <CopyButton Text="@Workspace.Output" Disabled="@string.IsNullOrEmpty(Workspace.Output)" />
+        <IconButton Icon="@Icons.Material.Filled.CleaningServices" Tooltip="@L("Clear")" Disabled="@IsEmpty" OnClick="ClearAsync" />
+    </EndContent>
+</Toolbar>
+
+<MudGrid Spacing="3">
+    <MudItem xs="12" md="6"><AppCard Title="@L("Input")" Icon="@Icons.Material.Filled.Input"><ChildContent>
+        <MudTextField T="string" Value="@Workspace.Input" ValueChanged="OnInputChangedAsync" Immediate="true"
+                      Variant="Variant.Outlined" Lines="15" Placeholder="@L("Paste HTML or escaped text…")" aria-label="HTML input" />
+    </ChildContent></AppCard></MudItem>
+    <MudItem xs="12" md="6"><AppCard Title="@L("Result")" Icon="@Icons.Material.Filled.Output"><ChildContent>
+        <MudTextField T="string" Value="@Workspace.Output" ReadOnly="true" Variant="Variant.Outlined"
+                      Lines="15" Placeholder="@L("Result appears here")" aria-label="HTML result" />
+    </ChildContent></AppCard></MudItem>
+</MudGrid>

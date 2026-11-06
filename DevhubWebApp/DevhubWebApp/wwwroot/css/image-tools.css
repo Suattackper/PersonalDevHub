@@ -1,0 +1,33 @@
+.devhub-image { display: grid; gap: 1rem; }
+.devhub-image__guide { margin-bottom: 1rem; padding: .75rem 1rem; border: 1px solid var(--mud-palette-lines-default); border-radius: 8px; background: var(--mud-palette-surface); }
+.devhub-image__guide summary { cursor: pointer; font-weight: 600; }
+.devhub-image__guide ol { margin: .75rem 0 0; padding-left: 1.25rem; }
+.devhub-image__drop { position: relative; display: grid; place-items: center; min-height: 230px; border: 2px dashed var(--mud-palette-primary); border-radius: 12px; background: var(--mud-palette-surface); cursor: pointer; text-align: center; transition: background .15s, border-color .15s; }
+.devhub-image__drop:hover, .devhub-image__drop:focus-visible, .devhub-image__drop--active { background: var(--mud-palette-primary-hover); outline: none; }
+.devhub-image__drop-content { display: grid; justify-items: center; gap: .4rem; padding: 1.5rem; pointer-events: none; }
+.devhub-image__drop-content strong { font-size: 1.1rem; }
+.devhub-image__drop-content small { color: var(--mud-palette-text-secondary); }
+.devhub-image__file { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+.devhub-image__workspace { display: grid; gap: 1rem; }
+.devhub-image__workspace[hidden], .devhub-image__drop[hidden] { display: none; }
+.devhub-image__toolbar { display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; }
+.devhub-image__meta { color: var(--mud-palette-text-secondary); overflow-wrap: anywhere; }
+.devhub-image__actions { display: flex; flex-wrap: wrap; gap: .5rem; }
+.devhub-image button { font: inherit; padding: .5rem .8rem; border: 1px solid var(--mud-palette-lines-default); border-radius: 7px; background: var(--mud-palette-surface); color: var(--mud-palette-text-primary); cursor: pointer; }
+.devhub-image button:hover { border-color: var(--mud-palette-primary); }
+.devhub-image button:focus-visible { outline: 2px solid var(--mud-palette-primary); outline-offset: 2px; }
+.devhub-image button:disabled { opacity: .5; cursor: not-allowed; }
+.devhub-image button[aria-pressed="true"], .devhub-image__remove, .devhub-image__download { border-color: var(--mud-palette-primary) !important; }
+.devhub-image__preview { display: grid; place-items: center; min-height: 320px; max-height: 70vh; overflow: auto; border: 1px solid var(--mud-palette-lines-default); border-radius: 10px; background-color: #d7d7d7; background-image: linear-gradient(45deg,#aaa 25%,transparent 25%),linear-gradient(-45deg,#aaa 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#aaa 75%),linear-gradient(-45deg,transparent 75%,#aaa 75%); background-size: 20px 20px; background-position: 0 0,0 10px,10px -10px,-10px 0; }
+.devhub-image__canvas { display: block; max-width: 100%; max-height: 68vh; width: auto; height: auto; cursor: crosshair; }
+.devhub-image__controls { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 1rem; }
+.devhub-image__control { display: grid; align-content: start; gap: .75rem; padding: 1rem; border: 1px solid var(--mud-palette-lines-default); border-radius: 10px; background: var(--mud-palette-surface); }
+.devhub-image__control h2 { margin: 0; font-size: 1rem; }
+.devhub-image__control p { margin: 0; color: var(--mud-palette-text-secondary); }
+.devhub-image__colour-result, .devhub-image__background-sample { display: flex; align-items: center; gap: .6rem; flex-wrap: wrap; }
+.devhub-image__swatch, .devhub-image__background-swatch { display: inline-block; width: 28px; height: 28px; border: 1px solid var(--mud-palette-lines-default); border-radius: 5px; }
+.devhub-image__tolerance-label { display: grid; gap: .3rem; }
+.devhub-image__tolerance { width: 100%; accent-color: var(--mud-palette-primary); }
+.devhub-image__compare-label { display: flex; align-items: center; gap: .35rem; }
+.devhub-image__status { min-height: 1.5rem; color: var(--mud-palette-text-secondary); }
+@media (max-width: 700px) { .devhub-image__controls { grid-template-columns: 1fr; } .devhub-image__preview { min-height: 220px; } }

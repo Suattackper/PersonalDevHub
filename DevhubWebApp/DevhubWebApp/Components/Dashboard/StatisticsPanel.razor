@@ -1,4 +1,5 @@
 @inherits DashboardSectionBase
+@inject IUserPreferenceService UiPreferences
 
 @* Counter row. Values come from IDashboardService — none of them is computed in the markup. *@
 
@@ -9,8 +10,8 @@
 else if (ErrorMessage is not null)
 {
     <AppCard Class="mb-4">
-        <ErrorState Title="Statistics unavailable"
-                    Description="The counters could not be read from local storage."
+        <ErrorState Title="@UiText.Get(UiPreferences.Settings.Language, "Statistics unavailable")"
+                    Description="@UiText.Get(UiPreferences.Settings.Language, "The counters could not be read from local storage.")"
                     Detail="@ErrorMessage"
                     Dense="true"
                     OnRetry="ReloadAsync" />
@@ -22,9 +23,9 @@ else
         @foreach (var tile in _tiles)
         {
             <MudItem xs="6" md="4" xl="2" @key="tile.Label">
-                <StatCard Label="@tile.Label"
+                <StatCard Label="@UiText.Get(UiPreferences.Settings.Language, tile.Label)"
                           Value="@tile.Value"
-                          Hint="@tile.Hint"
+                          Hint="@UiText.Get(UiPreferences.Settings.Language, tile.Hint ?? string.Empty)"
                           Icon="@tile.Icon"
                           Color="@tile.Color"
                           Interactive="@(tile.Route is not null)"

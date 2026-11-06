@@ -1,5 +1,21 @@
 # DevHub
 
+## Project and author
+
+DevHub is a portfolio project by **Nguyễn Trần Anh Tân** (Software Engineer, born in
+2003). The earliest Git commit is dated **07/08/2026**; this update was made on
+**06/11/2026**. The app's `/about` page lists its actual framework and libraries.
+
+The shared tool page now includes a usage guide. `/image-tools` accepts an image by browse,
+drag and drop, or clipboard paste; it can sample a pixel colour and remove a **connected,
+approximately uniform** background from a user-selected pixel. It supports before/after
+comparison, restore and transparent PNG download. This is a colour-based removal tool;
+complex photographic backgrounds are outside its current capability.
+
+English and Vietnamese navigation labels, tool names, common controls and selected pages
+are available. Localization of dynamic tool messages and remaining shared components is
+still in progress; see `docs/image-and-localization-plan.md` for the audit checklist.
+
 An offline-first developer toolbox built as a **.NET 8 Blazor WebAssembly** application.
 It runs entirely in the browser: no backend, no API, no database, no authentication.
 All state lives in the browser's `localStorage` under the `devhub.` namespace.
@@ -377,5 +393,5 @@ themes supported by construction, XML documentation on every parameter.
 | 23 — HTTP status explorer | done |
 | 24 — Cron expression builder | done |
 | 25 — JSON / YAML / XML converter | done |
-| Remaining tool workspaces (SQL formatter, HTML escape) | declared and routable; implemented one module at a time |
-| Settings, History pages | placeholder pages, full modules pending |
+| SQL formatter, HTML escape | done |
+| Settings, History pages | done |

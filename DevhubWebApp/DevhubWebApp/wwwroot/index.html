@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 
 <head>
     <meta charset="utf-8" />
@@ -12,8 +12,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="stylesheet" href="_content/MudBlazor/MudBlazor.min.css" />
     <link rel="stylesheet" href="css/components.css" />
+    <link rel="stylesheet" href="css/image-tools.css" />
     <link rel="stylesheet" href="css/app.css" />
-    <link rel="icon" type="image/png" href="favicon.png" />
+    <link rel="icon" type="image/svg+xml" href="devhub-logo.svg" />
     <link rel="apple-touch-icon" href="icon-192.png" />
     <link rel="manifest" href="manifest.webmanifest" />
     <link rel="stylesheet" href="DevhubWebApp.styles.css" />
@@ -41,6 +42,8 @@
     <script src="_content/BlazorMonaco/jsInterop.js"></script>
     <script src="_content/BlazorMonaco/lib/monaco-editor/min/vs/loader.js"></script>
     <script src="_content/BlazorMonaco/lib/monaco-editor/min/vs/editor/editor.main.js"></script>
+    <script>window.devhubSetLanguage = language => { document.documentElement.lang = language; };</script>
+    <script>navigator.serviceWorker.register('service-worker.js');</script>
 </body>
 
 </html>

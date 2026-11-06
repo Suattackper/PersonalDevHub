@@ -27,14 +27,14 @@
     </ChildContent>
 
     <EndContent>
-        <IconButton Icon="@Icons.Material.Filled.ContentPaste" Tooltip="Paste token" OnClick="PasteAsync" />
-        <IconButton Icon="@Icons.Material.Filled.Download" Tooltip="Download decoded JSON (Ctrl+S)"
+        <IconButton Icon="@Icons.Material.Filled.ContentPaste" Tooltip="@L("Paste token")" OnClick="PasteAsync" />
+        <IconButton Icon="@Icons.Material.Filled.Download" Tooltip="@L("Download decoded JSON (Ctrl+S)")"
                     Disabled="@(!_token.IsValid)" OnClick="DownloadAsync" />
-        <IconButton Icon="@Icons.Material.Filled.CleaningServices" Tooltip="Clear" Disabled="@IsEmpty" OnClick="ClearAsync" />
+        <IconButton Icon="@Icons.Material.Filled.CleaningServices" Tooltip="@L("Clear")" Disabled="@IsEmpty" OnClick="ClearAsync" />
     </EndContent>
 </Toolbar>
 
-<AppCard Class="mb-3" Title="Token" Icon="@Icons.Material.Filled.Key">
+<AppCard Class="mb-3" Title="@L("Token")" Icon="@Icons.Material.Filled.Key">
     <ChildContent>
         <MudTextField T="string"
                       Value="@Workspace.Token"
@@ -44,7 +44,7 @@
                       Variant="Variant.Outlined"
                       Lines="4"
                       Class="devhub-mono-field devhub-jwt__input"
-                      Placeholder="Paste a JWT — header.payload.signature"
+                      Placeholder="@L("Paste a JWT — header.payload.signature")"
                       aria-label="JWT" />
     </ChildContent>
 </AppCard>
@@ -53,15 +53,15 @@
 {
     <AppCard>
         <EmptyState Icon="@Icons.Material.Outlined.VpnKey"
-                    Title="Paste a token to inspect it"
-                    Description="Everything is decoded locally in your browser — the token never leaves this device."
+                    Title="@L("Paste a token to inspect it")"
+                    Description="@L("Everything is decoded locally in your browser — the token never leaves this device.")"
                     Dense="true" />
     </AppCard>
 }
 else if (!_token.IsValid)
 {
     <AppCard>
-        <ErrorState Title="This is not a readable JWT"
+        <ErrorState Title="@L("This is not a readable JWT")"
                     Description="@_token.Error"
                     Dense="true"
                     RetryText="@null" />
@@ -72,13 +72,20 @@ else
     @if (_token.Validity == JwtValidity.Expired)
     {
         <MudAlert Severity="Severity.Warning" Dense="true" Class="mb-3">
-            This token expired @(_token.ExpiresAt?.ToRelativeLabel()) — any service checking <code>exp</code> will reject it.
+            @if (Preferences.Settings.Language == AppLanguage.Vietnamese)
+            {
+                <span>Token đã hết hạn @(_token.ExpiresAt?.ToRelativeLabel(Preferences.Settings.Language)); dịch vụ kiểm tra <code>exp</code> sẽ từ chối token.</span>
+            }
+            else
+            {
+                <span>This token expired @(_token.ExpiresAt?.ToRelativeLabel()) — any service checking <code>exp</code> will reject it.</span>
+            }
         </MudAlert>
     }
 
     <MudGrid Spacing="3">
         <MudItem xs="12" lg="4">
-            <AppCard Title="Header" Icon="@Icons.Material.Filled.Tag" Subtitle="Algorithm and token type">
+            <AppCard Title="@L("Header")" Icon="@Icons.Material.Filled.Tag" Subtitle="@L("Algorithm and token type")">
                 <Actions>
                     <CopyButton Text="@_token.HeaderJson" IconOnly="true" />
                 </Actions>
@@ -89,7 +96,7 @@ else
         </MudItem>
 
         <MudItem xs="12" lg="4">
-            <AppCard Title="Payload" Icon="@Icons.Material.Filled.DataObject" Subtitle="Claims carried by the token">
+            <AppCard Title="@L("Payload")" Icon="@Icons.Material.Filled.DataObject" Subtitle="@L("Claims carried by the token")">
                 <Actions>
                     <CopyButton Text="@_token.PayloadJson" IconOnly="true" />
                 </Actions>
@@ -100,7 +107,7 @@ else
         </MudItem>
 
         <MudItem xs="12" lg="4">
-            <AppCard Title="Signature" Icon="@Icons.Material.Filled.Verified" Subtitle="Not verified — that needs the issuer's key">
+            <AppCard Title="@L("Signature")" Icon="@Icons.Material.Filled.Verified" Subtitle="@L("Not verified — that needs the issuer's key")">
                 <Actions>
                     <CopyButton Text="@_token.Signature" IconOnly="true" />
                 </Actions>
@@ -108,8 +115,8 @@ else
                     @if (_token.IsUnsigned)
                     {
                         <EmptyState Icon="@Icons.Material.Outlined.GppMaybe"
-                                    Title="This token is unsigned"
-                                    Description="There is no signature segment, so nothing about this token can be trusted."
+                                    Title="@L("This token is unsigned")"
+                                    Description="@L("There is no signature segment, so nothing about this token can be trusted.")"
                                     Dense="true" />
                     }
                     else

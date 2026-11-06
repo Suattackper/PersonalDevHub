@@ -20,18 +20,18 @@
                   SelectedChanged="OnClassChangedAsync"
                   LabelSelector="@HttpStatusCatalog.DescribeClass"
                   IconSelector="@GetClassIcon"
-                  Placeholder="Search by code (404) or meaning (rate limited)…"
+                  Placeholder="@L("Search by code (404) or meaning (rate limited)…")"
                   Class="mb-3" />
 
 <MudGrid Spacing="3">
     <MudItem xs="12" lg="6">
-        <AppCard Title="Status codes" Icon="@Icons.Material.Filled.List" Subtitle="@($"{_results.Count} code(s)")">
+        <AppCard Title="@L("Status codes")" Icon="@Icons.Material.Filled.List" Subtitle="@($"{_results.Count} code(s)")">
             <ChildContent>
                 @if (_results.Count == 0)
                 {
                     <EmptyState Icon="@Icons.Material.Outlined.SearchOff"
-                                Title="No status code matches"
-                                Description="Try a bare number, a reason phrase, or clear the class filter."
+                                Title="@L("No status code matches")"
+                                Description="@L("Try a bare number, a reason phrase, or clear the class filter.")"
                                 Dense="true" />
                 }
                 else
@@ -63,8 +63,8 @@
         {
             <AppCard>
                 <EmptyState Icon="@Icons.Material.Outlined.Http"
-                            Title="Pick a status code"
-                            Description="Select a code to see when to use it, what to send with it, and which codes it is confused with."
+                            Title="@L("Pick a status code")"
+                            Description="@L("Select a code to see when to use it, what to send with it, and which codes it is confused with.")"
                             Dense="true" />
             </AppCard>
         }
@@ -77,14 +77,14 @@
                                 Tooltip="@(IsFavorite ? "Remove from favourites" : "Save to favourites")"
                                 Color="@(IsFavorite ? Color.Warning : Color.Default)"
                                 OnClick="ToggleFavoriteAsync" />
-                    <CopyButton Text="@_selected.Title" IconOnly="true" Label="Copy status" />
+                    <CopyButton Text="@_selected.Title" IconOnly="true" Label="@L("Copy status")" />
                 </Actions>
                 <ChildContent>
                     <MudText Typo="Typo.body2" Class="mud-text-secondary">@_selected.Description</MudText>
 
                     @if (_selected.UseCases.Count > 0)
                     {
-                        <DividerTitle Title="Use it when" Icon="@Icons.Material.Filled.Checklist" />
+                        <DividerTitle Title="@L("Use it when")" Icon="@Icons.Material.Filled.Checklist" />
                         <MudList T="string" Dense="true">
                             @foreach (var useCase in _selected.UseCases)
                             {
@@ -95,13 +95,13 @@
                         </MudList>
                     }
 
-                    <DividerTitle Title="Example response" Icon="@Icons.Material.Filled.Code" />
+                    <DividerTitle Title="@L("Example response")" Icon="@Icons.Material.Filled.Code" />
                     <pre class="devhub-catalog__snippet">@_example</pre>
-                    <CopyButton Text="@_example" Label="Copy example" Variant="Variant.Outlined" Class="mt-2" />
+                    <CopyButton Text="@_example" Label="@L("Copy example")" Variant="Variant.Outlined" Class="mt-2" />
 
                     @if (_related.Count > 0)
                     {
-                        <DividerTitle Title="Compare with" Icon="@Icons.Material.Filled.CompareArrows" />
+                        <DividerTitle Title="@L("Compare with")" Icon="@Icons.Material.Filled.CompareArrows" />
                         <div class="devhub-catalog__chips">
                             @foreach (var related in _related)
                             {
@@ -115,11 +115,11 @@
 
             @if (Workspace.Favorites.Count > 0 || Workspace.Recent.Count > 0)
             {
-                <AppCard Title="Saved" Icon="@Icons.Material.Filled.Bookmarks" Class="mt-3">
+                <AppCard Title="@L("Saved")" Icon="@Icons.Material.Filled.Bookmarks" Class="mt-3">
                     <ChildContent>
                         @if (Workspace.Favorites.Count > 0)
                         {
-                            <DividerTitle Title="Favourites" Icon="@Icons.Material.Filled.Star" />
+                            <DividerTitle Title="@L("Favourites")" Icon="@Icons.Material.Filled.Star" />
                             @* Named 'statusCode': Razor would read @key="code" as the @code directive. *@
                             <div class="devhub-catalog__chips">
                                 @foreach (var statusCode in Workspace.Favorites)
@@ -132,7 +132,7 @@
 
                         @if (Workspace.Recent.Count > 0)
                         {
-                            <DividerTitle Title="Recent" Icon="@Icons.Material.Filled.History" />
+                            <DividerTitle Title="@L("Recent")" Icon="@Icons.Material.Filled.History" />
                             <div class="devhub-catalog__chips">
                                 @foreach (var statusCode in Workspace.Recent)
                                 {

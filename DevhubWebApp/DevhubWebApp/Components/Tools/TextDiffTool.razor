@@ -46,35 +46,35 @@
     </ChildContent>
 
     <EndContent>
-        <IconButton Icon="@Icons.Material.Filled.Search" Tooltip="Find in diff (Ctrl+F)" OnClick="FocusSearchAsync" />
-        <IconButton Icon="@Icons.Material.Filled.SwapHoriz" Tooltip="Swap sides" OnClick="SwapAsync" />
+        <IconButton Icon="@Icons.Material.Filled.Search" Tooltip="@L("Find in diff (Ctrl+F)")" OnClick="FocusSearchAsync" />
+        <IconButton Icon="@Icons.Material.Filled.SwapHoriz" Tooltip="@L("Swap sides")" OnClick="SwapAsync" />
 
-        <MudMenu Icon="@Icons.Material.Filled.MoreVert" Size="Size.Small" AriaLabel="Diff actions" Dense="true">
-            <MudMenuItem Icon="@Icons.Material.Filled.ContentCopy" OnClick="CopyDiffAsync">Copy diff</MudMenuItem>
-            <MudMenuItem Icon="@Icons.Material.Filled.Description" OnClick="ExportTextAsync">Export .txt (Ctrl+S)</MudMenuItem>
-            <MudMenuItem Icon="@Icons.Material.Filled.Html" OnClick="ExportHtmlAsync">Export HTML</MudMenuItem>
+        <MudMenu Icon="@Icons.Material.Filled.MoreVert" Size="Size.Small" AriaLabel="@L("Diff actions")" Dense="true">
+            <MudMenuItem Icon="@Icons.Material.Filled.ContentCopy" OnClick="CopyDiffAsync">@L("Copy diff")</MudMenuItem>
+            <MudMenuItem Icon="@Icons.Material.Filled.Description" OnClick="ExportTextAsync">@L("Export .txt (Ctrl+S)")</MudMenuItem>
+            <MudMenuItem Icon="@Icons.Material.Filled.Html" OnClick="ExportHtmlAsync">@L("Export HTML")</MudMenuItem>
             <MudDivider />
             <MudMenuItem Icon="@Icons.Material.Filled.WrapText" OnClick="@(() => UpdateAsync(w => w.WordWrap = !w.WordWrap))">
-                @(Workspace.WordWrap ? "Disable word wrap" : "Enable word wrap")
+                @L(Workspace.WordWrap ? "Disable word wrap" : "Enable word wrap")
             </MudMenuItem>
             <MudMenuItem Icon="@Icons.Material.Filled.FormatListNumbered" OnClick="@(() => UpdateAsync(w => w.ShowLineNumbers = !w.ShowLineNumbers))">
-                @(Workspace.ShowLineNumbers ? "Hide line numbers" : "Show line numbers")
+                @L(Workspace.ShowLineNumbers ? "Hide line numbers" : "Show line numbers")
             </MudMenuItem>
             <MudDivider />
-            <MudMenuItem Icon="@Icons.Material.Filled.CleaningServices" OnClick="ClearAsync">Clear both sides</MudMenuItem>
+            <MudMenuItem Icon="@Icons.Material.Filled.CleaningServices" OnClick="ClearAsync">@L("Clear both sides")</MudMenuItem>
         </MudMenu>
     </EndContent>
 </Toolbar>
 
 <MudGrid Spacing="2" Class="mb-3">
     <MudItem xs="12" md="6">
-        <DiffSourcePanel Title="Original"
+        <DiffSourcePanel Title="@L("Original")"
                          Icon="@Icons.Material.Filled.West"
                          Text="@Workspace.Left"
                          TextChanged="OnLeftChangedAsync" />
     </MudItem>
     <MudItem xs="12" md="6">
-        <DiffSourcePanel Title="Changed"
+        <DiffSourcePanel Title="@L("Changed")"
                          Icon="@Icons.Material.Filled.East"
                          Text="@Workspace.Right"
                          TextChanged="OnRightChangedAsync" />
@@ -101,14 +101,14 @@
     @if (!HasContent)
     {
         <EmptyState Icon="@Icons.Material.Outlined.Difference"
-                    Title="Nothing to compare yet"
-                    Description="Paste or drop text into both panels above; the comparison updates as you type."
+                    Title="@L("Nothing to compare yet")"
+                    Description="@L("Paste or drop text into both panels above; the comparison updates as you type.")"
                     Dense="true" />
     }
     else if (_statistics.AreIdentical)
     {
         <EmptyState Icon="@Icons.Material.Outlined.CheckCircle"
-                    Title="The two texts are identical"
+                    Title="@L("The two texts are identical")"
                     Description="@IdenticalDescription"
                     Dense="true" />
     }

@@ -30,9 +30,9 @@
                     Color="@(IsFavorite ? Color.Warning : Color.Default)"
                     Disabled="@(!_parsed.IsValid)"
                     OnClick="ToggleFavoriteAsync" />
-        <IconButton Icon="@Icons.Material.Filled.ContentPaste" Tooltip="Paste" OnClick="PasteAsync" />
-        <CopyButton Text="@Workspace.Expression" IconOnly="true" Label="Copy expression" />
-        <IconButton Icon="@Icons.Material.Filled.Download" Tooltip="Download schedule (Ctrl+S)"
+        <IconButton Icon="@Icons.Material.Filled.ContentPaste" Tooltip="@L("Paste")" OnClick="PasteAsync" />
+        <CopyButton Text="@Workspace.Expression" IconOnly="true" Label="@L("Copy expression")" />
+        <IconButton Icon="@Icons.Material.Filled.Download" Tooltip="@L("Download schedule (Ctrl+S)")"
                     Disabled="@(!_parsed.IsValid)" OnClick="DownloadAsync" />
     </EndContent>
 </Toolbar>
@@ -71,7 +71,7 @@
 
 <MudGrid Spacing="3">
     <MudItem xs="12" md="7">
-        <AppCard Title="Builder" Icon="@Icons.Material.Filled.Tune" Subtitle="Each control rewrites one field">
+        <AppCard Title="@L("Builder")" Icon="@Icons.Material.Filled.Tune" Subtitle="@L("Each control rewrites one field")">
             <ChildContent>
                 @foreach (var part in Parts)
                 {
@@ -89,7 +89,7 @@
             </ChildContent>
         </AppCard>
 
-        <AppCard Title="Templates" Icon="@Icons.Material.Filled.Bookmarks" Class="mt-3">
+        <AppCard Title="@L("Templates")" Icon="@Icons.Material.Filled.Bookmarks" Class="mt-3">
             <ChildContent>
                 <MudList T="string" Dense="true">
                     @foreach (var template in CronTemplates.For(Workspace.Dialect))
@@ -110,20 +110,20 @@
     </MudItem>
 
     <MudItem xs="12" md="5">
-        <AppCard Title="Next runs" Icon="@Icons.Material.Filled.EventRepeat"
+        <AppCard Title="@L("Next runs")" Icon="@Icons.Material.Filled.EventRepeat"
                  Subtitle="@(_occurrences.Count > 0 ? $"Next {_occurrences.Count}, in UTC" : null)">
             <ChildContent>
                 @if (!_parsed.IsValid)
                 {
                     <EmptyState Icon="@Icons.Material.Outlined.EventBusy"
-                                Title="No schedule to preview"
-                                Description="Fix the expression above to see when it will run."
+                                Title="@L("No schedule to preview")"
+                                Description="@L("Fix the expression above to see when it will run.")"
                                 Dense="true" />
                 }
                 else if (_occurrences.Count == 0)
                 {
-                    <ErrorState Title="This schedule never runs"
-                                Description="The expression is syntactically valid but matches no date in the next five years — 30 February, for example."
+                    <ErrorState Title="@L("This schedule never runs")"
+                                Description="@L("The expression is syntactically valid but matches no date in the next five years — 30 February, for example.")"
                                 Dense="true"
                                 RetryText="@null" />
                 }
@@ -148,11 +148,11 @@
 
         @if (Workspace.Favorites.Count > 0 || Workspace.Recent.Count > 0)
         {
-            <AppCard Title="Saved" Icon="@Icons.Material.Filled.History" Class="mt-3">
+            <AppCard Title="@L("Saved")" Icon="@Icons.Material.Filled.History" Class="mt-3">
                 <ChildContent>
                     @if (Workspace.Favorites.Count > 0)
                     {
-                        <DividerTitle Title="Favourites" Icon="@Icons.Material.Filled.Star" />
+                        <DividerTitle Title="@L("Favourites")" Icon="@Icons.Material.Filled.Star" />
                         <div class="devhub-catalog__chips">
                             @foreach (var saved in Workspace.Favorites)
                             {
@@ -164,7 +164,7 @@
 
                     @if (Workspace.Recent.Count > 0)
                     {
-                        <DividerTitle Title="Recent" Icon="@Icons.Material.Filled.Schedule" />
+                        <DividerTitle Title="@L("Recent")" Icon="@Icons.Material.Filled.Schedule" />
                         <div class="devhub-catalog__chips">
                             @foreach (var saved in Workspace.Recent)
                             {

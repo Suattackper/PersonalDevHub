@@ -2,14 +2,15 @@
     Debounced search input with two-way binding. The debounce lives here so no caller has to
     re-implement it, and no caller filters on every keystroke.
 *@
+@inject IUserPreferenceService UiPreferences
 
 <MudTextField T="string"
               Value="@Value"
               ValueChanged="OnValueChanged"
               Immediate="true"
               DebounceInterval="@DebounceInterval"
-              Placeholder="@Placeholder"
-              Label="@Label"
+              Placeholder="@UiText.Get(UiPreferences.Settings.Language, Placeholder)"
+              Label="@UiText.Get(UiPreferences.Settings.Language, Label ?? string.Empty)"
               Variant="Variant.Outlined"
               Margin="Margin.Dense"
               Adornment="Adornment.Start"
@@ -17,7 +18,7 @@
               Clearable="true"
               FullWidth="@FullWidth"
               Class="@($"devhub-searchbox {Class}")"
-              aria-label="@(Label ?? Placeholder)" />
+              aria-label="@UiText.Get(UiPreferences.Settings.Language, Label ?? Placeholder)" />
 
 @code {
     /// <summary>Current search term.</summary>

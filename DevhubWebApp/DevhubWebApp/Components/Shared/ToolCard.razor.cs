@@ -34,7 +34,7 @@ public partial class ToolCard
 
     [Inject] private NavigationManager Navigation { get; set; } = default!;
 
-    private string FooterMeta => Meta ?? View.ToUsageLabel();
+    private string FooterMeta => Meta ?? View.ToUsageLabel(Preferences.Settings.Language);
 
     /// <summary>The icon tint follows the tool's declared accent color.</summary>
     private string IconStyle => $"background-color: var(--mud-palette-{View.Tool.Color.ToDescriptionString()}-hover);";

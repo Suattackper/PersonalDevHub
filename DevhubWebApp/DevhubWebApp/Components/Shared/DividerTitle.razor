@@ -2,13 +2,14 @@
     Horizontal rule with an inline label. Used to separate groups inside long forms and panels
     where a full SectionTitle would be too heavy.
 *@
+@inject IUserPreferenceService UiPreferences
 
-<div class="devhub-divider-title @Class" role="separator" aria-label="@Title">
+<div class="devhub-divider-title @Class" role="separator" aria-label="@UiText.Get(UiPreferences.Settings.Language, Title)">
     @if (!string.IsNullOrWhiteSpace(Icon))
     {
         <MudIcon Icon="@Icon" Size="Size.Small" Class="devhub-divider-title__icon" />
     }
-    <span class="devhub-divider-title__text">@Title</span>
+    <span class="devhub-divider-title__text">@UiText.Get(UiPreferences.Settings.Language, Title)</span>
     <span class="devhub-divider-title__line"></span>
     @if (Actions is not null)
     {
